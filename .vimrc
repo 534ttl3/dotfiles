@@ -1,4 +1,4 @@
-"this is a comment"
+"his is a comment"
 
 set nocompatible
 filetype off 
