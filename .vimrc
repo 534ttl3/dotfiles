@@ -1,4 +1,4 @@
-"his is a comment"
+"This is a comment"
 
 set nocompatible
 filetype off 
@@ -29,4 +29,5 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 let g:UltiSnipsSnippetDirectories = ['~/.vim/UltiSnips', 'UltiSnips']
+
 
