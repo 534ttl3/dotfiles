@@ -1,4 +1,20 @@
-"This is a comment"
+" setup using these instructions: https://realpython.com/blog/python/vim-and-python-a-match-made-in-heaven/
+
+
+
+set encoding=utf-8
+
+"split navigations
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" Enable folding, type za to fold/unfold
+set foldmethod=indent
+set foldlevel=99
+" Enable folding with the spacebar
+nnoremap <space> za
 
 set nocompatible
 filetype off 
@@ -30,4 +46,39 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 let g:UltiSnipsEditSplit="vertical"
 let g:UltiSnipsSnippetDirectories = ['~/.vim/UltiSnips', 'UltiSnips']
 
+" correct folding of code
+Plugin 'tmhedberg/SimpylFold'
+
+" I want to see docstrings for folded code
+let g:SimpylFold_docstring_preview=1
+
+" Correct PEP8 indentiation
+au BufNewFile,BufRead *.py set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=79 expandtab autoindent fileformat=unix
+
+Plugin 'vim-scripts/indentpython.vim'
+
+" best auto-complete for python 
+Bundle 'Valloric/YouCompleteMe'
+
+" make autocomplete window go away after done
+let g:ycm_autoclose_preview_window_after_completion=1
+map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+
+
+set nu
+
+Plugin 'tpope/vim-fugitive'
+
+
+Plugin 'jnurmine/Zenburn'
+Plugin 'altercation/vim-colors-solarized'
+
+if has('gui_running')
+  set background=dark
+  colorscheme solarized
+else
+  colorscheme zenburn
+endif
+
+call togglebg#map("<F5>")
 
