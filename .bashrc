@@ -116,8 +116,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# compiled vim is in $HOME/opt
-export PATH="$HOME/opt/vim/bin:$PATH"
 
 # added by Anaconda3 installer
-export PATH="/home/chris/opt/anaconda3/bin:$PATH"
+export PATH="/home/chris/anaconda3/bin:$PATH"
