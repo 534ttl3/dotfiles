@@ -117,4 +117,4 @@ if ! shopt -oq posix; then
 fi
 
 # added by Anaconda3 installer
-export PATH="/opt/anaconda3/bin:$PATH"
+export PATH="/home/chris/anaconda3/bin:$PATH"
