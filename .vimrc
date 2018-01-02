@@ -1,7 +1,5 @@
 " setup using these instructions: https://realpython.com/blog/python/vim-and-python-a-match-made-in-heaven/
 
-
-
 set encoding=utf-8
 
 "split navigations
@@ -30,7 +28,6 @@ Plugin 'gmarik/Vundle.vim'
 
 " Track the engine.
 Plugin 'SirVer/ultisnips'
-
 " Snippets are separated from the engine. Add this if you want them:
 Plugin 'honza/vim-snippets'
 
@@ -52,26 +49,19 @@ Plugin 'tmhedberg/SimpylFold'
 " I want to see docstrings for folded code
 let g:SimpylFold_docstring_preview=1
 
-" Correct PEP8 indentiation
-au BufNewFile,BufRead *.py set tabstop=4 softtabstop=4 shiftwidth=4 
-
-" Plugin 'vim-scripts/indentpython.vim'
-
 " best auto-complete for python 
 Bundle 'Valloric/YouCompleteMe'
-
 " make autocomplete window go away after done
 let g:ycm_autoclose_preview_window_after_completion=1
 map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-
-" Plugin 'tpope/vim-fugitive'
-
 
 Plugin 'jnurmine/Zenburn'
 Plugin 'altercation/vim-colors-solarized'
 
 call togglebg#map("<F5>")
 
-imap <F9> <Esc>:w<CR>:!clear;python %<CR>
-
 set tw=0
+
+" press F9 to execute current python buffer
+nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
+
