@@ -116,9 +116,10 @@ if ! shopt -oq posix; then
   fi
 fi
 
-
 # added by me to fine-tune priorizing
 export PATH="/opt/vim_original:$PATH"
+
+export PATH="$HOME/opt/vim/bin:$PATH"
 
 # added by Anaconda3 installer
 export PATH="/opt/anaconda3/bin:$PATH"
