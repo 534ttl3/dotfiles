@@ -10,15 +10,11 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
 
-" UltiSnips 
-Plugin 'SirVer/ultisnips'
-
 " vim-snippets
 Plugin 'honza/vim-snippets'
 
-" some color-scheme plugins
-" Plugin 'jnurmine/Zenburn'
-" Plugin 'altercation/vim-colors-solarized'
+" UltiSnips 
+Plugin 'SirVer/ultisnips'
 
 " Jedi
 Plugin 'davidhalter/jedi-vim'
@@ -45,24 +41,25 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 
+" ------- general vim settings --------
 
 " Rebind <Leader> key
 let mapleader = ","
 
-
-
 " -------- settings of loaded plugins ---------
 
-" Ultisnips
-" Trigger configuration. Do not use <tab> if you use 
-" https://github.com/Valloric/YouCompleteMe.
+" UltiSnips
+" Default trigger is <tab>, but set it to c-j
 let g:UltiSnipsExpandTrigger="<c-j>"
 let g:UltiSnipsJumpForwardTrigger="<c-j>"
 let g:UltiSnipsJumpBackwardTrigger="<c-b>"
-
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
-let g:UltiSnipsSnippetDirectories = ['~/.vim/UltiSnips', 'UltiSnips']
+" place private snippet files inside .vim/UltiSnips/ 
+" (if that folder is not there, Ultisnips may create this 
+" folder OR another folder ~/UltiSnips/ with UltiSnipsEdit, 
+" but that other one sometimes isn't referenced referenced later, 
+" which is a shitty bug. Still, it always worked with .vim/UltiSnips/
+" also, choosing other custom folder names, e.g. private_snippets and 
+" pointing UltiSnips to them also didn't work
 
 " Jedi
 " let g:jedi#auto_initialization = 0
