@@ -119,6 +119,7 @@ fi
 # added by me to fine-tune priorizing
 export PATH="/opt/vim_original:$PATH"
 
+# compiled vim in $HOME/opt dir
 export PATH="$HOME/opt/vim/bin:$PATH"
 
 # added by Anaconda3 installer
