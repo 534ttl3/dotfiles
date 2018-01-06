@@ -1,5 +1,6 @@
 # --- install a few assistant tools ---
 sudo apt-get install xclip
+sudo apt-get install xdg-utils
 sudo apt-get install vim
 sudo apt-get install htop
 sudo apt-get install openssh-client

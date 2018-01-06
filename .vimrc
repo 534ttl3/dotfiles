@@ -22,6 +22,12 @@ Plugin 'davidhalter/jedi-vim'
 " autopep8 for python
 Plugin 'tell-k/vim-autopep8'
 
+" Nerdtree
+Plugin 'scrooloose/nerdtree'
+
+" Nerdtree execute file in gnome standard program
+Plugin 'ivalkeen/nerdtree-execute'
+
 " Bundle 'Valloric/YouCompleteMe'
 " let g:ycm_autoclose_preview_window_after_completion=1
 
@@ -137,3 +143,10 @@ set fo-=t   " don't automatically wrap text when typing
 " draw a vertical column (to indicate long lines)
 set colorcolumn=80
 " highlight ColorColumn ctermbg=233
+
+" quickly cycle through buffers
+:nnoremap <C-n> :bnext<CR>
+:nnoremap <C-p> :bprevious<CR>
+
+" Nerdtree
+nmap <leader>ne :NERDTree<cr>

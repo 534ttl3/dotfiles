@@ -93,8 +93,10 @@ prefix ,
 $ tmux -u
 # tmux, kill whole session
 :kill-session
-# tmux, kill active pane
+# tmux, kill the whole window (all panes)
 prefix &
+# tmux, kill active pane (type exit in the terminal is the preferred way)
+prefix x
 # tmux, get into copy mode using 
 prefix [
 # then, move around using arrow keys and select 
