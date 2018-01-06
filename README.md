@@ -82,7 +82,9 @@ pip install autopep8
 ```
 sudo apt-get install tmux
 ```
-## latex
+## latex and pdf viewer
+```
 sudo apt-get install texlive-full
 sudo apt-get install latexmk
 sudo apt-get install zathura
+```
