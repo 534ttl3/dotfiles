@@ -3,7 +3,11 @@
 
 # This will show you a list of all added (tracked) files
 git ls-tree home-ubuntu1604 -r
-
+# on rebase, when merge conflicts need to be resolved, after editing, 
+# for whatever files you manually resolved do
+git add [those files]
+# then continue the rebase (without another merge-resolve-commit) using
+git rebase --continue
 # Vim, jumping back to previous position
 c-o
 # Vim, jumping to the next tab
