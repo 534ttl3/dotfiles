@@ -19,10 +19,8 @@ Plugin 'SirVer/ultisnips'
 " Jedi
 Plugin 'davidhalter/jedi-vim'
 
-" Python folding
-" mkdir -p ~/.vim/ftplugin
-" wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
-set nofoldenable
+" autopep8 for python
+Plugin 'tell-k/vim-autopep8'
 
 " Bundle 'Valloric/YouCompleteMe'
 " let g:ycm_autoclose_preview_window_after_completion=1
@@ -39,6 +37,13 @@ filetype plugin indent on    " required
 " :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
 "
 " see :h vundle for more details or wiki for FAQ
+
+" ------ other non-Vundle plugins ------
+" Python folding
+" mkdir -p ~/.vim/ftplugin
+" wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
+set nofoldenable
+
 " Put your non-Plugin stuff after this line
 
 " ------- general vim settings --------
@@ -75,19 +80,25 @@ let g:UltiSnipsJumpBackwardTrigger="<c-b>"
 " let g:jedi#goto_command = "<leader>d" 
 " you can jump back to the original position using 
 " vim's typical command C-o
-" let g:jedi#goto_assignments_command = "<leader>g"
-" let g:jedi#goto_definitions_command = ""
-" let g:jedi#documentation_command = "K"
-" let g:jedi#usages_command = "<leader>n"
-" let g:jedi#completions_command = "<C-Space>"
-" let g:jedi#rename_command = "<leader>r"
-" let g:jedi#completions_enabled = 0
+let g:jedi#goto_assignments_command = "<leader>g"
+let g:jedi#goto_definitions_command = ""
+let g:jedi#documentation_command = "K"
+let g:jedi#usages_command = "<leader>n"
+let g:jedi#completions_command = "<C-Space>"
+let g:jedi#rename_command = "<leader>r"
+let g:jedi#completions_enabled = 1
 
 " I don't want the docstring window to popup during completion
 " autocmd FileType python setlocal completeopt-=preview
 
+" Autopep8
+let g:autopep8_max_line_length=79
+let g:autopep8_indent_size=4
 
-
+" add aggressive option
+" let g:autopep8_aggressive=1
+" add more aggressive options
+" let g:autopep8_aggressive=2
 
 " ------ Not plugin related settings ------
 
