@@ -56,25 +56,33 @@ Install latest python version (anaconda) into `$HOME/opt/`
 ```
 sudo apt-get install vim
 ```
-compile vim with `+conceal` (jedi parameter list completion) `+python` and `+python3` support
+or compile vim with `+conceal` (jedi parameter list completion) `+python` and `+python3` 
+support and add custom bin path to $PATH in .bashrc
 
 ## vundle plugin manager
+```
 git clone https://github.com/gmarik/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
 vim -c PluginInstall
+```
 
 ## non-vundle-managed plugins
-" Python folding
-" mkdir -p ~/.vim/ftplugin
-" wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
+### Python folding
+```
+mkdir -p ~/.vim/ftplugin
+wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
+```
 
-# plugins dependencies
+### plugins dependencies
+```
 pip install jedi
 pip install autopep8
+```
 
-# --- tmux ---
+## tmux
+```
 sudo apt-get install tmux
-
-# --- latex ---
-sudo apt-get install latexmk
+```
+## latex
 sudo apt-get install texlive-full
+sudo apt-get install latexmk
 sudo apt-get install zathura
