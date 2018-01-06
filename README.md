@@ -52,17 +52,17 @@ Install latest python version (anaconda) into `$HOME/opt/`
 
 # other TODO's for setting up a new system
 
-# vim 
+## vim 
 ```
 sudo apt-get install vim
 ```
 compile vim with `+conceal` (jedi parameter list completion) `+python` and `+python3` support
 
-# vundle plugin manager
+## vundle plugin manager
 git clone https://github.com/gmarik/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
 vim -c PluginInstall
 
-# non-vundle-managed plugins
+## non-vundle-managed plugins
 " Python folding
 " mkdir -p ~/.vim/ftplugin
 " wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
