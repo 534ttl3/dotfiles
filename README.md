@@ -56,8 +56,10 @@ Install latest python version (anaconda) into `$HOME/opt/`
 ```
 sudo apt-get install vim
 ```
-or compile vim with `+conceal` (jedi parameter list completion) `+python` and `+python3` 
+and compile vim with `+conceal` and `--prefix=/opt/` (in `--with-feature=huge`) (jedi parameter list completion) `+python` and `+python3` 
 support and add custom bin path to $PATH in .bashrc
+on `https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source`,
+there is a good tutorial on how to compile vim with certain options.
 
 ## vundle plugin manager
 ```

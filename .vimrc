@@ -8,14 +8,13 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 " let Vundle manage Vundle, required
-Plugin 'gmarik/Vundle.vim'
-
+Plugin 'gmarik/Vundle.vim' 
 " vim-snippets
 Plugin 'honza/vim-snippets'
 
 " UltiSnips 
 Plugin 'SirVer/ultisnips'
-
+   
 " Jedi
 Plugin 'davidhalter/jedi-vim'
 
@@ -28,8 +27,15 @@ Plugin 'scrooloose/nerdtree'
 " Nerdtree execute file in gnome standard program
 Plugin 'ivalkeen/nerdtree-execute'
 
-" Bundle 'Valloric/YouCompleteMe'
-" let g:ycm_autoclose_preview_window_after_completion=1
+" Syntastic (syntax checking) for python
+Plugin 'vim-syntastic/syntastic'
+
+" vim-airline (beautiful status line)
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+
+" CtrlP
+Plugin 'kien/ctrlp.vim'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -50,12 +56,55 @@ filetype plugin indent on    " required
 " wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
 set nofoldenable
 
-" Put your non-Plugin stuff after this line
 
-" ------- general vim settings --------
+" ------ general vim settings (not plugin-related) ------
 
 " Rebind <Leader> key
 let mapleader = ","
+
+" Nerdtree rebind
+nmap <leader>t :NERDTree<cr>
+
+" be able to leave buffer without saving (hide buffer)
+set hidden
+
+syntax on
+
+" Disable stupid backup and swap files - they trigger too many events
+" for file system watchers
+set nobackup
+set nowritebackup
+set noswapfile
+
+set encoding=utf-8
+
+" Automatic reloading of .vimrc
+autocmd! bufwritepost .vimrc source %
+
+" make backspace key work properly in insert mode
+set backspace=indent,eol,start
+
+colorscheme murphy
+
+" Showing line numbers and length
+set number  " show line numbers
+set tw=79   " width of document (used by gd)
+set nowrap  " don't automatically wrap on load
+set fo-=t   " don't automatically wrap text when typing
+" draw a vertical column (to indicate long lines)
+set colorcolumn=80
+" highlight ColorColumn ctermbg=233
+
+" navigate splits more efficiently
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" quickly cycle through buffers
+:nnoremap <leader>n :bnext<CR>
+:nnoremap <leader>p :bprevious<CR>
+
 
 " -------- settings of loaded plugins ---------
 
@@ -89,7 +138,7 @@ let g:UltiSnipsJumpBackwardTrigger="<c-b>"
 let g:jedi#goto_assignments_command = "<leader>g"
 let g:jedi#goto_definitions_command = ""
 let g:jedi#documentation_command = "K"
-let g:jedi#usages_command = "<leader>n"
+" let g:jedi#usages_command = "<leader>o"
 let g:jedi#completions_command = "<C-Space>"
 let g:jedi#rename_command = "<leader>r"
 let g:jedi#completions_enabled = 1
@@ -106,47 +155,19 @@ let g:autopep8_indent_size=4
 " add more aggressive options
 " let g:autopep8_aggressive=2
 
-" ------ Not plugin related settings ------
+" syntastic 
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
 
-syntax on
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
 
-" press F9 to execute current python buffer
-" nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
+let g:syntastic_python_checkers = ['pylint']
+" instead, flake8 also checks pep8 and displays errors for that
+" let g:syntastic_python_checkers = ['flake8']
 
-" Disable stupid backup and swap files - they trigger too many events
-" for file system watchers
-set nobackup
-set nowritebackup
-set noswapfile
+let g:airline#extensions#tabline#enabled = 1
 
-set encoding=utf-8
-
-" Automatic reloading of .vimrc
-autocmd! bufwritepost .vimrc source %
-
-colorscheme murphy
-
-"split navigations
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
-
-" make backspace key work properly in insert mode
-set backspace=indent,eol,start
-
-" Showing line numbers and length
-set number  " show line numbers
-set tw=79   " width of document (used by gd)
-set nowrap  " don't automatically wrap on load
-set fo-=t   " don't automatically wrap text when typing
-" draw a vertical column (to indicate long lines)
-set colorcolumn=80
-" highlight ColorColumn ctermbg=233
-
-" quickly cycle through buffers
-:nnoremap <C-n> :bnext<CR>
-:nnoremap <C-p> :bprevious<CR>
-
-" Nerdtree
-nmap <leader>ne :NERDTree<cr>
