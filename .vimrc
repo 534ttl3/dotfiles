@@ -37,6 +37,16 @@ Plugin 'vim-airline/vim-airline-themes'
 " CtrlP
 Plugin 'kien/ctrlp.vim'
 
+" vimux, call tmux command from inside vim and run in it in seperate pane
+Plugin 'benmills/vimux'
+
+" vim-conda - STATUS: currently not used, sice my worklflow is to activate 
+" a virtualenv in a seperate shell and I don't use any code-completion or 
+" linting tools that can reference the python packages in that virtualenv
+" enables to switch the python version that vim uses
+" within it's running process (not :!python)
+" Plugin 'cjrh/vim-conda'
+
 call vundle#end()            " required
 filetype plugin indent on    " required
 " To ignore plugin indent changes, instead use:
@@ -132,16 +142,18 @@ let g:UltiSnipsJumpBackwardTrigger="<c-b>"
 
 " NOTE: subject to change!
 
-" let g:jedi#goto_command = "<leader>d" 
+let g:jedi#goto_command = "<leader>d" 
 " you can jump back to the original position using 
 " vim's typical command C-o
 let g:jedi#goto_assignments_command = "<leader>g"
 let g:jedi#goto_definitions_command = ""
 let g:jedi#documentation_command = "K"
-" let g:jedi#usages_command = "<leader>o"
+let g:jedi#usages_command = "<leader>o"
 let g:jedi#completions_command = "<C-Space>"
 let g:jedi#rename_command = "<leader>r"
 let g:jedi#completions_enabled = 1
+
+" let g:jedi#force_py_version = 3
 
 " I don't want the docstring window to popup during completion
 " autocmd FileType python setlocal completeopt-=preview
@@ -155,19 +167,19 @@ let g:autopep8_indent_size=4
 " add more aggressive options
 " let g:autopep8_aggressive=2
 
-" syntastic 
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+" syntastic - STATUS: not used since it doesnt reference the current python
+" virtualenv (also not with vim-conda) 
+" set statusline+=%#warningmsg#
+" set statusline+=%{SyntasticStatuslineFlag()}
+" set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+" let g:syntastic_always_populate_loc_list = 1
+" let g:syntastic_auto_loc_list = 1
+" let g:syntastic_check_on_open = 1
+" let g:syntastic_check_on_wq = 0
 
-let g:syntastic_python_checkers = ['pylint']
+" let g:syntastic_python_checkers = ['pylint']
 " instead, flake8 also checks pep8 and displays errors for that
 " let g:syntastic_python_checkers = ['flake8']
 
 let g:airline#extensions#tabline#enabled = 1
-
