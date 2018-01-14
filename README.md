@@ -50,6 +50,16 @@ sudo apt-get install pip
 ```
 Install latest python version (anaconda) into `$HOME/opt/`
 
+## install scipy, matplotlib, numba, ...
+always install to the right locations (`pip` could be `pip2`, not `pip3`)
+```
+sudo pip3 install scipy matplotlib numba
+```
+matplotlib could use tkinter, so do
+```
+sudo apt install python3-tk
+```
+
 # other TODO's for setting up a new system
 
 ## vim 

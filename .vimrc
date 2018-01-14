@@ -9,12 +9,13 @@ call vundle#begin()
 
 " let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim' 
-" vim-snippets
-Plugin 'honza/vim-snippets'
 
 " UltiSnips 
 Plugin 'SirVer/ultisnips'
-   
+
+" vim-snippets
+" Plugin 'honza/vim-snippets'
+  
 " Jedi
 Plugin 'davidhalter/jedi-vim'
 
@@ -23,7 +24,6 @@ Plugin 'tell-k/vim-autopep8'
 
 " Nerdtree
 Plugin 'scrooloose/nerdtree'
-
 " Nerdtree execute file in gnome standard program
 Plugin 'ivalkeen/nerdtree-execute'
 
@@ -34,11 +34,17 @@ Plugin 'vim-syntastic/syntastic'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 
+" tmuxline, enables vim-airline to work within tmux
+Plugin 'edkolev/tmuxline.vim'
+
 " CtrlP
 Plugin 'kien/ctrlp.vim'
 
 " vimux, call tmux command from inside vim and run in it in seperate pane
 Plugin 'benmills/vimux'
+
+" No-BS Python code folding for Vim
+" Plugin 'tmhedberg/SimpylFold'
 
 " vim-conda - STATUS: currently not used, sice my worklflow is to activate 
 " a virtualenv in a seperate shell and I don't use any code-completion or 
@@ -48,10 +54,7 @@ Plugin 'benmills/vimux'
 " Plugin 'cjrh/vim-conda'
 
 call vundle#end()            " required
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
+
 " Brief help
 " :PluginList       - lists configured plugins
 " :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
@@ -64,10 +67,26 @@ filetype plugin indent on    " required
 " Python folding
 " mkdir -p ~/.vim/ftplugin
 " wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
-set nofoldenable
 
+" or just without plugin: 
+" :setlocal foldmethod=indent
+
+" or with this plugin
 
 " ------ general vim settings (not plugin-related) ------
+
+" enable ftplugin's automatic indenting
+filetype plugin indent on
+
+" Real programmers don't use TABs but spaces
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set shiftround
+set expandtab
+
+" use system clipboard to yank and paste
+set clipboard=unnamed 
 
 " Rebind <Leader> key
 let mapleader = ","
@@ -76,15 +95,18 @@ let mapleader = ","
 nmap <leader>t :NERDTree<cr>
 
 " be able to leave buffer without saving (hide buffer)
-set hidden
+" set hidden
 
 syntax on
 
-" Disable stupid backup and swap files - they trigger too many events
+" disable backup and swap files - they may trigger many events
 " for file system watchers
-set nobackup
-set nowritebackup
-set noswapfile
+" set nobackup
+" set nowritebackup
+" set noswapfile
+" or back them up in a seperate folder
+set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 
 set encoding=utf-8
 
@@ -94,7 +116,8 @@ autocmd! bufwritepost .vimrc source %
 " make backspace key work properly in insert mode
 set backspace=indent,eol,start
 
-colorscheme murphy
+" colorscheme default
+colorscheme darkblue
 
 " Showing line numbers and length
 set number  " show line numbers
@@ -104,6 +127,16 @@ set fo-=t   " don't automatically wrap text when typing
 " draw a vertical column (to indicate long lines)
 set colorcolumn=80
 " highlight ColorColumn ctermbg=233
+
+augroup LaTeXDisplayAndMoveSettings
+    autocmd!
+    autocmd FileType tex setlocal wrap
+    autocmd FileType tex setlocal colorcolumn=0
+    autocmd FileType tex setlocal linebreak
+    autocmd FileType tex nnoremap <buffer> j gj
+    autocmd FileType tex nnoremap <buffer> k gk
+augroup END
+
 
 " navigate splits more efficiently
 nnoremap <C-J> <C-W><C-J>
@@ -118,27 +151,24 @@ nnoremap <C-H> <C-W><C-H>
 
 " -------- settings of loaded plugins ---------
 
-" UltiSnips
-" Default trigger is <tab>, but set it to c-j
-let g:UltiSnipsExpandTrigger="<c-j>"
-let g:UltiSnipsJumpForwardTrigger="<c-j>"
-let g:UltiSnipsJumpBackwardTrigger="<c-b>"
-" place private snippet files inside .vim/UltiSnips/ 
-" (if that folder is not there, Ultisnips may create this 
-" folder OR another folder ~/UltiSnips/ with UltiSnipsEdit, 
-" but that other one sometimes isn't referenced referenced later, 
-" which is a shitty bug. Still, it always worked with .vim/UltiSnips/
-" also, choosing other custom folder names, e.g. private_snippets and 
-" pointing UltiSnips to them also didn't work
+
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+
 
 " Jedi
 " let g:jedi#auto_initialization = 0
 " let g:jedi#auto_vim_configuration = 0
 " let g:jedi#use_tabs_not_buffers = 1
-" let g:jedi#use_splits_not_buffers = "left"
-" let g:jedi#popup_on_dot = 0
-" let g:jedi#popup_select_first = 0
-" let g:jedi#show_call_signatures = "1"
+let g:jedi#use_splits_not_buffers = "left"
+let g:jedi#popup_on_dot = 0
+let g:jedi#popup_select_first = 0
+let g:jedi#show_call_signatures = "1"
 
 " NOTE: subject to change!
 
@@ -153,7 +183,9 @@ let g:jedi#completions_command = "<C-Space>"
 let g:jedi#rename_command = "<leader>r"
 let g:jedi#completions_enabled = 1
 
-" let g:jedi#force_py_version = 3
+let g:jedi#force_py_version = 3
+
+map <leader>b Oimport ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>
 
 " I don't want the docstring window to popup during completion
 " autocmd FileType python setlocal completeopt-=preview
@@ -167,19 +199,28 @@ let g:autopep8_indent_size=4
 " add more aggressive options
 " let g:autopep8_aggressive=2
 
-" syntastic - STATUS: not used since it doesnt reference the current python
-" virtualenv (also not with vim-conda) 
+" syntastic - STATUS: don't use this if you want to handle different
+" virtualenvs, that doesn't work
 " set statusline+=%#warningmsg#
 " set statusline+=%{SyntasticStatuslineFlag()}
 " set statusline+=%*
 
 " let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 1
+let g:syntastic_auto_loc_list = 1
 " let g:syntastic_check_on_open = 1
 " let g:syntastic_check_on_wq = 0
 
 " let g:syntastic_python_checkers = ['pylint']
 " instead, flake8 also checks pep8 and displays errors for that
-" let g:syntastic_python_checkers = ['flake8']
 
+let g:syntastic_python_checkers = ['flake8']
+let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': ['python', 'json'],'passive_filetypes': [] }
+
+" airline
 let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
+
+" Vimux
+:nmap <leader>z :call VimuxRunCommand("python3 main.py")<cr>
+:nmap <leader>la :call VimuxRunCommand("latexmain")<cr>
+

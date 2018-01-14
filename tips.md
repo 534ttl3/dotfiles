@@ -8,6 +8,14 @@ git ls-tree home-ubuntu1604 -r
 git add [those files]
 # then continue the rebase (without another merge-resolve-commit) using
 git rebase --continue
+# Git, when Dropbox corrupts files in your .git folder, 
+# do a backup of all your files lastest states, then run
+# this will get you to the latest commit state
+git reset --keep
+
+
+# Vim, close all other splits (windows) but the current one
+:on; :only; Ctrl+w o
 # Vim, jumping back to previous position
 c-o
 # Vim, jumping to the next tab
@@ -62,6 +70,11 @@ M
 L
 # Vim, search case-insensitive, type
 /\searchword
+# Vim, the % register contains the file path relative to the pwd
+:pwd
+:echo @%
+or
+:echo expand('%:p') # (full path)
 
 
 # bash Terminal, get the return value of last operation:

@@ -116,6 +116,9 @@ if ! shopt -oq posix; then
   fi
 fi
 
-
 # added by Anaconda3 installer
-export PATH="/home/chris/anaconda3/bin:$PATH"
+# export PATH="/home/chris/anaconda3/bin:$PATH"
+
+function cl {
+    builtin cd "$@" && ls -F
+}
