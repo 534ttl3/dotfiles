@@ -43,9 +43,6 @@ Plugin 'kien/ctrlp.vim'
 " vimux, call tmux command from inside vim and run in it in seperate pane
 Plugin 'benmills/vimux'
 
-" No-BS Python code folding for Vim
-" Plugin 'tmhedberg/SimpylFold'
-
 " vim-conda - STATUS: currently not used, sice my worklflow is to activate 
 " a virtualenv in a seperate shell and I don't use any code-completion or 
 " linting tools that can reference the python packages in that virtualenv
@@ -65,6 +62,7 @@ call vundle#end()            " required
 
 " ------ other non-Vundle plugins ------
 " Python folding
+" another good one: http://www.vim.org/scripts/script.php?script_id=2527
 " mkdir -p ~/.vim/ftplugin
 " wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
 
@@ -94,8 +92,9 @@ let mapleader = ","
 " Nerdtree rebind
 nmap <leader>t :NERDTree<cr>
 
-" be able to leave buffer without saving (hide buffer)
-" set hidden
+" be able to leave buffer without saving (hide buffer), but still 
+" warn at leaving if some buffer isn't saved
+set hidden
 
 syntax on
 
@@ -128,6 +127,26 @@ set fo-=t   " don't automatically wrap text when typing
 set colorcolumn=80
 " highlight ColorColumn ctermbg=233
 
+
+augroup PythonDisplayAndMoveSettings
+    autocmd!
+    let b:folded = 1
+
+    function! ToggleFold()
+        if( b:folded == 0 )
+            exec "normal! zM"
+            let b:folded = 1
+        else
+            exec "normal! zR"
+            let b:folded = 0
+        endif
+    endfunction
+    autocmd FileType python setlocal scrolloff=3
+    autocmd FileType python map <buffer> f za
+    autocmd FileType python map <buffer> F :call ToggleFold()<CR>
+augroup END
+
+
 augroup LaTeXDisplayAndMoveSettings
     autocmd!
     autocmd FileType tex setlocal wrap
@@ -135,6 +154,7 @@ augroup LaTeXDisplayAndMoveSettings
     autocmd FileType tex setlocal linebreak
     autocmd FileType tex nnoremap <buffer> j gj
     autocmd FileType tex nnoremap <buffer> k gk
+    autocmd FileType tex setlocal scrolloff=5
 augroup END
 
 
@@ -153,9 +173,9 @@ nnoremap <C-H> <C-W><C-H>
 
 
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<c-j>"
-let g:UltiSnipsJumpForwardTrigger="<c-j>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
