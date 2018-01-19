@@ -13,7 +13,10 @@ git rebase --continue
 # this will get you to the latest commit state
 git reset --keep
 
-
+# Vim, delete visual selection without cutting (throw into trash register)
+V"_d
+# Vim, delete line without cutting (throw into trash register)
+"_dd
 # Vim, close all other splits (windows) but the current one
 :on; :only; Ctrl+w o
 # Vim, jumping back to previous position
