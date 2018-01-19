@@ -239,6 +239,8 @@ let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': ['python', '
 " airline
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
+" install powerline fonts:
+" https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
 
 " Vimux
 :nmap <leader>z :call VimuxRunCommand("python3 main.py")<cr>

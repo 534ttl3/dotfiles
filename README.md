@@ -81,7 +81,20 @@ vim -c PluginInstall
 ### Python folding
 ```
 mkdir -p ~/.vim/ftplugin
-wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
+```
+I prefer
+```
+wget -O ~/.vim/ftplugin/python.vim http://www.vim.org/scripts/script.php?script_id=2527
+``` 
+But this one is also good
+```
+wget -O ~/.vim/ftplugin/python.vim http://www.vim.org/scripts/download_script.php?src_id=5492
+```
+
+# install powerline fonts (for vim-airline)
+follow the instructions at 
+```
+https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
 ```
 
 ### plugins dependencies
