@@ -2,6 +2,7 @@
 ```
 sudo apt-get install xclip
 sudo apt-get install xdg-utils
+sudo apt-get install libgnome2  # gnome-open
 sudo apt-get install vim
 sudo apt-get install htop
 sudo apt-get install openssh-client
@@ -21,7 +22,7 @@ you probably have already installed git, so init a git repo in $HOME
 ```
 cd $HOME
 git init
-git remote add origin git://github.com/534ttl3/dotfiles.git
+git remote add origin git@github.com:534ttl3/dotfiles.git
 git remote -v
 git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
@@ -53,7 +54,7 @@ Install latest python version (anaconda) into `$HOME/opt/`
 ## install scipy, matplotlib, numba, ...
 always install to the right locations (`pip` could be `pip2`, not `pip3`)
 ```
-sudo pip3 install scipy matplotlib numba
+sudo pip3 install scipy matplotlib numba flake8 ipdb
 ```
 matplotlib could use tkinter, so do
 ```

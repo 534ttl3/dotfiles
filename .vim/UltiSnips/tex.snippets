@@ -30,6 +30,11 @@ snippet ba "bar"
 \bar{$1}$2
 endsnippet
 
+snippet nc-ceilfloor "nc-ceilfloor"
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+endsnippet
+
 snippet nc-snote "nc-snote"
 \newcommand{\snote}[1]{{\scriptsize \textbf{#1} }}
 endsnippet
@@ -287,6 +292,22 @@ c & d \\
 \end{tabular}
 \label{tab:${3:ex}}
 \end{table}
+endsnippet
+
+snippet ref "ref"
+~\ref{$1:$2} $3
+endsnippet
+
+snippet label "label"
+\label{$1:$2} $3
+endsnippet
+
+snippet reeq "ref equation"
+~\ref{eq:$1} $2
+endsnippet
+
+snippet laeq "label equation"
+\label{eq:$1} $2
 endsnippet
 
 snippet eqs "equation split env"

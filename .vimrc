@@ -168,6 +168,12 @@ nnoremap <C-H> <C-W><C-H>
 :nnoremap <leader>n :bnext<CR>
 :nnoremap <leader>p :bprevious<CR>
 
+" vimgrep, cylce through quickfix list
+nnoremap [q :cprev<CR>
+nnoremap ]q :cnext<CR>
+nnoremap [Q :cfirst<CR>
+nnoremap ]Q :clast<CR>
+
 
 " -------- settings of loaded plugins ---------
 
