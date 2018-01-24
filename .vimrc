@@ -90,7 +90,7 @@ set clipboard=unnamed
 let mapleader = ","
 
 " Nerdtree rebind
-nmap <leader>t :NERDTree<cr>
+nmap <leader>t :NERDTreeToggle<cr>
 
 " be able to leave buffer without saving (hide buffer), but still 
 " warn at leaving if some buffer isn't saved
@@ -144,6 +144,8 @@ augroup PythonDisplayAndMoveSettings
     autocmd FileType python setlocal scrolloff=3
     autocmd FileType python map <buffer> f za
     autocmd FileType python map <buffer> F :call ToggleFold()<CR>
+    " Vimux
+    autocmd FileType python nmap <leader>z :call VimuxRunCommand("python3 main.py")<cr>
 augroup END
 
 
@@ -154,6 +156,8 @@ augroup LaTeXDisplayAndMoveSettings
     autocmd FileType tex setlocal linebreak
     autocmd FileType tex nnoremap <buffer> j gj
     autocmd FileType tex nnoremap <buffer> k gk
+    " Vimux
+    autocmd FileType tex nmap <leader>la :call VimuxRunCommand("latexmain")<cr>
     autocmd FileType tex setlocal scrolloff=5
 augroup END
 
@@ -248,7 +252,4 @@ let g:airline_powerline_fonts = 1
 " install powerline fonts:
 " https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
 
-" Vimux
-:nmap <leader>z :call VimuxRunCommand("python3 main.py")<cr>
-:nmap <leader>la :call VimuxRunCommand("latexmain")<cr>
 

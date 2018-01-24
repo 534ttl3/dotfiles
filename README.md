@@ -6,6 +6,7 @@ sudo apt-get install libgnome2  # gnome-open
 sudo apt-get install vim
 sudo apt-get install htop
 sudo apt-get install openssh-client
+sudo apt-get install inkscape
 ```
 # install SSH and add keys to remote repos
 ```
