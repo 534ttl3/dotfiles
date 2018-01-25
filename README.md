@@ -7,6 +7,8 @@ sudo apt-get install vim
 sudo apt-get install htop
 sudo apt-get install openssh-client
 sudo apt-get install inkscape
+sudo apt-get install curl
+sudo apt-get install zsh
 ```
 # install SSH and add keys to remote repos
 ```
@@ -114,4 +116,10 @@ sudo apt-get install tmux
 sudo apt-get install texlive-full
 sudo apt-get install latexmk
 sudo apt-get install zathura
+```
+
+## zsh
+Go to ohmyzsh.sh or just run
+```
+sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 ```
