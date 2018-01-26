@@ -1,0 +1,15 @@
+*
+!.gitignore
+!.bash_aliases
+!.bashrc
+!.config/flake8
+!.inputrc
+!.latexmkrc
+!.tmux.conf
+!.vim/UltiSnips/tex.snippets
+!.vim/ftplugin/python.vim
+!.vimrc
+!.xinitrc
+!.zshrc
+!README.md
+!tips.md
