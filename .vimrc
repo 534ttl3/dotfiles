@@ -19,9 +19,6 @@ Plugin 'SirVer/ultisnips'
 " Jedi
 Plugin 'davidhalter/jedi-vim'
 
-" autopep8 for python
-Plugin 'tell-k/vim-autopep8'
-
 " Nerdtree
 Plugin 'scrooloose/nerdtree'
 " Nerdtree execute file in gnome standard program
@@ -42,6 +39,9 @@ Plugin 'kien/ctrlp.vim'
 
 " vimux, call tmux command from inside vim and run in it in seperate pane
 Plugin 'benmills/vimux'
+
+Plugin 'tell-k/vim-autopep8'
+
 
 " vim-conda - STATUS: currently not used, sice my worklflow is to activate 
 " a virtualenv in a seperate shell and I don't use any code-completion or 
@@ -127,7 +127,6 @@ set fo-=t   " don't automatically wrap text when typing
 set colorcolumn=80
 " highlight ColorColumn ctermbg=233
 
-
 augroup PythonDisplayAndMoveSettings
     autocmd!
     let b:folded = 1
@@ -179,6 +178,7 @@ nnoremap [Q :cfirst<CR>
 nnoremap ]Q :clast<CR>
 
 
+map <leader>b Oimport ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>
 " -------- settings of loaded plugins ---------
 
 
@@ -215,7 +215,6 @@ let g:jedi#completions_enabled = 1
 
 let g:jedi#force_py_version = 3
 
-map <leader>b Oimport ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>
 
 " I don't want the docstring window to popup during completion
 " autocmd FileType python setlocal completeopt-=preview
@@ -223,11 +222,6 @@ map <leader>b Oimport ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>
 " Autopep8
 let g:autopep8_max_line_length=79
 let g:autopep8_indent_size=4
-
-" add aggressive option
-" let g:autopep8_aggressive=1
-" add more aggressive options
-" let g:autopep8_aggressive=2
 
 " syntastic - STATUS: don't use this if you want to handle different
 " virtualenvs, that doesn't work
@@ -239,9 +233,6 @@ let g:autopep8_indent_size=4
 let g:syntastic_auto_loc_list = 1
 " let g:syntastic_check_on_open = 1
 " let g:syntastic_check_on_wq = 0
-
-" let g:syntastic_python_checkers = ['pylint']
-" instead, flake8 also checks pep8 and displays errors for that
 
 let g:syntastic_python_checkers = ['flake8']
 let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': ['python', 'json'],'passive_filetypes': [] }

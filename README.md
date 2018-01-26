@@ -6,9 +6,12 @@ sudo apt-get install libgnome2  # gnome-open
 sudo apt-get install vim
 sudo apt-get install htop
 sudo apt-get install openssh-client
+sudo apt-get install openssh-server
 sudo apt-get install inkscape
 sudo apt-get install curl
 sudo apt-get install zsh
+sudo apt-get install ffmpeg
+sudo apt-get install tree
 ```
 # install SSH and add keys to remote repos
 ```
@@ -104,7 +107,7 @@ https://powerline.readthedocs.io/en/master/installation/linux.html#installation-
 ### plugins dependencies
 ```
 pip install jedi
-pip install autopep8
+pip install autopep8 pep8
 ```
 
 ## tmux

@@ -215,3 +215,11 @@ In a virtual environment, only one specific version of the programming language
 (python) runs. The command conda is also a package manager. It installs packages 
 in the anaconda3/bin directory. One can also install certain versions of certain
 packages to be used by a specific venv with a specific python version.
+
+## suspend and resume jobs
+Ctrl Z
+## list jobs from this terminal
+jobs
+## bring job n to foreground
+fg %n
+or fg for fg %1
