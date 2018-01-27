@@ -145,6 +145,7 @@ augroup PythonDisplayAndMoveSettings
     autocmd FileType python map <buffer> F :call ToggleFold()<CR>
     " Vimux
     autocmd FileType python nmap <leader>z :call VimuxRunCommand("python3 main.py")<cr>
+    autocmd FileType python nmap <leader>% :call VimuxRunCommand("python3 " + %)<cr>
 augroup END
 
 
