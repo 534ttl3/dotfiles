@@ -14,7 +14,7 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'SirVer/ultisnips'
 
 " vim-snippets
-" Plugin 'honza/vim-snippets'
+Plugin 'honza/vim-snippets'
   
 " Jedi
 Plugin 'davidhalter/jedi-vim'
@@ -40,7 +40,7 @@ Plugin 'kien/ctrlp.vim'
 " vimux, call tmux command from inside vim and run in it in seperate pane
 Plugin 'benmills/vimux'
 
-Plugin 'tell-k/vim-autopep8'
+" Plugin 'tell-k/vim-autopep8'
 
 
 " vim-conda - STATUS: currently not used, sice my worklflow is to activate 
@@ -121,7 +121,8 @@ colorscheme darkblue
 " Showing line numbers and length
 set number  " show line numbers
 set tw=79   " width of document (used by gd)
-set nowrap  " don't automatically wrap on load
+" set nowrap  " don't automatically wrap on load
+set wrap  " don't automatically wrap on load
 set fo-=t   " don't automatically wrap text when typing
 " draw a vertical column (to indicate long lines)
 set colorcolumn=80
