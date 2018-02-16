@@ -1,231 +1,388 @@
-" Fold routines for python code, version 3.2
-" Source: http://www.vim.org/scripts/script.php?script_id=2527
-" Last Change: 2009 Feb 25
-" Author: Jurjen Bos
-" Bug fixes and helpful comments: Grissiom, David Froger, Andrew McNabb
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
 
-" Principles:
-" - a def/class starts a fold
-" a line with indent less than the previous def/class ends a fold
-" empty lines and comment lines are linked to the previous fold
-" comment lines outside a def/class are never folded
-" other lines outside a def/class are folded together as a group
-" for algorithm, see bottom of script
+<head>
+  <link rel="Stylesheet" type="text/css" href="/css/style.css" >
+  <title>jpythonfold.vim - A better python fold script : vim online</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <meta name="KEYWORDS" content="Vim, Vi IMproved, text editor, home, documentation, tips, scripts, news">
+  <meta name="viewport" content="width=1000, initial-scale=1">
+  <link rel="shortcut icon" type="image/x-icon" href="/images/vim_shortcut.ico">
+</head>
 
-" - optionally, you can get empty lines between folds, see (***)
-" - another option is to ignore non-python files see (**)
-" - you can also modify the def/class check,
-"    allowing for multiline def and class definitions see (*)
+<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" bgcolor="#ffffff"> 
 
-" Note for vim 7 users:
-" Vim 6 line numbers always take 8 columns, while vim 7 has a numberwidth variable
-" you can change the 8 below to &numberwidth if you have vim 7,
-" this is only really useful when you plan to use more than 8 columns (i.e. never)
+<!-- HEADER, SPONSOR IMAGE, VIM IMAGE AND BOOK AD -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bordercolor="red">
+  <tr>
+    <td colspan="4" class="lightbg"><img src="/images/spacer.gif" width="1" height="5" alt=""></td>
+  </tr>
+  <tr>
+  <td class="lightbg">&nbsp;&nbsp;&nbsp;</td>
+  <td class="lightbg" align="left"><a href="https://vim.sourceforge.io/sponsor/index.php"><img src="/images/sponsorvim.gif" alt="sponsor Vim development" border="0"></a></td>
+  <td class="lightbg" align="center">
+	 <a href="/"><img src="/images/vim_header.gif" border="0" alt="Vim logo" class="align-middle"></a>
+		  <span><a class="httpslink" href="https://vim.sourceforge.io/scripts/script.php?script_id=2527">go to HTTPS page</a></span>
+	  </td>
+  <td class="lightbg" align="right"><a href="http://iccf-holland.org/click5.html"><img src="/images/buyhelplearn.gif" alt="Vim Book Ad" border="0"></a></td>
+  </tr>
+  <tr>
+    <td colspan="4" class="lightbg"><img src="/images/spacer.gif" width="1" height="5" alt=""></td>
+  </tr>
+  <tr>
+    <td colspan="4" class="darkbg"><img src="/images/spacer.gif" width="1" height="10" alt=""></td>
+  </tr>
+</table>
+<!-- THE PAGE BODY: BETWEEN HEADER AND FOOTER -->
 
-" Note for masochists trying to read this:
-" I wanted to keep the functions short, so I replaced occurences of
-" if condition
-"     statement
-" by
-" if condition | statement
-" wherever I found that useful
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+  <col width="180">
+  <col width="1">
 
-" (*)
-" class definitions are supposed to ontain a colon on the same line.
-" function definitions are *not* required to have a colon, to allow for multiline defs.
-" I you disagree, use instead of the pattern '^\s*\(class\s.*:\|def\s\)'
-" to enforce : for defs:                     '^\s*\(class\|def\)\s.*:'
-" you'll have to do this in two places.
-let s:defpat = '^\s*\(@\|class\s.*:\|def\s\)'
+  <tr valign="top">
+    <td class="sidebar">
+      <table width="180" cellpadding="4" cellspacing="0" border="0">
+        <tr valign="top">
+          <td class="sidebar">
 
-" (**) Ignore non-python files
-" Commented out because some python files are not recognized by Vim
-"if &filetype != 'python'
-"    finish
-"endif
+<!-- INCLUDE THE PAGE NAVIGATION -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bordercolor="red">
+    <tr>
+        <td><small>not logged in (<a href="https://vim.sourceforge.io/login.php">login</a>)</small></td>
+    </tr>
+    <tr><td>
+<small>&nbsp;</small>
+<form action="https://www.google.com/cse" id="cse-search-box">
+  <div>
+    <input type="hidden" name="cx" value="partner-pub-3005259998294962:bvyni59kjr1" />
+    <input type="hidden" name="ie" value="ISO-8859-1" />
+    <input type="text" name="q" size="20" />
+    <br>
+    <input type="submit" name="sa" value="Search" />
+  </div>
+</form>
+<script type="text/javascript" src="https://www.google.com/coop/cse/brand?form=cse-search-box&amp;lang=en"></script>
+    </td></tr>
+    <tr>
+        <td><img src="/images/spacer.gif" alt="" border="0" width="1" height="1"></td>
+    </tr>
+    <tr>
+        <td class="darkbg"><img src="/images/spacer.gif" alt='' border="0" height="3"></td>
+    </tr>
+    <tr>
+        <td><img src="/images/spacer.gif" alt="" border="0" width="1" height="2"></td>
+    </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/">Home</a></td>
+        </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/search.php">Advanced search</a></td>
+        </tr>
+    <tr>
+        <td><img src="/images/spacer.gif" alt="" border="0" width="1" height="7"></td>
+    </tr>
+    <tr>
+        <td class="checker"><img src="/images/spacer.gif" alt='' border="0" height="1"></td>
+    </tr>
+    <tr>
+        <td><img src="/images/spacer.gif" alt="" border="0" width="1" height="7"></td>
+    </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/about.php">About Vim</a></td>
+        </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/community.php">Community</a></td>
+        </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/news/news.php">News</a></td>
+        </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/sponsor/index.php">Sponsoring</a></td>
+        </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/trivia.php">Trivia</a></td>
+        </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/docs.php">Documentation</a></td>
+        </tr>
+        <tr>
+            <td class="sidebarheader download"><a href="https://vim.sourceforge.io/download.php">Download</a></td>
+        </tr>
+    <tr>
+        <td><img src="/images/spacer.gif" alt="" border="0" width="1" height="7"></td>
+    </tr>
+    <tr>
+        <td class="checker"><img src="/images/spacer.gif" alt='' border="0" height="1"></td>
+    </tr>
+    <tr>
+        <td><img src="/images/spacer.gif" alt="" border="0" width="1" height="7"></td>
+    </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/scripts/index.php">Scripts</a></td>
+        </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/tips/index.php">Tips</a></td>
+        </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/account/index.php">My Account</a></td>
+        </tr>
+    <tr>
+        <td><img src="/images/spacer.gif" alt="" border="0" width="1" height="7"></td>
+    </tr>
+    <tr>
+        <td class="checker"><img src="/images/spacer.gif" alt='' border="0" height="1"></td>
+    </tr>
+    <tr>
+        <td><img src="/images/spacer.gif" alt="" border="0" width="1" height="7"></td>
+    </tr>
+        <tr>
+            <td class="sidebarheader"><a href="https://vim.sourceforge.io/huh.php">Site Help</a></td>
+        </tr>
+</table>
+<br>
+<g:plusone></g:plusone>
 
-setlocal foldmethod=expr
-setlocal foldexpr=GetPythonFold(v:lnum)
-setlocal foldtext=PythonFoldText()
+            <table width="172" cellpadding="0" cellspacing="0" border="0">
+              <tr><td><img src="/images/spacer.gif" alt="" border="0" width="1" height="8"></td></tr>
+              <tr><td class="darkbg"><img src="/images/spacer.gif" width="1" height="3" alt=""></td></tr>
+            </table>
+            <br>
 
-function! PythonFoldText()
-  let fs = v:foldstart
-  while getline(fs) =~ '^\s*@' | let fs = nextnonblank(fs + 1)
-  endwhile
-  let line = getline(fs)
-  let nnum = nextnonblank(fs + 1)
-  let nextline = getline(nnum)
-  "get the document string: next line is ''' or """
-  if nextline =~ "^\\s\\+[\"']\\{3}\\s*$"
-      let line = line . " " . matchstr(getline(nextnonblank(nnum + 1)), '^\s*\zs.*\ze$')
-  "next line starts with qoutes, and has text
-  elseif nextline =~ "^\\s\\+[\"']\\{1,3}"
-      let line = line." ".matchstr(nextline, "^\\s\\+[\"']\\{1,3}\\zs.\\{-}\\ze['\"]\\{0,3}$")
-  elseif nextline =~ '^\s\+pass\s*$'
-    let line = line . ' pass'
-  endif
-  "compute the width of the visible part of the window (see Note above)
-  let w = winwidth(0) - &foldcolumn - (&number ? 8 : 0)
-  let size = 1 + v:foldend - v:foldstart
-  "compute expansion string
-  let spcs = '................'
-  while strlen(spcs) < w | let spcs = spcs . spcs
-  endwhile
-  "expand tabs (mail me if you have tabstop>10)
-  let onetab = strpart('          ', 0, &tabstop)
-  let line = substitute(line, '\t', onetab, 'g')
-  return strpart(line.spcs, 0, w-strlen(size)-7).'.'.size.' lines'
-endfunction
+<!-- INCLUDE THE PAGE SIDEBAR TEXT -->
+&nbsp;
 
-function! GetBlockIndent(lnum)
-    " Auxiliary function; determines the indent level of the surrounding def/class
-    " "global" lines are level 0, first def &shiftwidth, and so on
-    " scan backwards for class/def that is shallower or equal
-    let ind = 100
-    let p = a:lnum+1
-    while indent(p) >= 0
-        let p = p - 1
-        " skip empty and comment lines
-        if getline(p) =~ '^$\|^\s*#' | continue
-        " zero-level regular line
-        elseif indent(p) == 0 | return 0
-        " skip deeper or equal lines
-        elseif indent(p) >= ind || getline(p) =~ '^$\|^\s*#' | continue
-        " indent is strictly less at this point: check for def/class
-        elseif getline(p) =~ s:defpat && getline(p) !~ '^\s*@'
-            " level is one more than this def/class
-            return indent(p) + &shiftwidth
-        endif
-        " shallower line that is neither class nor def: continue search at new level
-        let ind = indent(p)
-    endwhile
-    "beginning of file
-    return 0
-endfunction
+          </td>
+        </tr>
+      </table>
+    </td>
 
-" Clever debug code, use as: call PrintIfCount(n,"Line: ".a:lnum.", value: ".x)
-let s:counter=0
-function! PrintIfCount(n,t)
-    "Print text the nth time this function is called
-    let s:counter = s:counter+1
-    if s:counter==a:n | echo a:t
-    endif
-endfunction
+    <td class="darkbg"><img src="/images/spacer.gif" width="1" height="1" border="0" alt=""><br></td>
+    <td>
+      <table width="100%" cellpadding="10" cellspacing="0" border="0" bordercolor="red">
+        <tr>
+          <td valign="top">
 
-function! GetPythonFold(lnum)
-    " Determine folding level in Python source (see "higher foldlevel theory" below)
-    let line = getline(a:lnum)
-    let ind = indent(a:lnum)
-    " Case D***: class and def start a fold
-    " If previous line is @, it is not the first
-    if line =~ s:defpat && getline(prevnonblank(a:lnum-1)) !~ '^\s*@'
-        " let's see if this range of 0 or more @'s end in a class/def
-        let n = a:lnum
-        while getline(n) =~ '^\s*@' | let n = nextnonblank(n + 1)
-        endwhile
-        " yes, we have a match: this is the first of a real def/class with decorators
-        if getline(n) =~ s:defpat
-            return ">".(ind/&shiftwidth+1)
-        endif
-    " Case E***: empty lines fold with previous
-    " (***) change '=' to -1 if you want empty lines/comment out of a fold
-    elseif line == '' | return '='
-    endif
-    " now we need the indent from previous
-    let p = prevnonblank(a:lnum-1)
-    while p>0 && getline(p) =~ '^\s*#' | let p = prevnonblank(p-1)
-    endwhile
-    let pind = indent(p)
-    " If previous was definition: count as one level deeper
-    if getline(p) =~ s:defpat && getline(prevnonblank(a:lnum - 1)) !~ '^\s*@'
-        let pind = pind + &shiftwidth
-    " if begin of file: take zero
-    elseif p==0 | let pind = 0
-    endif
-    " Case S*=* and C*=*: indent equal
-    if ind>0 && ind==pind | return '='
-    " Case S*>* and C*>*: indent increase
-    elseif ind>pind | return '='
-    " All cases with 0 indent
-    elseif ind==0
-        " Case C*=0*: separate global code blocks
-        if pind==0 && line =~ '^#' | return 0
-        " Case S*<0* and S*=0*: global code
-        elseif line !~'^#'
-            " Case S*<0*: new global statement if/while/for/try/with
-            if 0<pind && line!~'^else\s*:\|^except.*:\|^elif.*:\|^finally\s*:' | return '>1'
-            " Case S*=0*, after level 0 comment
-            elseif 0==pind && getline(prevnonblank(a:lnum-1)) =~ '^\s*#' | return '>1'
-            " Case S*=0*, other, stay 1
-            else | return '='
-            endif
-        endif
-        " Case C*<0= and C*<0<: compute next indent
-        let n = nextnonblank(a:lnum+1)
-        while n>0 && getline(n) =~'^\s*#' | let n = nextnonblank(n+1)
-        endwhile
-        " Case C*<0=: split definitions
-        if indent(n)==0 | return 0
-        " Case C*<0<: shallow comment
-        else | return -1
-        end
-    endif
-    " now we really need to compute the actual fold indent
-    " do the hard computation
-    let blockindent = GetBlockIndent(a:lnum)
-    " Case SG<* and CG<*: global code, level 1
-    if blockindent==0 | return 1
-    endif
-    " now we need the indent from next
-    let n = nextnonblank(a:lnum+1)
-    while n>0 && getline(n) =~'^\s*#' | let n = nextnonblank(n+1)
-    endwhile
-    let nind = indent(n)
-    " Case CR<= and CR<>
-    "if line !~ '^\s*#' | call PrintIfCount(4,"Line: ".a:lnum.", blockindent: ".blockindent.", n: ".n.", nind: ".nind.", p: ".p.", pind: ".pind)
-    endif
-    if line =~ '^\s*#' && ind>=nind | return -1
-    " Case CR<<: return next indent
-    elseif line =~ '^\s*#' | return nind / &shiftwidth
-    " Case SR<*: return actual indent
-    else | return blockindent / &shiftwidth
-    endif
-endfunction
+<span class="txth1">jpythonfold.vim : A better python fold script</span> 
 
-" higher foldlevel theory
-" There are five kinds of statements: S (code), D (def/class), E (empty), C (comment)
+<br>
+<br>
 
-" Note that a decorator statement (beginning with @) counts as definition,
-" but that of a sequence of @,@,@,def only the first one counts
-" This means that a definiion only counts if not preceded by a decorator
+<!-- karma table -->
+<table cellpadding="4" cellspacing="0" border="1" bordercolor="#000066">
+<tr>
+  <td class="lightbg"><b>&nbsp;script karma&nbsp;</b></td>
+  <td>
+    Rating <b>318/98</b>,
+    Downloaded by 4585    &nbsp;
+    <g:plusone></g:plusone>
+  </td>
+  <td class="lightbg">
+  <b>&nbsp;Comments, bugs, improvements&nbsp;</b>
+  </td>
+  <td>
+    <a href="http://vim.wikia.com/wiki/Script:2527">Vim wiki</a>
+  </td>  
+</tr>
+</table>
+<p>
 
-" There are two kinds of folds: R (regular), G (global statements)
+<table cellspacing="0" cellpadding="0" border="0">
+<tr><td class="prompt">created by</td></tr>
+<tr><td><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td class="prompt">script type</td></tr>
+<tr><td>syntax</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td class="prompt">description</td></tr>
+<tr><td>This script allows automatically folding of Python code.<br>It completely rewritten from Jorrit Wiersma's script (<a href="/scripts/script.php?script_id=515">vimscript #515</a>; other competitors are <a href="/scripts/script.php?script_id=781">vimscript#781</a> and <a href="/scripts/script.php?script_id=2002">vimscript#2002</a>).<br>The folding and fold text are completely rewritten: the algorithm systematically set up, so it behaves as accurate as possible (at the cost of some speed).<br>Main feature of this script is that it folds empty space, saving lots of screen space (although you can turn it off, see below).<br>Classes and defs are folded, of course.<br>Indent zero comments separating classes and defs are not folded, so you see the global divisions in your code.<br>Global code is folded in blocks (separated by comments).<br><br>There are three options. To use them, check the script:<br>- Keep empty lines out of a fold (giving more readable classes with folded functions, but using more screen space).<br>- Ignore non-python files.<br>- Allow for multiline class definitions (at the cost of folding comments starting with the word &quot;class&quot;) or stricter def checking (missing multiline defs).<br><br>Known bug:<br>- multiline strings that look like code are handled as such (basically unfixable, actually)<br><br>Example: <br>------------------------<br>#unfolded comment<br>def foo:<br>#folded comment<br>&nbsp;&nbsp;&nbsp;&nbsp;#also folded<br>&nbsp;&nbsp;&nbsp;&nbsp;bar = 5<br><br>#unfolded, but the empty line above this one is folded with the function<br>#code below will be folded<br>a = 5<br>b = 6</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td class="prompt">install details</td></tr>
+<tr><td>Either save it in a file and source that file whenever you want to use the folding, or save it in your ftplugin directory (for example, ~/.vim/ftplugin/python.vim) and it should load every time you edit python code.<br>If you want it to autodetect python code and ignore other code (which is probably what you want if you installed it in the ftplugin directory), uncomment the three lines denoted as such.<br></td></tr>
+<tr><td>&nbsp;</td></tr>
+</table>
 
-" There are five indent situations with respect to the previous non-emtpy non-comment line:
-" > (indent), < (dedent), = (same); < and = combine with 0 (indent is zero)
-" Note: if the previous line is class/def, its indent is interpreted as one higher
+<p>
+<table cellpadding="4" cellspacing="0" border="1" bordercolor="#000066">
+<tr><td class="lightbg">
+Rating scripts is only available on the 
+<a href="https://vim.sourceforge.io/scripts/script.php?script_id=2527">HTTPS page</a>
+</td></tr></table>
+<p>
+<span class="txth2">script versions</span> (<a href="add_script_version.php?script_id=2527">upload new version</a>)
+<p>
+Click on the package to download.
+<p>
 
-" There are three indent situations with respect to the next (non-E non-C) line:
-" > (dedent), < (indent), = (same)
+<table cellspacing="2" cellpadding="4" border="0" width="100%">
+<tr class='tableheader'>
+        <th valign="top">package</th>
+    <th valign="top">script version</th>
+    <th valign="top">date</th>
+    <th valign="top">Vim version</th>
+    <th valign="top">user</th>
+    <th valign="top">release notes</th>
+</tr>
+<tr>
+        <td class="rowodd" valign="top" nowrap><a href="download_script.php?src_id=10034">jpythonfold.vim</a></td>
+    <td class="rowodd" valign="top" nowrap><b>3.2</b></td>
+    <td class="rowodd" valign="top" nowrap><i>2009-02-25</i></td>
+    <td class="rowodd" valign="top" nowrap>6.0</td>
+    <td class="rowodd" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="rowodd" valign="top" width="2000">Improved decorator recognition: now works with doxygen. (Thanks, Grissiom)<br>Bug removed. (Thanks, Andrew)</td>
+</tr>
+<tr>
+        <td class="roweven" valign="top" nowrap><a href="download_script.php?src_id=9986">jpythonfold.vim</a></td>
+    <td class="roweven" valign="top" nowrap><b>3.1</b></td>
+    <td class="roweven" valign="top" nowrap><i>2009-02-17</i></td>
+    <td class="roweven" valign="top" nowrap>6.0</td>
+    <td class="roweven" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="roweven" valign="top" width="2000">Now also folds decorated functions and classes properly. Thanks for the idea, Kai.</td>
+</tr>
+<tr>
+        <td class="rowodd" valign="top" nowrap><a href="download_script.php?src_id=9972">jpythonfold.vim</a></td>
+    <td class="rowodd" valign="top" nowrap><b>3.0.3</b></td>
+    <td class="rowodd" valign="top" nowrap><i>2009-02-15</i></td>
+    <td class="rowodd" valign="top" nowrap>6.0</td>
+    <td class="rowodd" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="rowodd" valign="top" width="2000">Anothter bugfix: except/else in global code doesn't introduce extra folds anymore. Thanks, Grissiom</td>
+</tr>
+<tr>
+        <td class="roweven" valign="top" nowrap><a href="download_script.php?src_id=9969">jpythonfold.vim</a></td>
+    <td class="roweven" valign="top" nowrap><b>3.0.2</b></td>
+    <td class="roweven" valign="top" nowrap><i>2009-02-14</i></td>
+    <td class="roweven" valign="top" nowrap>6.0</td>
+    <td class="roweven" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="roweven" valign="top" width="2000">Another bugfix: debug code removed. Thanks, Andrew</td>
+</tr>
+<tr>
+        <td class="rowodd" valign="top" nowrap><a href="download_script.php?src_id=9939">jpythonfold.vim</a></td>
+    <td class="rowodd" valign="top" nowrap><b>3.0.1</b></td>
+    <td class="rowodd" valign="top" nowrap><i>2009-02-09</i></td>
+    <td class="rowodd" valign="top" nowrap>6.0</td>
+    <td class="rowodd" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="rowodd" valign="top" width="2000">Refactored everything again. Now not only faster, but also systematically set up. <br>I actually try to explain everything in the script, in case you are interested :-) <br>Minor bug fix over 3.0; thanks, Grissiom</td>
+</tr>
+<tr>
+        <td class="roweven" valign="top" nowrap><a href="download_script.php?src_id=9929">jpythonfold.vim</a></td>
+    <td class="roweven" valign="top" nowrap><b>2.5</b></td>
+    <td class="roweven" valign="top" nowrap><i>2009-02-07</i></td>
+    <td class="roweven" valign="top" nowrap>6.0</td>
+    <td class="roweven" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="roweven" valign="top" width="2000">Found a tiny bug: a function whose first line is a comment got folded wrong. Fixed it by removing (!) some code.</td>
+</tr>
+<tr>
+        <td class="rowodd" valign="top" nowrap><a href="download_script.php?src_id=9922">jpythonfold.vim</a></td>
+    <td class="rowodd" valign="top" nowrap><b>2.4</b></td>
+    <td class="rowodd" valign="top" nowrap><i>2009-02-06</i></td>
+    <td class="rowodd" valign="top" nowrap>6.0</td>
+    <td class="rowodd" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="rowodd" valign="top" width="2000">Now expects a colon in a class definition, but not in a function definition, allowing for multiline defs (with explanation if you happen to disagree).<br>Stamped out a bug where sometimes global code gets folded in a class.<br>Speeded up a bit.</td>
+</tr>
+<tr>
+        <td class="roweven" valign="top" nowrap><a href="download_script.php?src_id=9910">jpythonfold.vim</a></td>
+    <td class="roweven" valign="top" nowrap><b>2.3</b></td>
+    <td class="roweven" valign="top" nowrap><i>2009-02-04</i></td>
+    <td class="roweven" valign="top" nowrap>6.0</td>
+    <td class="roweven" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="roweven" valign="top" width="2000">Thanks to many helpful comment a brand new version, a bit less slow than 2.2.<br>Folding accuracy is improved thanks to my quality control system (i.e. I made a test Python file handling all cases :-)</td>
+</tr>
+<tr>
+        <td class="rowodd" valign="top" nowrap><a href="download_script.php?src_id=9908">jpythonfold.vim</a></td>
+    <td class="rowodd" valign="top" nowrap><b>2.2</b></td>
+    <td class="rowodd" valign="top" nowrap><i>2009-02-03</i></td>
+    <td class="rowodd" valign="top" nowrap>6.0</td>
+    <td class="rowodd" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="rowodd" valign="top" width="2000">Two silly bugs removed in foldtext, making version 2.1 unbearable.<br>Improved script layout a bit.</td>
+</tr>
+<tr>
+        <td class="roweven" valign="top" nowrap><a href="download_script.php?src_id=9907">jpythonfold.vim</a></td>
+    <td class="roweven" valign="top" nowrap><b>2.1</b></td>
+    <td class="roweven" valign="top" nowrap><i>2009-02-03</i></td>
+    <td class="roweven" valign="top" nowrap>6.0</td>
+    <td class="roweven" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="roweven" valign="top" width="2000">(2.0 was too buggy)<br>Major rewrite; behaves more consistently in many borderline cases. Made more readable using an extra function. <br>Also handles docstrings with single quotes.</td>
+</tr>
+<tr>
+        <td class="rowodd" valign="top" nowrap><a href="download_script.php?src_id=9904">jpythonfold.vim</a></td>
+    <td class="rowodd" valign="top" nowrap><b>1.4</b></td>
+    <td class="rowodd" valign="top" nowrap><i>2009-02-02</i></td>
+    <td class="rowodd" valign="top" nowrap>6.0</td>
+    <td class="rowodd" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="rowodd" valign="top" width="2000">Bugfix release: handles files with tabs, works even when foldcolumn or number is set.</td>
+</tr>
+<tr>
+        <td class="roweven" valign="top" nowrap><a href="download_script.php?src_id=9899">jpythonfold.vim</a></td>
+    <td class="roweven" valign="top" nowrap><b>1.3</b></td>
+    <td class="roweven" valign="top" nowrap><i>2009-02-01</i></td>
+    <td class="roweven" valign="top" nowrap>6.0</td>
+    <td class="roweven" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="roweven" valign="top" width="2000">Minor improvement giving dots between text and line count.</td>
+</tr>
+<tr>
+        <td class="rowodd" valign="top" nowrap><a href="download_script.php?src_id=9894">jpythonfold.vim</a></td>
+    <td class="rowodd" valign="top" nowrap><b>1.1</b></td>
+    <td class="rowodd" valign="top" nowrap><i>2009-02-01</i></td>
+    <td class="rowodd" valign="top" nowrap>6.0</td>
+    <td class="rowodd" valign="top"><i><a href="/account/profile.php?user_id=16451">Jurjen Bos</a></i></td>
+    <td class="rowodd" valign="top" width="2000">Thanks to a few useful reactions, here is a new version.<br>- It doesn't crash anymore if the script ends in empty lines or comments<br>- There is (commented out) code for detecting and ignoring non-python scripts<br><br></td>
+</tr>
+</table>
+<small>ip used for rating: 141.52.94.103</small>
+<!-- finish off the framework -->
+          </td>
+        </tr>
+      </table>
+    </td>
 
-" Situations (in order of the script):
-" stat  fold prev   next
-" SDEC  RG   ><=00  ><=
-" D     *    *      *     begin fold level if previous is not @: '>'.ind/&sw+1
-" E     *    *      *     keep with previous: '='
-" S     *    =      *     stays the same: '='
-" C     *    =      *     combine with previous: '='
-" S     *    >      *     stays the same: '='
-" C     *    >      *     combine with previous: '='
-" C     *    =0     *     separate blocks: 0
-" S     *    <0     *     becomes new level 1: >1 (except except/else: 1)
-" S     *    =0     *     stays 1: '=' (after level 0 comment: '>1')
-" C     *    <0     =     split definitions: 0
-" C     *    <0     <     shallow comment: -1
-" C     *    <0     >     [never occurs]
-" S     G    <      *     global, not the first: 1
-" C     G    <      *     indent isn't 0: 1
-" C     R    <      =     foldlevel as computed for next line: -1
-" C     R    <      >     foldlevel as computed for next line: -1
-" S     R    <      *     compute foldlevel the hard way: use function
-" C     R    <      <     foldlevel as computed for this line: use function
+  </tr>
+</table>
+
+<!-- END OF THE PAGE BODY: BETWEEN HEADER AND FOOTER -->
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bordercolor="red">
+  <tr><td colspan="4"><img src="/images/spacer.gif" width="1" height="5" alt=""></td></tr>
+  <tr><td colspan="4" bgcolor="#000000"><img src="/images/spacer.gif" height="2" width="1" alt=""></td></tr>
+  <tr><td colspan="4"><img src="/images/spacer.gif" width="1" height="5" alt=""></td></tr>
+  <tr>
+    <td><img src="/images/spacer.gif" width="5" height="1" alt=""></td>
+
+    <td align="left" valign="top"><small>
+      If you have questions or remarks about this site, visit the
+      <a href="http://vimonline.sf.net">vimonline development</a> pages.
+      Please use this site responsibly.
+      <br> 
+      
+      Questions about <a href="http://www.vim.org/about.php">Vim</a> should go
+      to the <a href="http://www.vim.org/maillist.php">maillist</a>.
+      Help Bram <a href="http://iccf-holland.org/">help Uganda</a>.
+      </small>
+	&nbsp;
+	&nbsp;
+
+    </td>
+
+    <td align="right" valign="top">
+      	<a href="//sourceforge.net/projects/vim" rel="nofollow"><img src="//sflogo.sourceforge.net/sflogo.php?group_id=8&type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
+    </td>
+
+    <td><img src="/images/spacer.gif" width="5" height="1" alt=""></td>
+  </tr>
+
+    
+  <tr><td colspan="4"><img src="/images/spacer.gif" width="1" height="5" alt=""></td>
+  
+  </tr>
+</table>
+
+<!-- for Google +1 button -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+</body>
+</html>
+

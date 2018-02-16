@@ -92,13 +92,3 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-alias ll='ls -l'
-alias la='ls -al'
-alias latexmain='latexmk -pv -pvc -interaction=nonstopmode -pdf -pdflatex=lualatex -bibtex main.tex'
-alias cddb='cd ~/Dropbox'
-alias origpath='export PATH=/home/chris/opt/vim/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'
-alias addanaconda='export PATH="/home/chris/opt/anaconda3/bin:$PATH"'
-
-# vi key bindings
-bindkey -v

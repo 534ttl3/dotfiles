@@ -1,3 +1,5 @@
+
+
 snippet sm "setminus"
 \setminus $1
 endsnippet
@@ -35,6 +37,10 @@ snippet nc-ceilfloor "nc-ceilfloor"
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 endsnippet
 
+snippet snote "snote"
+\snote{$1}$2
+endsnippet
+
 snippet nc-snote "nc-snote"
 \newcommand{\snote}[1]{{\scriptsize \textbf{#1} }}
 endsnippet
@@ -56,7 +62,7 @@ snippet Ndot "Ndot"
 endsnippet
 
 snippet Rdot "Rdot"
-\Rdot_{$0}
+R^{\bullet}_{$0}
 endsnippet
 
 snippet bu "bu"
@@ -347,7 +353,7 @@ snippet sr "sr" i
 \stackrel{${1:top}}{$2}
 endsnippet
 
-snippet te "text" i
+snippet tx "text" i
 \text{$1}$2
 endsnippet
 
