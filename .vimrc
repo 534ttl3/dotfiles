@@ -192,6 +192,11 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 
+" set ft plaintex to latex, so that UltiSnips doesn't create the
+" plaintex.snippets file for newly created (empty) tex files
+" you can check the filetype by typing :set filetype
+let g:tex_flavor="latex"
+
 
 " Jedi
 " let g:jedi#auto_initialization = 0
