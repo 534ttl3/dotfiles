@@ -93,12 +93,21 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-alias ll='ls -l'
-alias la='ls -al'
-alias latexmain='latexmk -pv -pvc -interaction=nonstopmode -pdf -pdflatex=lualatex -bibtex main.tex'
-alias cddb='cd ~/Dropbox'
-alias origpath='export PATH=/home/chris/opt/vim/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'
-alias addanaconda='export PATH="/home/chris/opt/anaconda3/bin:$PATH"'
-
-# vi key bindings
+# ------- zsh vi mode properly ------
+# https://dougblack.io/words/zsh-vi-mode.html
 bindkey -v
+
+# Use vim cli mode
+bindkey '^P' up-history
+bindkey '^N' down-history
+
+# backspace and ^h working even after
+# returning from command mode
+bindkey '^?' backward-delete-char
+bindkey '^h' backward-delete-char
+
+# ctrl-w removed word backwards
+bindkey '^w' backward-kill-word
+
+# ctrl-r starts searching history backward
+bindkey '^r' history-incremental-search-backward
