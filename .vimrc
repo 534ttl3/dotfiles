@@ -42,6 +42,10 @@ Plugin 'benmills/vimux'
 
 " Plugin 'tell-k/vim-autopep8'
 
+" Latex-Suite
+" Plugin 'vim-latex/vim-latex'
+" let g:Tex_AutoFolding = 0
+
 
 " vim-conda - STATUS: currently not used, sice my worklflow is to activate 
 " a virtualenv in a seperate shell and I don't use any code-completion or 
