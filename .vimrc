@@ -40,7 +40,8 @@ Plugin 'kien/ctrlp.vim'
 " vimux, call tmux command from inside vim and run in it in seperate pane
 Plugin 'benmills/vimux'
 
-" Plugin 'tell-k/vim-autopep8'
+" autopep8
+Plugin 'tell-k/vim-autopep8'
 
 " Latex-Suite
 " Plugin 'vim-latex/vim-latex'
