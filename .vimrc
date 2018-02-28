@@ -43,6 +43,9 @@ Plugin 'benmills/vimux'
 " autopep8
 Plugin 'tell-k/vim-autopep8'
 
+" simple latex folding
+Plugin 'matze/vim-tex-fold'
+
 " Latex-Suite
 " Plugin 'vim-latex/vim-latex'
 " let g:Tex_AutoFolding = 0
