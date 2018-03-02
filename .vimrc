@@ -40,7 +40,15 @@ Plugin 'kien/ctrlp.vim'
 " vimux, call tmux command from inside vim and run in it in seperate pane
 Plugin 'benmills/vimux'
 
-" Plugin 'tell-k/vim-autopep8'
+" autopep8
+Plugin 'tell-k/vim-autopep8'
+
+" simple latex folding
+Plugin 'matze/vim-tex-fold'
+
+" Latex-Suite
+" Plugin 'vim-latex/vim-latex'
+" let g:Tex_AutoFolding = 0
 
 
 " vim-conda - STATUS: currently not used, sice my worklflow is to activate 
@@ -191,6 +199,11 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
+
+" set ft plaintex to latex, so that UltiSnips doesn't create the
+" plaintex.snippets file for newly created (empty) tex files
+" you can check the filetype by typing :set filetype
+let g:tex_flavor="latex"
 
 
 " Jedi

@@ -1,4 +1,33 @@
 
+snippet fsbs "figures side by side"
+\begin{table}
+\centering
+\begin{minipage}{.5\textwidth}
+\centering
+\includegraphics[width=.4\linewidth]{blacksquare.png}
+\captionof{figure}{A figure}
+\label{fig:test1}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\centering
+\includegraphics[width=.4\linewidth]{blacksquare.png}
+\captionof{figure}{Another figure}
+\label{fig:test2}
+\end{minipage}
+\end{table}
+endsnippet
+
+snippet cref "cref"
+\cref{$1:$2}$3
+endsnippet
+
+snippet snote "snote"
+\snote{$1}$2
+endsnippet
+
+snippet imax "imax"
+i_\mathrm{max}
+endsnippet
 
 snippet sm "setminus"
 \setminus $1
@@ -58,11 +87,11 @@ snippet nc-Pdot "newcommand-Pdot"
 endsnippet
 
 snippet Ndot "Ndot"
-\Ndot_{$0}
+N_{$1}^\bullet$0
 endsnippet
 
 snippet Rdot "Rdot"
-R^{\bullet}_{$0}
+R_{$1}^\bullet$0
 endsnippet
 
 snippet bu "bu"
@@ -351,10 +380,6 @@ endsnippet
 
 snippet sr "sr" i
 \stackrel{${1:top}}{$2}
-endsnippet
-
-snippet tx "text" i
-\text{$1}$2
 endsnippet
 
 snippet text "text" i
