@@ -121,4 +121,4 @@ alias latexmain='latexmk -pv -pvc -interaction=nonstopmode -pdf -pdflatex=lualat
 alias cddb='cd ~/Dropbox'
 alias origpath='export PATH=/home/chris/opt/vim/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'
 alias addanaconda='export PATH="/home/chris/opt/anaconda3/bin:$PATH"'
-alias work='$HOME/work.sh'
+alias work='$HOME/.work.sh'
