@@ -7,3 +7,4 @@ alias origpath='export PATH=/home/chris/opt/vim/bin:/usr/local/sbin:/usr/local/b
 alias addanaconda='export PATH="/home/chris/opt/anaconda3/bin:$PATH"'
 alias work='$HOME/.work.sh'
 alias vapdfs='impressive -T0 --fake-fullscreen *.pdf'
+alias clffiles='rm *.png *.pdf *.eps *.csv'  # clear figure files (in current directory)

@@ -112,4 +112,4 @@ bindkey '^w' backward-kill-word
 # ctrl-r starts searching history backward
 bindkey '^r' history-incremental-search-backward
 
-source .my_aliases.sh
+source $HOME/.my_aliases.sh
