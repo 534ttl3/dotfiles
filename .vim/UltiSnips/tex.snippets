@@ -1,3 +1,23 @@
+snippet nacr "new acronym"
+\newglossaryentry{${1:id}}{name={$2}, description={$3}, type=\acronymtype}
+endsnippet
+
+snippet nsym "new symbol"
+\newglossaryentry{${1:id}}{name={$2}, description={$3}, type=symbolslist}
+endsnippet
+
+snippet gls "new glossary entry"
+\gls{${1:id}}
+endsnippet
+
+snippet subfigs_stacked_ig "requires graphicx, floatrow, subfig packages"
+\begin{figure}
+  \sidesubfloat[]{\includegraphics{image1}\label{fig:sub1}}\\
+  \sidesubfloat[]{\includegraphics{image2}\label{fig:sub2}}%
+  \caption{Two subfigures stacked, with one caption}\label{fig:test}
+\end{figure}
+endsnippet
+
 snippet cpgf "centered pgf"
 \begin{figure}
 \makebox[\textwidth][c]{\input{${1:fig.pgf}}}
