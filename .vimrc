@@ -230,6 +230,8 @@ let g:jedi#completions_enabled = 1
 
 let g:jedi#force_py_version = 3
 
+let g:jedi#call_signature_escape="'=`='"
+
 
 " I don't want the docstring window to popup during completion
 " autocmd FileType python setlocal completeopt-=preview

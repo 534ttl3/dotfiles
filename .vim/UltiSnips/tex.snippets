@@ -1,3 +1,44 @@
+snippet nacr "new acronym"
+\newglossaryentry{${1:id}}{name={$2}, description={$3}, type=\acronymtype}
+endsnippet
+
+snippet nsym "new symbol"
+\newglossaryentry{${1:id}}{name={$2}, description={$3}, type=symbolslist}
+endsnippet
+
+snippet gls "new glossary entry"
+\gls{${1:id}}
+endsnippet
+
+snippet subfigs_stacked_ig "requires graphicx, floatrow, subfig packages"
+\begin{figure}
+  \sidesubfloat[]{\includegraphics{image1}\label{fig:sub1}}\\
+  \sidesubfloat[]{\includegraphics{image2}\label{fig:sub2}}%
+  \caption{Two subfigures stacked, with one caption}\label{fig:test}
+\end{figure}
+endsnippet
+
+snippet cpgf "centered pgf"
+\begin{figure}
+\makebox[\textwidth][c]{\input{${1:fig.pgf}}}
+\caption{caption}
+\label{fig:ex}
+\end{figure}
+endsnippet
+
+snippet eps_tex "eps_tex"
+\documentclass{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx, xcolor}
+\begin{document} 
+\input{$1.eps_tex}
+\end{document} 
+endsnippet
+
+
+snippet wt "widetilde"
+\widetilde{$1}$2
+endsnippet
 
 snippet fsbs "figures side by side"
 \begin{table}
