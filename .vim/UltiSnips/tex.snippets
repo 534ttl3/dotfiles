@@ -1,3 +1,107 @@
+snippet hrule "horizontal line"
+\\ \\\\ \noindent\rule{\textwidth}{1pt}
+endsnippet
+
+snippet cmax2 "cmax2"
+c_{\mathrm{max,2}}
+endsnippet
+
+snippet PDI "PDI"
+$\mathrm{PDI}$
+endsnippet
+
+snippet nbim "nbar_imax"
+\bar{n}_{ i_\mathrm{max}}
+endsnippet
+
+snippet np "numerische Parameter"
+\bar{n}_{ i_\mathrm{max}} = \num{$1}, i_\mathrm{max} = $2
+endsnippet
+
+snippet SI "SI siunitx"
+\SI{$1}{$2}
+endsnippet
+
+snippet si "si siunitx"
+\si{$1}
+endsnippet
+
+snippet num "num siunitx"
+\num{$1}
+endsnippet
+
+snippet nacrg "new acronym"
+\newglossaryentry{$1}{name={$2}, description={$3}, type=\acronymtype}\gls{$1}
+endsnippet
+
+snippet nsymg "new symbol"
+\newglossaryentry{$1}{name={$2}, description={$3}, type=symbolslist}\gls{$1}
+endsnippet
+
+snippet gls "new glossary entry"
+\gls{${1:id}}
+endsnippet
+
+snippet subfigs_stacked_ig "requires graphicx, floatrow, subfig packages"
+\begin{figure}
+  \sidesubfloat[]{\includegraphics{image1}\label{fig:sub1}}\\
+  \sidesubfloat[]{\includegraphics{image2}\label{fig:sub2}}%
+  \caption{Two subfigures stacked, with one caption}\label{fig:test}
+\end{figure}
+endsnippet
+
+snippet cpgf "centered pgf"
+\begin{figure}
+\makebox[\textwidth][c]{\input{${1:fig.pgf}}}
+\caption{caption}
+\label{fig:ex}
+\end{figure}
+endsnippet
+
+snippet eps_tex "eps_tex"
+\documentclass{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx, xcolor}
+\begin{document} 
+\input{$1.eps_tex}
+\end{document} 
+endsnippet
+
+
+snippet wt "widetilde"
+\widetilde{$1}$2
+endsnippet
+
+snippet fsbs "figures side by side"
+\begin{table}
+\centering
+\begin{minipage}{.5\textwidth}
+\centering
+\includegraphics[width=.4\linewidth]{blacksquare.png}
+\captionof{figure}{A figure}
+\label{fig:test1}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\centering
+\includegraphics[width=.4\linewidth]{blacksquare.png}
+\captionof{figure}{Another figure}
+\label{fig:test2}
+\end{minipage}
+\end{table}
+endsnippet
+
+snippet cref "cref"
+\cref{$1:$2}$3
+endsnippet
+
+snippet snote "snote"
+\snote{$1}$2
+endsnippet
+
+snippet imax "imax"
+i_\mathrm{max}
+endsnippet
+
 snippet sm "setminus"
 \setminus $1
 endsnippet
@@ -23,7 +127,7 @@ snippet fa "forall"
 endsnippet
 
 snippet ii "dollars"
-\$ $1\$ $2
+\$ $1\$$2
 endsnippet
 
 snippet ba "bar"
@@ -345,10 +449,6 @@ endsnippet
 
 snippet sr "sr" i
 \stackrel{${1:top}}{$2}
-endsnippet
-
-snippet te "text" i
-\text{$1}$2
 endsnippet
 
 snippet text "text" i

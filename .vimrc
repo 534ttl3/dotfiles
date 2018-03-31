@@ -40,7 +40,18 @@ Plugin 'kien/ctrlp.vim'
 " vimux, call tmux command from inside vim and run in it in seperate pane
 Plugin 'benmills/vimux'
 
-" Plugin 'tell-k/vim-autopep8'
+" autopep8
+Plugin 'tell-k/vim-autopep8'
+
+" simple latex folding
+Plugin 'matze/vim-tex-fold'
+
+" replace only visually selected region, not the whole line
+Plugin 'vim-scripts/vis'
+
+" Latex-Suite
+" Plugin 'vim-latex/vim-latex'
+" let g:Tex_AutoFolding = 0
 
 
 " vim-conda - STATUS: currently not used, sice my worklflow is to activate 
@@ -162,6 +173,10 @@ augroup LaTeXDisplayAndMoveSettings
     autocmd FileType tex setlocal scrolloff=5
 augroup END
 
+augroup LaTeXDisplayAndMoveSettings
+    autocmd!
+    autocmd FileType m3u nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
+augroup END
 
 " navigate splits more efficiently
 nnoremap <C-J> <C-W><C-J>
@@ -221,6 +236,8 @@ let g:jedi#rename_command = "<leader>r"
 let g:jedi#completions_enabled = 1
 
 let g:jedi#force_py_version = 3
+
+let g:jedi#call_signature_escape="'=`='"
 
 
 " I don't want the docstring window to popup during completion
