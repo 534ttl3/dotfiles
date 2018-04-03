@@ -173,10 +173,7 @@ augroup LaTeXDisplayAndMoveSettings
     autocmd FileType tex setlocal scrolloff=5
 augroup END
 
-augroup LaTeXDisplayAndMoveSettings
-    autocmd!
-    autocmd FileType m3u nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
-augroup END
+nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
 
 " navigate splits more efficiently
 nnoremap <C-J> <C-W><C-J>
