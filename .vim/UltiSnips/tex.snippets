@@ -1,3 +1,19 @@
+snippet sl "slashed, requires *slashed* package"
+\slashed{$1}
+endsnippet
+
+snippet com "comma (Komma) nach Gleichung"
+\quad , 
+endsnippet
+
+snippet dot "dot (Punkt) nach Gleichung"
+\quad . 
+endsnippet
+
+snippet mkbs "mkbs"
+\makebox[\textwidth][c]{\scalebox{1.0}{\input{${1:fig.pgf}}}}
+endsnippet
+
 snippet hrule "horizontal line"
 \\ \\\\ \noindent\rule{\textwidth}{1pt}
 endsnippet
@@ -671,7 +687,7 @@ snippet Ome "Omega" i
 endsnippet
 
 # Brackets
-snippet (()) "left( right)"
+snippet (()) "left( right)" 
 \left(${1}\right)
 endsnippet
 snippet [[]] "left[ right]"
