@@ -4,6 +4,7 @@
 !.bash_aliases
 !.bashrc
 !.config/flake8
+!.config/vlc/vlcrc
 !.inputrc
 !.latexmkrc
 !.tmux.conf
@@ -16,3 +17,4 @@
 !.tips.md
 !.printerconfig/CD1242.PPD
 !.work.sh
+!./ssh/config

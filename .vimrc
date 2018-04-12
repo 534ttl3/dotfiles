@@ -46,6 +46,9 @@ Plugin 'tell-k/vim-autopep8'
 " simple latex folding
 Plugin 'matze/vim-tex-fold'
 
+" replace only visually selected region, not the whole line
+Plugin 'vim-scripts/vis'
+
 " Latex-Suite
 " Plugin 'vim-latex/vim-latex'
 " let g:Tex_AutoFolding = 0
@@ -170,6 +173,7 @@ augroup LaTeXDisplayAndMoveSettings
     autocmd FileType tex setlocal scrolloff=5
 augroup END
 
+nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
 
 " navigate splits more efficiently
 nnoremap <C-J> <C-W><C-J>
