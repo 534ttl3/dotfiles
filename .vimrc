@@ -171,9 +171,13 @@ augroup LaTeXDisplayAndMoveSettings
     " Vimux
     autocmd FileType tex nmap <leader>la :call VimuxRunCommand("latexmain")<cr>
     autocmd FileType tex setlocal scrolloff=5
+
+    " autocmd FileType tex nmap <Leader>newlog i\ \\ \noindent\rule{\textwidth}{1pt}^M^[:read! date^Mi<80>kb^[A^M^[ 
 augroup END
 
 nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
+
+nmap <Leader>newlog i^M^[:read! date^MA^M^[
 
 " navigate splits more efficiently
 nnoremap <C-J> <C-W><C-J>
