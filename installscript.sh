@@ -22,7 +22,7 @@ sudo pip3 install scipy matplotlib numba flake8 ipdb sympy python3-tk
 # git clone https://github.com/534ttl3/dotfiles
 cd ~
 git init 
-git add remote origin git@github.com/534ttl3/dotfiles.git
+git remote add origin git@github.com/534ttl3/dotfiles.git
 git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
 
