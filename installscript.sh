@@ -5,6 +5,19 @@ sudo apt-get update && sudo apt-get upgrade
 echo "Installing git and vim"
 # install crucial tools
 sudo apt install -y git git-annex vim
+# dotfiles
+# git clone https://github.com/534ttl3/dotfiles
+cd ~
+echo "git init for dotfiles in ~ ... "
+git init 
+echo "adding ssh key with ssh-keygen ..."
+ssh-keygen
+echo "--> you should register your public key with github at "
+echo "    https://github.com/settings/keys"
+git remote add origin ssh://git@github.com/534ttl3/dotfiles.git
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+git pull origin master
 # install vim plugins
 # Vundle 
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
@@ -18,14 +31,6 @@ sudo apt install -y xclip xdg-utils htop openssh-client curl tmux zsh samba samb
 sudo pip3 install scipy matplotlib numba flake8 ipdb sympy python3-tk
 
 
-# dotfiles
-# git clone https://github.com/534ttl3/dotfiles
-cd ~
-git init 
-git remote add origin git@github.com/534ttl3/dotfiles.git
-git config --global user.email "you@example.com"
-git config --global user.name "Your Name"
-
 # oh-my-zsh
 sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 chsh -s $(which zsh)  # this shouldn't be executed as sudo
@@ -34,11 +39,6 @@ chsh -s $(which zsh)  # this shouldn't be executed as sudo
 echo "---- custom stuff begin ----"
 read -n1 -r -p "Press any key to continue..." key
 
-echo "adding ssh key with ssh-keygen ..."
-ssh-keygen
-
-echo "--> if you wish, register your public key with github at "
-echo "    https://github.com/settings/keys"
 echo "--> and then pull down your dotfiles into your ~ directory"
 
 echo "--> please now reboot the system so that all changes take effect"
