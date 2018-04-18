@@ -1,9 +1,19 @@
 # don't execute as sudo, because some settings are user-specific
-
+echo "Installing git and vim"
 # install crucial tools
 sudo apt install -y git git-annex vim
+# install vim plugins
+# Vundle 
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+# install plugins 
+vim -c PluginInstall
+
+echo "done"
+read -n1 -r -p "Press any key to continue... (installing suite of helper tools)" key
+
 sudo apt install -y xclip xdg-utils htop openssh-client curl tmux zsh samba samba-common smbclient build-essential python3-pip tree
 sudo pip3 install scipy matplotlib numba flake8 ipdb sympy python3-tk
+
 
 # dotfiles
 mkdir ~/projects
