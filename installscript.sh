@@ -1,4 +1,7 @@
 # don't execute as sudo, because some settings are user-specific
+echo "Update & Upgrade"
+sudo apt-get update && sudo apt-get upgrade
+
 echo "Installing git and vim"
 # install crucial tools
 sudo apt install -y git git-annex vim
@@ -16,10 +19,12 @@ sudo pip3 install scipy matplotlib numba flake8 ipdb sympy python3-tk
 
 
 # dotfiles
-mkdir ~/projects
-cd ~/projects
-# sudo git clone ssh://git@github.com/534ttl3/dotfiles.git
-git clone https://github.com/534ttl3/dotfiles
+# git clone https://github.com/534ttl3/dotfiles
+cd ~
+git init 
+git add remote origin git@github.com/534ttl3/dotfiles.git
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
 
 # oh-my-zsh
 sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
@@ -34,6 +39,6 @@ ssh-keygen
 
 echo "--> if you wish, register your public key with github at "
 echo "    https://github.com/settings/keys"
-
+echo "--> and then pull down your dotfiles into your ~ directory"
 
 echo "--> please now reboot the system so that all changes take effect"
