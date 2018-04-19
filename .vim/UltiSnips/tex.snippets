@@ -4,6 +4,80 @@ endsnippet
 
 snippet dots "dots"
 \dots
+
+snippet %{ "code folding"
+%{{{ $1
+%}}}
+endsnippet
+
+snippet tr "trace" i
+\mathrm{tr}($1)
+endsnippet
+
+snippet hwtemplate "homework template"
+\documentclass[12pt]{article}
+
+\usepackage{answers}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{mathrsfs}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb}
+
+\newenvironment{theorem}[2][Theorem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{definition}[2][Definition]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{proposition}[2][Proposition]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{lemma}[2][Lemma]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{exercise}[2][Exercise]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{solution}[2][Solution]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{question}[2][Question]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{corollary}[2][Corollary]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+
+\title{Computing Activity Protocol}
+\author{CS}, \quad
+\today
+\maketitle
+
+\begin{problem}{}
+$1
+\end{problem}
+
+\begin{solution}{}
+$2
+\end{solution}
+
+\end{document}
+endsnippet
+
+
+snippet sl "slashed, requires *slashed* package"
+\slashed{$1}
+endsnippet
+
+snippet com "comma (Komma) nach Gleichung"
+\quad , 
+endsnippet
+
+snippet dot "dot (Punkt) nach Gleichung"
+\quad . 
+endsnippet
+
+snippet mkbs "mkbs"
+\makebox[\textwidth][c]{\scalebox{1.0}{\input{${1:fig.pgf}}}}
 endsnippet
 
 snippet hrule "horizontal line"
@@ -145,6 +219,10 @@ endsnippet
 snippet nc-ceilfloor "nc-ceilfloor"
 \DeclarePairedDelimiter\ceil{\lceil}{\rceil}
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+endsnippet
+
+snippet snote "snote"
+\snote{$1}$2
 endsnippet
 
 snippet nc-snote "nc-snote"
@@ -679,7 +757,7 @@ snippet Ome "Omega" i
 endsnippet
 
 # Brackets
-snippet (()) "left( right)"
+snippet (()) "left( right)" 
 \left(${1}\right)
 endsnippet
 snippet [[]] "left[ right]"

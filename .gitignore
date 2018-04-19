@@ -8,7 +8,7 @@
 !.inputrc
 !.latexmkrc
 !.tmux.conf
-!.vim/UltiSnips/*
+!.vim/UltiSnips/*.snippets
 !.vim/ftplugin/python.vim
 !.vimrc
 !.xinitrc

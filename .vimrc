@@ -171,12 +171,13 @@ augroup LaTeXDisplayAndMoveSettings
     " Vimux
     autocmd FileType tex nmap <leader>la :call VimuxRunCommand("latexmain")<cr>
     autocmd FileType tex setlocal scrolloff=5
-augroup END
 
 augroup m3uEditingSettings
     autocmd!
     autocmd FileType m3u nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
 augroup END
+
+nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
 
 " navigate splits more efficiently
 nnoremap <C-J> <C-W><C-J>
