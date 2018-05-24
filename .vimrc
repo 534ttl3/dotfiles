@@ -27,9 +27,11 @@ Plugin 'ivalkeen/nerdtree-execute'
 " Syntastic (syntax checking) for python
 Plugin 'vim-syntastic/syntastic'
 
-" vim-airline (beautiful status line)
+" vim-airline (beautiful status line)  
+" # WARNING: Do 24. Mai 11:03:50 CEST 2018: 
+" vim-airline may cause delays when switching buffers
 Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
+" Plugin 'vim-airline/vim-airline-themes'
 
 " tmuxline, enables vim-airline to work within tmux
 Plugin 'edkolev/tmuxline.vim'
@@ -177,7 +179,7 @@ augroup m3uEditingSettings
     autocmd FileType m3u nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
 augroup END
 
-nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
+" nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
 
 " navigate splits more efficiently
 nnoremap <C-J> <C-W><C-J>
@@ -264,8 +266,6 @@ let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': ['python', '
 
 " airline
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_powerline_fonts = 1
+" let g:airline_powerline_fonts = 1
 " install powerline fonts:
 " https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
-
-
