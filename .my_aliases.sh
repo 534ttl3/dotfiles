@@ -9,3 +9,4 @@ alias work='$HOME/.work.sh'
 alias vapdfs='impressive -T0 --fake-fullscreen *.pdf'
 alias clffiles='rm *.png *.pdf *.eps *.csv'  # clear figure files (in current directory)
 alias edvlog='cd $HOME/projects/computing_activity_protocol; vim main.tex'
+alias frenchwriting='cd $HOME/Dropbox/1Projects/2FrenchLearning/sommaire'
