@@ -121,12 +121,16 @@ snippet num "num siunitx"
 \num{$1}
 endsnippet
 
-snippet nacrg "new acronym"
-\newglossaryentry{$1}{name={$2}, description={$3}, type=\acronymtype}\gls{$1}
+snippet ngls "new main glossary entry"
+\newglossaryentry{$1}{name={$2}, description={$3}}
 endsnippet
 
-snippet nsymg "new symbol"
-\newglossaryentry{$1}{name={$2}, description={$3}, type=symbolslist}\gls{$1}
+snippet nacr "new acronym"
+\newglossaryentry{$1}{name={$2}, description={$3}, type=\acronymtype}
+endsnippet
+
+snippet nsym "new symbol"
+\newglossaryentry{$1}{name={$2}, description={$3}, type=symbolslist}
 endsnippet
 
 snippet gls "new glossary entry"
