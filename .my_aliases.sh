@@ -10,4 +10,4 @@ alias vapdfs='impressive -T0 --fake-fullscreen *.pdf'
 alias clffiles='rm *.png *.pdf *.eps *.csv'  # clear figure files (in current directory)
 alias edvlog='cd $HOME/projects/computing_activity_protocol; vim main.tex'
 alias scrap='cd $HOME/projects/computing_activity_protocol; vim scrap.md'
-alias lmkCA_and_others='latexmk -CA; find . -name "*.bbl" -o -name "*.run.xml" -o -name "*.aux" | xargs rm'
+alias lmkCA_and_others='latexmk -CA; rm indices.tex; find . -name "*.bbl" -o -name "*.run.xml" -o -name "*.aux" | xargs rm'

@@ -141,10 +141,8 @@ set fo-=t   " don't automatically wrap text when typing
 set colorcolumn=80
 " highlight ColorColumn ctermbg=233
 
-augroup PythonDisplayAndMoveSettings
-    autocmd!
+augroup PythonDisplayAndMoveSettings 
     let b:folded = 1
-
     function! ToggleFold()
         if( b:folded == 0 )
             exec "normal! zM"
@@ -269,3 +267,7 @@ let g:airline#extensions#tabline#enabled = 1
 " let g:airline_powerline_fonts = 1
 " install powerline fonts:
 " https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
+
+if isdirectory("~/templates/help")
+    :helptags ~/templates/help
+endif
