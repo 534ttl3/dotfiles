@@ -94,3 +94,11 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 source ~/.my_aliases.sh
+
+# vim mode settings taken from github.com/gotbletu 
+
+# enable vim mode on commmand line
+bindkey -v
+
+# fix reverse history search for zsh vim mode
+bindkey "^R" history-incremental-search-backward
