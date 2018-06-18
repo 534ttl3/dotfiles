@@ -1,3 +1,7 @@
+snippet bigol "big old"
+{\Large \textbf{$1} \hspace*{10pt}} 
+endsnippet
+
 snippet enq "enquote" i
 \enquote{$1}
 endsnippet 
@@ -6,9 +10,9 @@ snippet # "sharp" i
 \sharp
 endsnippet
 
-snippet b "flat" i
-\flat
-endsnippet
+# snippet b "flat" i
+# \flat
+# endsnippet
 
 snippet cc "chord" i
 \cc{$1}{$2}{$3}{$4}
@@ -76,19 +80,19 @@ snippet num "num siunitx"
 \num{$1}
 endsnippet
 
-snippet ngls "new main glossary entry"
-\newglossaryentry{$1}{name={$2}, description={$3}}
+snippet nw "new main glossary entry"
+\newglossaryentry{$1}{name={$1}, description={$3}}
 endsnippet
 
-snippet nacr "new acronym"
+snippet na "new acronym"
 \newglossaryentry{$1}{name={$2}, description={$3}, type=\acronymtype}
 endsnippet
 
-snippet nsym "new symbol"
+snippet ns "new symbol"
 \newglossaryentry{$1}{name={$2}, description={$3}, type=symbolslist}
 endsnippet
 
-snippet gls "new glossary entry"
+snippet gls "glossary entry occurrence" i
 \gls{$1}
 endsnippet
 
@@ -517,7 +521,7 @@ snippet ub "ub" i
 \underbrace{$1}_{$2}
 endsnippet
 
-snippet ol "ol" i
+snippet ol "ol"
 \overline{$1}
 endsnippet
 
