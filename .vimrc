@@ -170,6 +170,7 @@ augroup LaTeXDisplayAndMoveSettings
     autocmd FileType tex nnoremap <buffer> k gk
     " Vimux
     autocmd FileType tex nmap <leader>la :call VimuxRunCommand("latexmain")<cr>
+    autocmd FileType tex nmap <leader>lawg :call VimuxRunCommand("latexmainwithglossaries")<cr>
     autocmd FileType tex setlocal scrolloff=5
 
     " autocmd FileType tex nmap <Leader>newlog i\ \\ \noindent\rule{\textwidth}{1pt}^M^[:read! date^Mi<80>kb^[A^M^[ 
