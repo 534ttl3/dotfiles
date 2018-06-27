@@ -16,6 +16,11 @@ snippet macro "macro"
 }
 endsnippet
 
+snippet bigol "big old"
+{\Large \textbf{$1} \hspace*{10pt}} 
+>>>>>>> 11dab14b702ce65b61b25a2d105d2a53a84b0ec6
+endsnippet
+
 snippet enq "enquote" i
 \enquote{$1}
 endsnippet 
@@ -30,7 +35,6 @@ endsnippet
 
 snippet bp "bauplan"
 {\tiny \shortstack{$1}}
->>>>>>> 85f22a056222e6316af2740ea99405a17d6c5082
 endsnippet
 
 snippet %{ "code folding"
@@ -90,19 +94,19 @@ snippet num "num siunitx"
 \num{$1}
 endsnippet
 
-snippet ngls "new main glossary entry"
-\newglossaryentry{$1}{name={$2}, description={$3}}
+snippet nw "new main glossary entry"
+\newglossaryentry{$1}{name={$1}, description={$3}}
 endsnippet
 
-snippet nacr "new acronym"
+snippet na "new acronym"
 \newglossaryentry{$1}{name={$2}, description={$3}, type=\acronymtype}
 endsnippet
 
-snippet nsym "new symbol"
+snippet ns "new symbol"
 \newglossaryentry{$1}{name={$2}, description={$3}, type=symbolslist}
 endsnippet
 
-snippet gls "new glossary entry"
+snippet gls "glossary entry occurrence" i
 \gls{$1}
 endsnippet
 
@@ -534,7 +538,7 @@ snippet ub "ub" i
 \underbrace{$1}_{$2}
 endsnippet
 
-snippet ol "ol" i
+snippet ol "ol"
 \overline{$1}
 endsnippet
 
