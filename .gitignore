@@ -8,12 +8,14 @@
 !.inputrc
 !.latexmkrc
 !.tmux.conf
-!.vim/UltiSnips/*.snippets
+!.vim/UltiSnips/tex.snippets
+!.vim/UltiSnips/markdown.snippets
+!.vim/UltiSnips/m3u.snippets
 !.vim/ftplugin/python.vim
 !.vimrc
 !.xinitrc
 !.zshrc
 !.README.md
 !.tips.md
-!.printerconfig/CD1242.PPD
 !.work.sh
+!.xournal/config

@@ -141,10 +141,8 @@ set fo-=t   " don't automatically wrap text when typing
 set colorcolumn=80
 " highlight ColorColumn ctermbg=233
 
-augroup PythonDisplayAndMoveSettings
-    autocmd!
+augroup PythonDisplayAndMoveSettings 
     let b:folded = 1
-
     function! ToggleFold()
         if( b:folded == 0 )
             exec "normal! zM"
@@ -172,6 +170,7 @@ augroup LaTeXDisplayAndMoveSettings
     autocmd FileType tex nnoremap <buffer> k gk
     " Vimux
     autocmd FileType tex nmap <leader>la :call VimuxRunCommand("latexmain")<cr>
+    autocmd FileType tex nmap <leader>lawg :call VimuxRunCommand("latexmainwithglossaries")<cr>
     autocmd FileType tex setlocal scrolloff=5
 
 augroup m3uEditingSettings
@@ -179,7 +178,7 @@ augroup m3uEditingSettings
     autocmd FileType m3u nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
 augroup END
 
-" nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
+nmap <Leader>a /=lC1Vv:B !awk '{ split($0,a,":"); print (a[1]*60)+a[2] }' <<< "
 
 " navigate splits more efficiently
 nnoremap <C-J> <C-W><C-J>
@@ -269,3 +268,7 @@ let g:airline#extensions#tabline#enabled = 1
 " let g:airline_powerline_fonts = 1
 " install powerline fonts:
 " https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
+
+if isdirectory("~/templates/help")
+    :helptags ~/templates/help
+endif

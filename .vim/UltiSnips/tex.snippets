@@ -8,72 +8,64 @@ snippet dots "dots"
 snippet %{ "code folding"
 %{{{ $1
 %}}}
+
+snippet chno "child node" i
+child { node {$1} 
+}
+endsnippet 
+
+snippet macro "macro"
+\def\lecture#1#2#3#4#5#6{
+    \node [annotation, #3, scale=0.65, text width=4cm, inner sep=2mm] at (#4) {
+        Lecture #1: \textcolor{orange}{\textbf{#2}}
+        \list{--}{\topsep=2pt\itemsep=0pt\parsep=0pt
+            \parskip=0pt\labelwidth=8pt\leftmargin=8pt
+            \itemindent=0pt\labelsep=2pt}
+        #5
+        \endlist
+    };
+}
+endsnippet
+
+snippet bigol "big old"
+{\Large \textbf{$1} \hspace*{10pt}} 
+endsnippet
+
+snippet enq "enquote" i
+\enquote{$1}
+endsnippet 
+
+snippet # "sharp" i
+\sharp
+endsnippet
+
+snippet cc "chord" i
+\cc{$1}{$2}{$3}{$4}
+endsnippet
+
+snippet bp "bauplan"
+{\tiny \shortstack{$1}}
+endsnippet
+
+snippet %{ "code folding"
+%{{{ $1
+%}}}
 endsnippet
 
 snippet tr "trace" i
 \mathrm{tr}($1)
 endsnippet
 
-snippet hwtemplate "homework template"
-\documentclass[12pt]{article}
-
-\usepackage{answers}
-\usepackage{setspace}
-\usepackage{graphicx}
-\usepackage{enumitem}
-\usepackage{multicol}
-\usepackage{mathrsfs}
-\usepackage[margin=1in]{geometry} 
-\usepackage{amsmath,amsthm,amssymb}
-
-\newenvironment{theorem}[2][Theorem]{\begin{trivlist}
-\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
-\newenvironment{definition}[2][Definition]{\begin{trivlist}
-\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
-\newenvironment{proposition}[2][Proposition]{\begin{trivlist}
-\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
-\newenvironment{lemma}[2][Lemma]{\begin{trivlist}
-\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
-\newenvironment{exercise}[2][Exercise]{\begin{trivlist}
-\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
-\newenvironment{solution}[2][Solution]{\begin{trivlist}
-\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
-\newenvironment{problem}[2][Problem]{\begin{trivlist}
-\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
-\newenvironment{question}[2][Question]{\begin{trivlist}
-\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
-\newenvironment{corollary}[2][Corollary]{\begin{trivlist}
-\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
-
-\begin{document}
-
-\title{Computing Activity Protocol}
-\author{CS}, \quad
-\today
-\maketitle
-
-\begin{problem}{}
-$1
-\end{problem}
-
-\begin{solution}{}
-$2
-\end{solution}
-
-\end{document}
-endsnippet
-
-
 snippet sl "slashed, requires *slashed* package"
 \slashed{$1}
 endsnippet
 
 snippet com "comma (Komma) nach Gleichung"
-\quad , 
+\quad ,
 endsnippet
 
 snippet dot "dot (Punkt) nach Gleichung"
-\quad . 
+\quad .
 endsnippet
 
 snippet mkbs "mkbs"
@@ -112,16 +104,20 @@ snippet num "num siunitx"
 \num{$1}
 endsnippet
 
-snippet nacrg "new acronym"
-\newglossaryentry{$1}{name={$2}, description={$3}, type=\acronymtype}\gls{$1}
+snippet nw "new main glossary entry"
+\newglossaryentry{$1}{name={$1}, description={$3}}
 endsnippet
 
-snippet nsymg "new symbol"
-\newglossaryentry{$1}{name={$2}, description={$3}, type=symbolslist}\gls{$1}
+snippet na "new acronym"
+\newglossaryentry{$1}{name={$2}, description={$3}, type=\acronymtype}
 endsnippet
 
-snippet gls "new glossary entry"
-\gls{${1:id}}
+snippet ns "new symbol"
+\newglossaryentry{$1}{name={$2}, description={$3}, type=symbolslist}
+endsnippet
+
+snippet gls "glossary entry occurrence" i
+\gls{$1}
 endsnippet
 
 snippet subfigs_stacked_ig "requires graphicx, floatrow, subfig packages"
@@ -144,9 +140,9 @@ snippet eps_tex "eps_tex"
 \documentclass{standalone}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx, xcolor}
-\begin{document} 
+\begin{document}
 \input{$1.eps_tex}
-\end{document} 
+\end{document}
 endsnippet
 
 
@@ -328,7 +324,7 @@ snippet textstyle "textstyle"
 endsnippet
 
 
-snippet ^ "^"
+snippet ^ "^" i
 ^{$1}
 endsnippet
 
@@ -337,6 +333,9 @@ snippet bbs "bbs"
 \left[ $1 \right]
 endsnippet
 
+snippet bba "bba" i
+\left\langle $1 \right\rangle
+endsnippet
 
 snippet bbc "bbc"
 \left\\{ $1 \right\\}
@@ -344,12 +343,12 @@ endsnippet
 
 
 snippet bbn "bbn"
-\left( $1 \right) 
+\left( $1 \right)
 endsnippet
 
 
 snippet textcolor "textcolor"
-\textcolor{red}{$2} 
+\textcolor{red}{$2}
 endsnippet
 
 
@@ -392,12 +391,12 @@ endsnippet
 
 
 snippet Lrarr "Lrarr"
-\Leftrightarrow 
+\Leftrightarrow
 endsnippet
 
 
 snippet rarr "rarr"
-\rightarrow 
+\rightarrow
 endsnippet
 
 
@@ -449,14 +448,14 @@ snippet subsubsec "subsubsec"
 endsnippet
 
 
-snippet item "item"
-\item 
+snippet it "item"
+\item
 endsnippet
 
 snippet begit "begit"
 \begin{itemize}
 \item $0
-\end{itemize} 
+\end{itemize}
 endsnippet
 
 snippet fig "fig"
@@ -510,23 +509,23 @@ $0
 endsnippet
 
 snippet imp "imp" i
-\implies 
+\implies
 endsnippet
 
 snippet qd "qd" i
-\quad 
+\quad
 endsnippet
 
 snippet hb "hb" i
-\hbar 
+\hbar
 endsnippet
 
 snippet cd "cd" i
-\cdot 
+\cdot
 endsnippet
 
 snippet vec "vec" i
-\vec 
+\vec
 endsnippet
 
 snippet fr "fr" i
@@ -549,7 +548,7 @@ snippet ub "ub" i
 \underbrace{$1}_{$2}
 endsnippet
 
-snippet ol "ol" i
+snippet ol "ol"
 \overline{$1}
 endsnippet
 
@@ -597,11 +596,11 @@ endsnippet
 # Greek Letters Small
 
 snippet alp "alpha" i
-\alpha 
+\alpha
 endsnippet
 
 snippet bet "beta"  i
-\beta 
+\beta
 endsnippet
 snippet gam "gamma" i
 \gamma
@@ -757,7 +756,7 @@ snippet Ome "Omega" i
 endsnippet
 
 # Brackets
-snippet (()) "left( right)" 
+snippet (()) "left( right)"
 \left(${1}\right)
 endsnippet
 snippet [[]] "left[ right]"
