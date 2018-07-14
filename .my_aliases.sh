@@ -15,4 +15,4 @@ alias frenchwriting='cd $HOME/Dropbox/1Projects/2FrenchLearning/sommaire'
 alias scrap='cd $HOME/projects/computing_activity_protocol; vim scrap.md'
 alias pbc='xclip -selection clipboard'
 alias clffiles='rm *.png *.pdf *.eps *.csv'
->>>>>>> dfb5f2b9896532de24ebb35b8926d524330d3935
+alias cheatsheets='cd $HOME/Dropbox/CurrentlyEditing/cheatsheets'
