@@ -198,6 +198,10 @@ nnoremap ]Q :clast<CR>
 
 
 map <leader>b Oimport ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>
+
+
+map <leader>se :source $MYVIMRC <bar> e<CR>
+
 " -------- settings of loaded plugins ---------
 
 
