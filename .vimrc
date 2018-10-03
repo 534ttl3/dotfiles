@@ -253,19 +253,17 @@ let g:jedi#call_signature_escape="'=`='"
 let g:autopep8_max_line_length=79
 let g:autopep8_indent_size=4
 
-" syntastic - STATUS: don't use this if you want to handle different
-" virtualenvs, that doesn't work
-" set statusline+=%#warningmsg#
-" set statusline+=%{SyntasticStatuslineFlag()}
-" set statusline+=%*
-
-" let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-" let g:syntastic_check_on_open = 1
-" let g:syntastic_check_on_wq = 0
-
+" syntastic - it only uses vim's internal python, not the active python venv
 let g:syntastic_python_checkers = ['flake8']
 let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': ['python', 'json'],'passive_filetypes': [] }
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 0 " Don't auto open/close location list
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
+let g:syntastic_mode="passive"
+let g:syntastic_enable_signs=0
+nnoremap <F7> :SyntasticCheck<CR> :lopen<CR>
+
 
 " airline
 let g:airline#extensions#tabline#enabled = 1
