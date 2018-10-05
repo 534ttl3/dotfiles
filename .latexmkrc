@@ -1,4 +1,4 @@
-$pdf_previewer = "start zathura";
+$pdf_previewer = "start evince";
 
 
 push @generated_exts, 'glo', 'gls', 'glg';
