@@ -51,6 +51,15 @@ Plugin 'matze/vim-tex-fold'
 " replace only visually selected region, not the whole line
 Plugin 'vim-scripts/vis'
 
+" vim-surround
+Plugin 'tpope/vim-surround'
+
+" vim-dispatch
+Plugin 'tpope/vim-dispatch'
+
+" vim-tbone
+Plugin 'tpope/vim-tbone'
+
 " Latex-Suite
 " Plugin 'vim-latex/vim-latex'
 " let g:Tex_AutoFolding = 0
@@ -140,6 +149,11 @@ set fo-=t   " don't automatically wrap text when typing
 " draw a vertical column (to indicate long lines)
 set colorcolumn=80
 " highlight ColorColumn ctermbg=233
+"
+
+set scrolloff=3
+
+nmap <leader>z :call VimuxRunCommand("./main")<cr>
 
 augroup PythonDisplayAndMoveSettings 
     let b:folded = 1
@@ -153,8 +167,9 @@ augroup PythonDisplayAndMoveSettings
         endif
     endfunction
     autocmd FileType python setlocal scrolloff=3
-    autocmd FileType python map <buffer> f za
-    autocmd FileType python map <buffer> F :call ToggleFold()<CR>
+    " autocmd FileType python map <buffer> f za
+    autocmd FileType python map <buffer> Za :call ToggleFold()<CR>
+
     " Vimux
     autocmd FileType python nmap <leader>z :call VimuxRunCommand("python3 main.py")<cr>
     autocmd FileType python nmap <leader>% :call VimuxRunCommand("python3 " + %)<cr>
@@ -199,8 +214,17 @@ nnoremap ]Q :clast<CR>
 
 map <leader>b Oimport ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>
 
-
 map <leader>se :source $MYVIMRC <bar> e<CR>
+
+
+" switch between hybrid line numbering and absolute line numbering
+:set number relativenumber
+map <leader>rn :set relativenumber! <CR>
+
+
+map <leader>spe :setlocal spell! spelllang=en_us<CR>
+map <leader>spd :setlocal spell! spelllang=de_de<CR>
+
 
 " -------- settings of loaded plugins ---------
 
