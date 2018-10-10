@@ -276,3 +276,7 @@ let g:airline#extensions#tabline#enabled = 1
 if isdirectory("~/code_templates/help")
     :helptags ~/code_templates/help
 endif
+
+
+" ctrlp set directory where the index is stored in
+let g:ctrlp_cache_dir = "~/.cache/ctrlp"
