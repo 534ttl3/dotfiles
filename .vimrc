@@ -183,6 +183,8 @@ augroup LaTeXDisplayAndMoveSettings
     autocmd FileType tex setlocal linebreak
     autocmd FileType tex nnoremap <buffer> j gj
     autocmd FileType tex nnoremap <buffer> k gk
+    autocmd FileType md nnoremap <buffer> j gj
+    autocmd FileType md nnoremap <buffer> k gk
     " Vimux
     autocmd FileType tex nmap <leader>la :call VimuxRunCommand("latexmain")<cr>
     autocmd FileType tex nmap <leader>lawg :call VimuxRunCommand("latexmainwithglossaries")<cr>
@@ -295,6 +297,10 @@ let g:airline#extensions#tabline#enabled = 1
 " install powerline fonts:
 " https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
 
-if isdirectory("~/templates/help")
-    :helptags ~/templates/help
+if isdirectory("~/code_templates/help")
+    :helptags ~/code_templates/help
 endif
+
+
+" ctrlp set directory where the index is stored in
+let g:ctrlp_cache_dir = "~/.cache/ctrlp"

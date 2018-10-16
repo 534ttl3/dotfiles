@@ -102,3 +102,11 @@ bindkey -v
 
 # fix reverse history search for zsh vim mode
 bindkey "^R" history-incremental-search-backward
+
+
+# remove weird characters in shell mode emacs 
+# solution from https://emacs.stackexchange.com/questions/19848/weird-characters-in-shell-mode-with-zsh
+
+if [[ $TERM = dumb ]]; then
+      unset zle_bracketed_paste
+fi

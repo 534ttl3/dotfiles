@@ -12,6 +12,7 @@ alias vapdfs='impressive -T0 --fake-fullscreen *.pdf'
 alias clffiles='rm *.png *.pdf *.eps *.csv'  # clear figure files (in current directory)
 alias edvlog='cd $HOME/projects/computing_activity_protocol; vim main.tex'
 alias frenchwriting='cd $HOME/Dropbox/1Projects/2FrenchLearning/sommaire'
+alias scrap_notes='cd $HOME/projects/scrap_notes; vim scrap_notes.md'
 alias scrap='cd $HOME/Dropbox/1Projects/scrap_notes; vim scrap_notes.md'
 alias pbc='xclip -selection clipboard'
 alias clffiles='rm *.png *.pdf *.eps *.csv'
