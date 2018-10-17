@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: bi
+# key: bi
+# --
+\binom{$1}{$2}

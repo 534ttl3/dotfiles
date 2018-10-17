@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Rdot
+# key: Rdot
+# --
+R_{$1}^\bullet$0

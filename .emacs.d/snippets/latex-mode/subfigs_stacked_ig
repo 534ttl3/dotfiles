@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: subfigs_stacked_ig
+# key: requires graphicx, floatrow, subfig packages
+# --
+\begin{figure}
+  \sidesubfloat[]{\includegraphics{image1}\label{fig:sub1}}\\
+  \sidesubfloat[]{\includegraphics{image2}\label{fig:sub2}}%
+  \caption{Two subfigures stacked, with one caption}\label{fig:test}
+\end{figure}

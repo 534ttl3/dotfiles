@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: wt
+# key: widetilde
+# --
+\widetilde{$1}$2

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: bbn
+# key: bbn
+# --
+\left( $1 \right)

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: laeq
+# key: label equation
+# --
+\label{eq:$1} $2

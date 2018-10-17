@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: bigol
+# key: big old
+# --
+{\Large \textbf{$1} \hspace*{10pt}} 

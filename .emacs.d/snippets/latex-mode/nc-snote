@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: nc-snote
+# key: nc-snote
+# --
+\newcommand{\snote}[1]{{\scriptsize \textbf{#1} }}

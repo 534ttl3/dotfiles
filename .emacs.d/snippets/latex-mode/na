@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: na
+# key: new acronym
+# --
+\newglossaryentry{$1}{name={$2}, description={$3}, type=\acronymtype}

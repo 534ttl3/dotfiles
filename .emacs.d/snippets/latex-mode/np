@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: np
+# key: numerische Parameter
+# --
+\bar{n}_{ i_\mathrm{max}} = \num{$1}, i_\mathrm{max} = $2

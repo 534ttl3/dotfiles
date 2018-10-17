@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: fsbs
+# key: figures side by side
+# --
+\begin{table}
+\centering
+\begin{minipage}{.5\textwidth}
+\centering
+\includegraphics[width=.4\linewidth]{blacksquare.png}
+\captionof{figure}{A figure}
+\label{fig:test1}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\centering
+\includegraphics[width=.4\linewidth]{blacksquare.png}
+\captionof{figure}{Another figure}
+\label{fig:test2}
+\end{minipage}
+\end{table}

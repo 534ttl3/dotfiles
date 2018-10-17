@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ig
+# key: ig
+# --
+\includegraphics[${1:scale=0.6}]{$2}

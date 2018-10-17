@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Student
+# key: Student
+# --
+\Student{$1}

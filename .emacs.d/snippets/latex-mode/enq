@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: enq
+# key: enquote
+# --
+\enquote{$1}

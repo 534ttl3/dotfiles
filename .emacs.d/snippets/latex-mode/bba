@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: bba
+# key: bba
+# --
+\left\langle $1 \right\rangle

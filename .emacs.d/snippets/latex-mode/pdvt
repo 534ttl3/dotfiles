@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: pdvt
+# key: pdvt
+# --
+\left( \pdv{$1}{$2} \right)_{$3}

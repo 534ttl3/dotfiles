@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: sm
+# key: setminus
+# --
+\setminus $1

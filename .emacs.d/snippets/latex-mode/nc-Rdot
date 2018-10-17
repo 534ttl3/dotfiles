@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: nc-Rdot
+# key: newcommand-Rdot
+# --
+\newcommand{\Rdot}{R^{\bullet}}

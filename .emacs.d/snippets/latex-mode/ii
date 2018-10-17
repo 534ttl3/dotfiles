@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ii
+# key: dollars
+# --
+\$ $1\$$2

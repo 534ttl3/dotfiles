@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: nw
+# key: new main glossary entry
+# --
+\newglossaryentry{$1}{name={$1}, description={$3}}
