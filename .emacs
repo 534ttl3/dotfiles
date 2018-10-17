@@ -15,7 +15,7 @@
     ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
  '(package-selected-packages
    (quote
-    (org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet-snippets yasnippet linum-relative exec-path-from-shell projectile))))
+    (evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet-snippets yasnippet linum-relative exec-path-from-shell projectile))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -108,32 +108,33 @@
     (define-key org-mode-map (kbd "C-c i") 'org-latex-export-to-pdf)
 
     ;; org-mode leuven theme
-    (add-to-list 'custom-theme-load-path "~/.emacs.d/elpa/emacs-leuven-theme")
-    (add-hook 'after-init-hook (lambda () (load-theme 'leuven t)))
+    ;;(add-to-list 'custom-theme-load-path "~/.emacs.d/elpa/emacs-leuven-theme")
+    ;;(add-hook 'after-init-hook (lambda () (load-theme 'leuven t)))
     (defun org-archive-done-tasks-subtree ()
-    (interactive)
-    (org-map-entries
-    (lambda ()
-    (org-archive-subtree)
-    (setq org-map-continue-from (outline-previous-heading)))
-    "/DONE" 'tree))
+      (interactive)
+      (org-map-entries
+      (lambda ()
+      (org-archive-subtree)
+      (setq org-map-continue-from (outline-previous-heading)))
+      "/DONE" 'tree))
     
     (defun org-archive-done-tasks-file ()
-    (interactive)
-    (org-map-entries
-    (lambda ()
-    (org-archive-subtree)
-    (setq org-map-continue-from (outline-previous-heading)))
-    "/DONE" 'file))
+      (interactive)
+      (org-map-entries
+      (lambda ()
+      (org-archive-subtree)
+      (setq org-map-continue-from (outline-previous-heading)))
+      "/DONE" 'file))
 
-    ;; make sure that python and elisp code blocks can be evaluated in org-mode
+    ;; make sure that python and elisp code
+    ;; blocks can be evaluated in org-mode
     (org-babel-do-load-languages
       'org-babel-load-languages
       '((emacs-lisp . t)
-      (python . t)
-      (shell . t)
-      (haskell . t)
-    ))
+        (python . t)
+        (shell . t)
+        (haskell . t))
+      )
 
     ;; add koma-article to org-mode
     (with-eval-after-load "ox-latex"
@@ -146,8 +147,10 @@
                      ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
     
     (setq org-latex-pdf-process 
-           '("latexmk -pdf -pdflatex=lualatex -bibtex %f"))
-    
+	  '("latexmk -pdf -pdflatex=lualatex -bibtex %f"))
+
+    ;; (setq org-latex-create-formula-image-program 'imagemagick)
+
     (require 'org-inlinetask)  ;; new inline-todo with C-c C-x t
 )
 
@@ -197,7 +200,9 @@
       (yas-activate-extra-mode 'latex-mode))
     
     (add-hook 'org-mode-hook #'my-org-latex-yas)
-)
+    )
+
+(use-package yasnippet-snippets)
 
 (use-package pdf-tools
   :config
