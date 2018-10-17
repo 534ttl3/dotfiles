@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: nc-ceilfloor
+# key: nc-ceilfloor
+# --
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}

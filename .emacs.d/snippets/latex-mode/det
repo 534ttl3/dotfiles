@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: det
+# key: determinant
+# --
+\det 

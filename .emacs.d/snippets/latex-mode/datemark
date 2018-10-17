@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: datemark
+# key: datemark
+# --
+\newline \hspace*{-3.3cm}\textbf{$1} \newline $0

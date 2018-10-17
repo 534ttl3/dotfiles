@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: ala
+# key: ala
+# --
+\begin{alignat${1:*}}{1}
+$2&= \\\
+&=
+\end{alignat$1}

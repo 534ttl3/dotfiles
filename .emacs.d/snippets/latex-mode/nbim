@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: nbim
+# key: nbar_imax
+# --
+\bar{n}_{ i_\mathrm{max}}

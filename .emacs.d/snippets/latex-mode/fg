@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: fg
+# key: fg
+# --
+\fg{$1}{$2}

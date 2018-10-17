@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ana
+# key: ana
+# --
+\ana{$1}{$2}

@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: cpgf
+# key: centered pgf
+# --
+\begin{figure}
+\makebox[\textwidth][c]{\input{${1:fig.pgf}}}
+\caption{caption}
+\label{fig:ex}
+\end{figure}

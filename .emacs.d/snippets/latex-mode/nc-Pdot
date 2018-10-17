@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: nc-Pdot
+# key: newcommand-Pdot
+# --
+\newcommand{\Pdot}{P^{\bullet}}

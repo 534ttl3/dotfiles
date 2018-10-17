@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: snote
+# key: snote
+# --
+\snote{$1}$2

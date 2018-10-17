@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: reeq
+# key: ref equation
+# --
+~\ref{eq:$1} $2

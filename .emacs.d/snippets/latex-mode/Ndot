@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Ndot
+# key: Ndot
+# --
+N_{$1}^\bullet$0

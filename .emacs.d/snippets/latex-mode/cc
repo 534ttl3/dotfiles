@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: cc
+# key: chord
+# --
+\cc{$1}{$2}{$3}{$4}

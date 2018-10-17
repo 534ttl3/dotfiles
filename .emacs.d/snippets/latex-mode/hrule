@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: hrule
+# key: horizontal line
+# --
+\\ \\\\ \noindent\rule{\textwidth}{1pt}

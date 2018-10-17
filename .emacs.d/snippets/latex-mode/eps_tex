@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: eps_tex
+# key: eps_tex
+# --
+\documentclass{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx, xcolor}
+\begin{document}
+\input{$1.eps_tex}
+\end{document}

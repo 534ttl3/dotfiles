@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: sl
+# key: slashed, requires *slashed* package
+# --
+\slashed{$1}

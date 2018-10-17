@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: cb
+# key: cb
+# --
+\cb{$1}{$2}{$3}

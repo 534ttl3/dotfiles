@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: igtw
+# key: igtw
+# --
+\includegraphics[width=0.5\textwidth]{$1}

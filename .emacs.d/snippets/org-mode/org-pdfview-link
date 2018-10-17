@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: org-pdfview-link
+# key: pl
+# --
+
+[[pdfview:$1::$2][Link]]
+

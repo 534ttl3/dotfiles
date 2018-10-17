@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: mkbs
+# key: mkbs
+# --
+\makebox[\textwidth][c]{\scalebox{1.0}{\input{${1:fig.pgf}}}}

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Frage
+# key: Frage
+# --
+\Frage{$1}

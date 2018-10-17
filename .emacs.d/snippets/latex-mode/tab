@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: tab
+# key: tab
+# --
+\begin{table}
+\caption{${1:caption}}
+\centering
+\begin{tabular}{${2:c c}}
+\toprule
+$ $3 $ & $ $4 $ \\
+\midrule
+a & b \\
+c & d \\
+\bottomrule
+\end{tabular}
+\label{tab:${3:ex}}
+\end{table}

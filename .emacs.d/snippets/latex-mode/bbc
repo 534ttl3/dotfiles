@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: bbc
+# key: bbc
+# --
+\left\\{ $1 \right\\}

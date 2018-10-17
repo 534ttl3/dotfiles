@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: bp
+# key: bauplan
+# --
+{\tiny \shortstack{$1}}

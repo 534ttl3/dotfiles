@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: oint
+# key: oint
+# --
+\oint_{$1}^{$2}
