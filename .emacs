@@ -15,7 +15,7 @@
     ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
  '(package-selected-packages
    (quote
-    (evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet-snippets yasnippet linum-relative exec-path-from-shell projectile))))
+    (evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet-snippets yasnippet linum-relative exec-path-from-shell projectile))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -104,6 +104,20 @@
 
 " --- BEGIN packages + package-specific settings "
 
+(use-package winner
+  :config
+    (when (fboundp 'winner-mode)
+      (winner-mode 1))
+    (define-key winner-mode-map (kbd "C-c h") 'winner-undo)
+    (define-key winner-mode-map (kbd "C-c l") 'winner-redo)
+    )
+
+(use-package desktop
+  :config
+  (setq desktop-path (list "~/.emacs.d/desktop-confs/standard"))
+    (desktop-save-mode 1)
+  )
+
 (use-package org
   :config
     (add-hook 'org-mode-hook 'visual-line-mode)
@@ -160,6 +174,10 @@
   :init 
     (setq evil-want-C-u-scroll t) ;; do this before you require evil
     (add-to-list 'load-path "~/.emacs.d/evil")
+
+    ;; evil-collection, see https://github.com/emacs-evil/evil-collection#installation
+    (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+    (setq evil-want-keybinding nil)
   :config
     (evil-mode 1)
     (add-to-list 'evil-emacs-state-modes 'nav-mode)
@@ -169,6 +187,12 @@
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
     (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
 )
+
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
 
 (use-package linum-relative
   :config
