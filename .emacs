@@ -15,7 +15,7 @@
     ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
  '(package-selected-packages
    (quote
-    (evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet-snippets yasnippet linum-relative exec-path-from-shell projectile))))
+    (desktop+ transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet-snippets yasnippet linum-relative exec-path-from-shell projectile))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -35,6 +35,26 @@
 
 
 " ---- BEGIN general emacs settings "
+
+(defun kill-non-visible-buffers ()
+  "Kill all buffers not currently shown in a window somewhere."
+  (interactive)
+  (dolist (buf  (buffer-list))
+    (unless (get-buffer-window buf 'visible) (kill-buffer buf))))
+
+(defun kill-all-but-shown ()
+  (interactive)
+  (delete-other-frames)
+  (kill-non-visible-buffers))
+
+(require 'cl)
+
+(defun kill-other-buffers ()
+    "Kill all other buffers."
+    (interactive)
+    (mapc 'kill-buffer 
+          (delq (current-buffer) 
+                (remove-if-not 'buffer-file-name (buffer-list)))))
 
 (setq ring-bell-function 'ignore)
 
@@ -57,33 +77,6 @@
 
 (tool-bar-mode -1)
 
-(defun toggle-window-split ()
-  (interactive)
-  (if (= (count-windows) 2)
-      (let* ((this-win-buffer (window-buffer))
-         (next-win-buffer (window-buffer (next-window)))
-         (this-win-edges (window-edges (selected-window)))
-         (next-win-edges (window-edges (next-window)))
-         (this-win-2nd (not (and (<= (car this-win-edges)
-                     (car next-win-edges))
-                     (<= (cadr this-win-edges)
-                     (cadr next-win-edges)))))
-         (splitter
-          (if (= (car this-win-edges)
-             (car (window-edges (next-window))))
-          'split-window-horizontally
-        'split-window-vertically)))
-    (delete-other-windows)
-    (let ((first-win (selected-window)))
-      (funcall splitter)
-      (if this-win-2nd (other-window 1))
-      (set-window-buffer (selected-window) this-win-buffer)
-      (set-window-buffer (next-window) next-win-buffer)
-      (select-window first-win)
-      (if this-win-2nd (other-window 1))))))
-
-(global-set-key (kbd "C-x |") 'toggle-window-split)
-
 (savehist-mode 1)
 
 ;; disable startup screen when opening a file
@@ -104,6 +97,10 @@
 
 " --- BEGIN packages + package-specific settings "
 
+(use-package desktop+)
+
+(use-package transpose-frame)
+
 (use-package winner
   :config
     (when (fboundp 'winner-mode)
@@ -111,12 +108,6 @@
     (define-key winner-mode-map (kbd "C-c h") 'winner-undo)
     (define-key winner-mode-map (kbd "C-c l") 'winner-redo)
     )
-
-(use-package desktop
-  :config
-  (setq desktop-path (list "~/.emacs.d/desktop-confs/standard"))
-    (desktop-save-mode 1)
-  )
 
 (use-package org
   :config
@@ -232,7 +223,8 @@
 
 (use-package pdf-tools
   :config
-    (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
+  (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
+  :hook ((pdf-view-mode . pdf-view-auto-slice-minor-mode))
 )
 
 
