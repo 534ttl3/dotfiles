@@ -297,9 +297,11 @@ let g:airline#extensions#tabline#enabled = 1
 " install powerline fonts:
 " https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
 
-if isdirectory("~/code_templates/help")
-    :helptags ~/code_templates/help
-endif
+
+" add your own stuff to *help* - this didn't work
+" if isdirectory("~/code_templates/help")
+"     :helptags ~/code_templates/help
+" endif
 
 
 " ctrlp set directory where the index is stored in
