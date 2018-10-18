@@ -21,4 +21,5 @@
 !.xournal/config
 !.emacs
 !.emacs.d/snippets
+!.emacs.d/desktop-confs
 !kit.ovpn
