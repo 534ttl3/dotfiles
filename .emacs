@@ -36,6 +36,8 @@
 
 " ---- BEGIN general emacs settings "
 
+(setq ring-bell-function 'ignore)
+
 (global-auto-revert-mode 1)
 
 (add-hook 'prog-mode-hook 'visual-line-mode)
