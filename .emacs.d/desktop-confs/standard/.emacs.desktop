@@ -2,12 +2,12 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Thu Oct 18 17:27:45 2018
+;; Created Thu Oct 18 23:15:03 2018
 ;; Desktop file format version 208
 ;; Emacs version 25.2.2
 
 ;; Global section:
-(setq desktop-saved-frameset [frameset 1 (23496 42609 944262 755000) (desktop . "208") "chris@chris2-tower" nil nil ((((font-backend xft x) (font . "-DAMA-Ubuntu Mono-normal-normal-normal-*-17-*-*-*-m-0-iso10646-1") (font-parameter . "Ubuntu Mono 13") (border-width . 0) (internal-border-width . 0) (right-divider-width . 0) (bottom-divider-width . 0) (vertical-scroll-bars . right) (horizontal-scroll-bars) (foreground-color . "black") (background-color . "white") (mouse-color . "black") (border-color . "black") (screen-gamma) (line-spacing) (left-fringe . 8) (right-fringe . 8) (scroll-bar-foreground) (scroll-bar-background) (menu-bar-lines . 1) (tool-bar-lines . 0) (title) (wait-for-wm . t) (tool-bar-position . top) (icon-type . t) (auto-raise) (auto-lower) (cursor-type . box) (scroll-bar-width . 16) (scroll-bar-height . 0) (alpha) (fullscreen . maximized) (display-type . color) (background-mode . light) (cursor-color . "black") (sticky) (environment) (frameset--id . "A582-3D29-67A1-C911") (frameset--mini t . t) (modeline . t) (minibuffer . t) (unsplittable) (icon-name) (display . ":1") (explicit-name) (visibility . t) (height . 55) (width . 209) (left . 0) (top . 27)) ((min-height . 4) (min-width . 20) (min-height-ignore . 2) (min-width-ignore . 12) (min-height-safe . 1) (min-width-safe . 4) (min-pixel-height . 72) (min-pixel-width . 180) (min-pixel-height-ignore . 36) (min-pixel-width-ignore . 108) (min-pixel-height-safe . 18) (min-pixel-width-safe . 36)) hc (pixel-width . 1920) (pixel-height . 983) (total-width . 213) (total-height . 55) (normal-height . 1.0) (normal-width . 1.0) (combination-limit) (leaf (pixel-width . 963) (pixel-height . 983) (total-width . 107) (total-height . 55) (normal-height . 1.0) (normal-width . 0.5026595744680851) (buffer "phys_math_tricks.pdf" (selected) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 2 t nil 0 t) (vscroll . 0) (dedicated) (point . 1) (start . 1))) (leaf (last . t) (pixel-width . 957) (pixel-height . 983) (total-width . 106) (total-height . 55) (normal-height . 1.0) (normal-width . 0.4973404255319149) (buffer "phys_math_tricks.org" (selected . t) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 2 t nil 0 t) (vscroll . 0) (dedicated) (point . 3896) (start . 1)))))])
+(setq desktop-saved-frameset [frameset 1 (23496 63447 131794 143000) (desktop . "208") "chris@chris2-tower" nil nil ((((font-backend xft x) (font . "-DAMA-Ubuntu Mono-normal-normal-normal-*-17-*-*-*-m-0-iso10646-1") (font-parameter . "Ubuntu Mono 13") (border-width . 0) (internal-border-width . 0) (right-divider-width . 0) (bottom-divider-width . 0) (vertical-scroll-bars . right) (horizontal-scroll-bars) (foreground-color . "black") (background-color . "white") (mouse-color . "black") (border-color . "black") (screen-gamma) (line-spacing) (left-fringe . 8) (right-fringe . 8) (scroll-bar-foreground) (scroll-bar-background) (menu-bar-lines . 1) (tool-bar-lines . 0) (title) (wait-for-wm . t) (tool-bar-position . top) (icon-type . t) (auto-raise) (auto-lower) (cursor-type . box) (scroll-bar-width . 16) (scroll-bar-height . 0) (alpha) (fullscreen . maximized) (display-type . color) (background-mode . light) (cursor-color . "black") (sticky) (environment) (frameset--id . "A582-3D29-67A1-C911") (frameset--mini t . t) (modeline . t) (minibuffer . t) (unsplittable) (icon-name) (display . ":1") (explicit-name) (visibility . t) (height . 55) (width . 209) (left . 0) (top . 27)) ((min-height . 4) (min-width . 10) (min-height-ignore . 2) (min-width-ignore . 6) (min-height-safe . 1) (min-width-safe . 2) (min-pixel-height . 72) (min-pixel-width . 90) (min-pixel-height-ignore . 36) (min-pixel-width-ignore . 54) (min-pixel-height-safe . 18) (min-pixel-width-safe . 18)) leaf (pixel-width . 1920) (pixel-height . 983) (total-width . 213) (total-height . 55) (normal-height . 1.0) (normal-width . 1.0) (buffer "phys_math_tricks.org" (selected . t) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 2 t nil 0 t) (vscroll . 0) (dedicated) (point . 1126) (start . 1))))])
 (setq desktop-missing-file-warning nil)
 (setq tags-file-name nil)
 (setq tags-table-list nil)
@@ -22,46 +22,22 @@
   "phys_math_tricks.org"
   'org-mode
   '(visual-line-mode override-global-mode global-auto-revert-mode undo-tree-mode yas-minor-mode)
-  3896
-  '(3896 nil)
+  1126
+  '(1126 nil)
   nil
   nil
   '((buffer-file-coding-system . utf-8-unix) (overwrite-mode) (truncate-lines))
   '((mark-ring (2968 2968 3896 1))))
 
 (desktop-create-buffer 208
-  "/home/chris/Dropbox/1LinkedApps/orgmode/phys_math_tricks.pdf"
-  "phys_math_tricks.pdf"
-  'pdf-view-mode
-  '(override-global-mode global-auto-revert-mode undo-tree-mode yas-minor-mode)
-  1
-  '(1 nil)
-  t
-  nil
-  '((buffer-file-coding-system . no-conversion) (overwrite-mode))
-  '((mark-ring (1))))
-
-(desktop-create-buffer 208
   "/home/chris/.emacs"
   ".emacs"
   'emacs-lisp-mode
   '(visual-line-mode override-global-mode global-auto-revert-mode undo-tree-mode linum-mode yas-minor-mode)
-  6721
-  '(6721 nil)
+  1923
+  '(1898 nil)
   nil
   nil
   '((buffer-file-coding-system . undecided-unix) (overwrite-mode) (truncate-lines))
   '((mark-ring (6721 6721 6721 6721 6393 1400 6721 1400 6393 6196 6196 6347 6018 5813 5664 6343))))
-
-(desktop-create-buffer 208
-  "/home/chris/Dropbox/2TextBooks/Nolting2-AnalytischeMechanik.pdf"
-  "Nolting2-AnalytischeMechanik.pdf"
-  'pdf-view-mode
-  '(override-global-mode global-auto-revert-mode undo-tree-mode yas-minor-mode)
-  1
-  '(nil nil)
-  t
-  nil
-  '((buffer-file-coding-system . no-conversion) (overwrite-mode))
-  '((mark-ring nil)))
 
