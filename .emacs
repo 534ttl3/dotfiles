@@ -48,6 +48,7 @@
   (kill-non-visible-buffers))
 
 (require 'cl)
+(require 'ox)
 
 (defun kill-other-buffers ()
     "Kill all other buffers."
@@ -111,8 +112,10 @@
 
 (use-package org
   :config
+    (setq org-export-async-debug nil)
+
     (add-hook 'org-mode-hook 'visual-line-mode)
-    (define-key org-mode-map (kbd "C-c i") 'org-latex-export-to-pdf)
+    (global-set-key [f4] (lambda () (interactive) (org-latex-export-to-pdf t))) 
 
     ;; org-mode leuven theme
     ;;(add-to-list 'custom-theme-load-path "~/.emacs.d/elpa/emacs-leuven-theme")
@@ -160,6 +163,10 @@
 
     (require 'org-inlinetask)  ;; new inline-todo with C-c C-x t
     (org-indent-mode 1)
+
+    ;; (setq org-export-async-init-file
+    ;;   (expand-file-name "init-org-async.el" (file-name-directory user-init-file)))
+    (setq org-export-async-init-file "~/.emacs")
 )
 
 (use-package evil
@@ -225,7 +232,7 @@
 (use-package pdf-tools
   :config
   (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
-  :hook ((pdf-view-mode . pdf-view-auto-slice-minor-mode))
+  ;; :hook ((pdf-view-mode . pdf-view-auto-slice-minor-mode))
 )
 
 
