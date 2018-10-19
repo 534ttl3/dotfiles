@@ -159,6 +159,7 @@
     ;; (setq org-latex-create-formula-image-program 'imagemagick)
 
     (require 'org-inlinetask)  ;; new inline-todo with C-c C-x t
+    (org-indent-mode 1)
 )
 
 (use-package evil
