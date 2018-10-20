@@ -115,7 +115,30 @@
     (setq org-export-async-debug nil)
 
     (add-hook 'org-mode-hook 'visual-line-mode)
-    (global-set-key [f4] (lambda () (interactive) (org-latex-export-to-pdf t))) 
+
+
+    (defun my-org-latex-pdf-export-async ()
+	(interactive)
+	    (org-latex-export-to-pdf t))
+
+    (global-set-key (kbd "C-c i")
+	     'my-org-latex-pdf-export-async)
+
+    (global-set-key (kbd "C-c t i")
+	     'toggle-pdf-export-on-save)
+
+    (defun toggle-pdf-export-on-save ()
+    "Enable or disable export latex+pdf when saving current buffer."
+	(interactive)
+	(when (not (eq major-mode 'org-mode))
+	    (error "Not an org-mode file!"))
+	(if (memq 'my-org-latex-pdf-export-async after-save-hook)
+	    (progn (remove-hook 'after-save-hook  'my-org-latex-pdf-export-async)
+		    (message "Disabled org pdf export on save"))
+	    (add-hook 'after-save-hook 'my-org-latex-pdf-export-async)
+	    (set-buffer-modified-p t)
+	    (message "Enabled org pdf export on save")))
+
 
     ;; org-mode leuven theme
     ;;(add-to-list 'custom-theme-load-path "~/.emacs.d/elpa/emacs-leuven-theme")
@@ -162,7 +185,8 @@
     ;; (setq org-latex-create-formula-image-program 'imagemagick)
 
     (require 'org-inlinetask)  ;; new inline-todo with C-c C-x t
-    (org-indent-mode 1)
+
+    (setq org-startup-indented t) ; Enable `org-indent-mode' by default
 
     ;; (setq org-export-async-init-file
     ;;   (expand-file-name "init-org-async.el" (file-name-directory user-init-file)))
@@ -222,9 +246,23 @@
     (defun my-org-latex-yas ()
       ;; Activate org and LaTeX yas expansion in org-mode buffers.
       (yas-minor-mode)
-      (yas-activate-extra-mode 'latex-mode))
+      (yas-activate-extra-mode 'latex-mode)
+
+      ;; hacky: let yasnippet expand with no whitespace in between
+      ;; key and dollar sign (add $ to whitespace syntax class),
+      ;; meaning that when it is looking for a key to expand, it skips
+      ;; backwards and ends at $, then it searches the keys for all
+      ;; that is between the point and the next non-word char,
+      ;; e.g. now $ (ascii 36))
+      (modify-syntax-entry 36 " " org-mode-syntax-table)
+      ;; also, move \ (ascii 92) from the symbol to the word syntax class
+      ;; so that no snippet that ends with it's own key (e.g. \delta)
+      ;; is accidentally expanded twice like \\delta
+      (modify-syntax-entry 92 "w" org-mode-syntax-table)
+      )
     
     (add-hook 'org-mode-hook #'my-org-latex-yas)
+    (setq yas-triggers-in-field t)
     )
 
 (use-package yasnippet-snippets)
