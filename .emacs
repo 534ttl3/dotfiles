@@ -291,7 +291,7 @@
            (setq org-latex-fragment-last el))))))
 
 
-(add-hook 'post-command-hook 'org-latex-fragment-toggle)
+;; (add-hook 'post-command-hook 'org-latex-fragment-toggle)
 
 )
 
