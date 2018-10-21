@@ -294,10 +294,13 @@
             (org-store-link-props
              :type "pdfview"
              :link link
-             :description (concat (nth 0 (split-string (file-name-nondirectory buffer-file-name) "-")) "::" (number-to-string (pdf-view-current-page)))
+             :description 
+             (concat (nth 0 (split-string (file-name-nondirectory buffer-file-name) "-")) "::" (number-to-string (pdf-view-current-page)))
              ))))
     )
 )
+
+(use-package org-noter)
 
 
 
