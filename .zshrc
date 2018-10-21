@@ -110,3 +110,7 @@ bindkey "^R" history-incremental-search-backward
 if [[ $TERM = dumb ]]; then
       unset zle_bracketed_paste
 fi
+
+function emacs-desktop () {
+    emacs --eval '(desktop+-load "'"$1"'")'
+}

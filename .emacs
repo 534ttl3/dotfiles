@@ -98,7 +98,30 @@
 
 " --- BEGIN packages + package-specific settings "
 
-(use-package desktop+)
+(setq my-cloud-dir "~/Dropbox/")
+
+(let ((default-directory my-cloud-dir))
+  (setq my-cloud-linkedapps-dir (expand-file-name "1LinkedApps/")))
+
+(let ((default-directory my-cloud-linkedapps-dir))
+  (setq my-cloud-emacs-dir (expand-file-name "emacs/")))
+
+(let ((default-directory my-cloud-emacs-dir))
+  (setq my-cloud-emacs-desktops-dir (expand-file-name "desktops/")))
+
+(use-package desktop+
+  :config
+  ;; the given directory should be a link to dropbox
+  ;; with a central managed git repository
+
+  (setq emacsd-desktops-dir "~/.emacs.d/desktops/")
+  (if (file-directory-p emacsd-desktops-dir)
+      (progn (message (format "%s exists" emacsd-desktops-dir)))
+    (progn (message (format "%s doesn't exit, linking it to %s" emacsd-desktops-dir my-cloud-emacs-desktops-dir))
+	   (shell-command-to-string
+	    (format "ln -s %s %s" my-cloud-emacs-desktops-dir (file-name-directory (directory-file-name emacsd-desktops-dir))))))
+
+  (setq desktop+-base-dir emacsd-desktops-dir))
 
 (use-package transpose-frame)
 
@@ -112,10 +135,9 @@
 
 (use-package org
   :config
-    (setq org-export-async-debug nil)
+  (setq org-export-async-debug nil)
 
     (add-hook 'org-mode-hook 'visual-line-mode)
-
 
     (defun my-org-latex-pdf-export-async ()
 	(interactive)
@@ -191,6 +213,86 @@
     ;; (setq org-export-async-init-file
     ;;   (expand-file-name "init-org-async.el" (file-name-directory user-init-file)))
     (setq org-export-async-init-file "~/.emacs")
+
+    ;; bigger latex fragments
+    (plist-put org-format-latex-options :scale 1.1)
+(defvar org-latex-fragment-last nil
+  "Holds last fragment/environment you were on.")
+
+(defun org-latex-fragment-toggle ()
+  "Toggle a latex fragment image "
+  (and (eq 'org-mode major-mode)
+       (let* ((el (org-element-context))
+              (el-type (car el)))
+         (cond
+          ;; were on a fragment and now on a new fragment
+          ((and
+            ;; fragment we were on
+            org-latex-fragment-last
+            ;; and are on a fragment now
+            (or
+             (eq 'latex-fragment el-type)
+             (eq 'latex-environment el-type))
+            ;; but not on the last one this is a little tricky. as you edit the
+            ;; fragment, it is not equal to the last one. We use the begin
+            ;; property which is less likely to change for the comparison.
+            (not (= (org-element-property :begin el)
+                    (org-element-property :begin org-latex-fragment-last))))
+           ;; go back to last one and put image back
+           (save-excursion
+             (goto-char (org-element-property :begin org-latex-fragment-last))
+             (org-preview-latex-fragment))
+           ;; now remove current image
+           (goto-char (org-element-property :begin el))
+           (let ((ov (loop for ov in (org--list-latex-overlays)
+                           if
+                           (and
+                            (<= (overlay-start ov) (point))
+                            (>= (overlay-end ov) (point)))
+                           return ov)))
+             (when ov
+               (delete-overlay ov)))
+           ;; and save new fragment
+           (setq org-latex-fragment-last el))
+
+          ;; were on a fragment and now are not on a fragment
+          ((and
+            ;; not on a fragment now
+            (not (or
+                  (eq 'latex-fragment el-type)
+                  (eq 'latex-environment el-type)))
+            ;; but we were on one
+            org-latex-fragment-last)
+           ;; put image back on
+           (save-excursion
+             (goto-char (org-element-property :begin org-latex-fragment-last))
+             (org-preview-latex-fragment))
+           ;; unset last fragment
+           (setq org-latex-fragment-last nil))
+
+          ;; were not on a fragment, and now are
+          ((and
+            ;; we were not one one
+            (not org-latex-fragment-last)
+            ;; but now we are
+            (or
+             (eq 'latex-fragment el-type)
+             (eq 'latex-environment el-type)))
+           (goto-char (org-element-property :begin el))
+           ;; remove image
+           (let ((ov (loop for ov in (org--list-latex-overlays)
+                           if
+                           (and
+                            (<= (overlay-start ov) (point))
+                            (>= (overlay-end ov) (point)))
+                           return ov)))
+             (when ov
+               (delete-overlay ov)))
+           (setq org-latex-fragment-last el))))))
+
+
+(add-hook 'post-command-hook 'org-latex-fragment-toggle)
+
 )
 
 (use-package evil
@@ -263,7 +365,19 @@
     
     (add-hook 'org-mode-hook #'my-org-latex-yas)
     (setq yas-triggers-in-field t)
+
     )
+
+(defun mymessage ()
+    (interactive)
+    (message "HEY")
+    (org-mode)
+    (org-toggle-latex-fragment)
+    )
+
+(with-eval-after-load "pdf-annot"
+  (add-hook 'pdf-annot-edit-contents-minor-mode-hook 'mymessage)
+  )
 
 (use-package yasnippet-snippets)
 
