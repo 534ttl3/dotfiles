@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: fundamental theorem
+# key: ft
+# --
+\begin{tcolorbox} 
+\textbf{$1:} \textit{$2}
+\begin{equation*}
+$3
+\end{equation*}
+\end{tcolorbox}
