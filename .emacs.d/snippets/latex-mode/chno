@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: chno
+# key: child_node
+# --
+child { node {$1} 
+}

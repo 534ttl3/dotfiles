@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: nfe
+# key: new_figure_explanation
+# --
+\newglossaryentry{$1}{name={$2}, description={$3}, type=figureexplanationslist}
