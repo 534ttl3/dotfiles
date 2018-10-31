@@ -20,6 +20,6 @@
 !.work.sh
 !.xournal/config
 !.emacs
-!.emacs.d/snippets
+!.emacs.d/snippets/latex-mode/*
 !.emacs.d/desktops
 !kit.ovpn

@@ -3,11 +3,3 @@
 # key: dots
 # --
 \dots
-
-snippet %{ "code folding"
-%{{{ $1
-%}}}
-
-snippet chno "child node" i
-child { node {$1} 
-}

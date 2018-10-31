@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: %{
-# key: code folding
+# key: code_folding
 # --
 %{{{ $1
 %}}}
