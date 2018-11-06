@@ -2,4 +2,4 @@
 # name: bar
 # key: bar
 # --
-\bar{$1}$2
+\bar{$1}
