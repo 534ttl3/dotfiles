@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
 # name: tay
-# key: taylor series of f(x), with x around a
+# key: taylor
 # --
 \mathrm{T}_{${1:(x,a)}} ${2:f(x)}

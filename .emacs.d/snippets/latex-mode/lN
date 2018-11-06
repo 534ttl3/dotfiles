@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: lN
+# key: natural numbers
+# --
+\mathbb{N}

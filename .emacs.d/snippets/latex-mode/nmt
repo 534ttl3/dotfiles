@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
 # name: nmt
-# key: new main takeaway
+# key: new_main_takeaway
 # --
 \newglossaryentry{$1}{name={$2}, description={$3}, type=maintakeawayslist}

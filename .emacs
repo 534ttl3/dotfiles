@@ -178,6 +178,7 @@
       (org-map-entries
       (lambda ()
       (org-archive-subtree)
+
       (setq org-map-continue-from (outline-previous-heading)))
       "/DONE" 'file))
 
@@ -191,15 +192,15 @@
         (haskell . t))
       )
 
+    ;; add koma-article to org-mode
     (with-eval-after-load "ox-latex"
-          (add-to-list 'org-latex-classes
-                       '("koma-article" "\\documentclass{scrartcl}"
-                         ("\\section{%s}" . "\\section*{%s}")
-                         ("\\subsection{%s}" . "\\subsection*{%s}")
-                         ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                         ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                         ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
-
+      (add-to-list 'org-latex-classes
+                   '("koma-article" "\\documentclass{scrartcl}"
+                     ("\\section{%s}" . "\\section*{%s}")
+                     ("\\subsection{%s}" . "\\subsection*{%s}")
+                     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                     ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
     
     (setq org-latex-pdf-process 
 	  '("latexmk -pdf -pdflatex=lualatex -bibtex %f"))
@@ -216,6 +217,7 @@
 
     ;; bigger latex fragments
     (plist-put org-format-latex-options :scale 1.1)
+
     (defvar org-latex-fragment-last nil
       "Holds last fragment/environment you were on.")
 
@@ -315,9 +317,11 @@
      (toggle-latex)
 
     (global-set-key (kbd "C-c t l")
-	     'toggle-latex)
+		    'toggle-latex)
 
 
+    (global-set-key (kbd "C-c t f")
+	     'org-latex-fragment-toggle)
 )
 
 (use-package evil
@@ -409,7 +413,8 @@
 (use-package pdf-tools
   :config
   (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
-  ;; :hook ((pdf-view-mode . pdf-view-auto-slice-minor-mode))
+
+  (define-key pdf-view-mode-map (kbd "C-c C-s") 'pdf-view-auto-slice-minor-mode)
 )
 
 
@@ -433,13 +438,10 @@
             (org-store-link-props
              :type "pdfview"
              :link link
-             :description 
-             (concat (nth 0 (split-string (file-name-nondirectory buffer-file-name) "-")) "::" (number-to-string (pdf-view-current-page)))
+             :description (concat (nth 0 (split-string (file-name-nondirectory buffer-file-name) "-")) "::" (number-to-string (pdf-view-current-page)))
              ))))
     )
 )
-
-(use-package org-noter)
 
 (use-package org-download
   :config
