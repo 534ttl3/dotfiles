@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
 # name: SI
-# key: SI siunitx
+# key: SI
 # --
 \SI{$1}{$2}

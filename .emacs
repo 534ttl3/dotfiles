@@ -15,7 +15,7 @@
     ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
  '(package-selected-packages
    (quote
-    (org-download desktop+ transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet-snippets yasnippet linum-relative exec-path-from-shell projectile))))
+    (org-download desktop+ transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -314,7 +314,7 @@
        (print latex-is-on)
 	 )
 
-     (toggle-latex)
+    ; (toggle-latex)
 
     (global-set-key (kbd "C-c t l")
 		    'toggle-latex)
@@ -408,8 +408,6 @@
   (add-hook 'pdf-annot-edit-contents-minor-mode-hook 'mymessage)
   )
 
-(use-package yasnippet-snippets)
-
 (use-package pdf-tools
   :config
   (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
@@ -447,3 +445,14 @@
   :config
   (add-hook 'dired-mode-hook 'org-download-enable))
 
+
+;; I don't use org-noter right now. The concept is good though.
+;; I find pure org-mode with links a to be more versatile,
+;; unfortunately it doesn't (yet) have the syncing feature that org-noter has.
+;; (use-package org-noter)
+
+(defun my-terminal-with-tmux ()
+  (interactive)
+(shell-command "gnome-terminal -e 'tmux new' >/dev/null"))
+
+(global-set-key (kbd "C-x t") 'my-terminal-with-tmux)
