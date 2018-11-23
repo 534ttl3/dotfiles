@@ -345,8 +345,18 @@
 (use-package evil-collection
   :after evil
   :ensure t
-  :config
-  (evil-collection-init))
+  :config 
+  (evil-collection-init)
+
+  (defun mysethistoryforwardbackward ()
+    (interactive)
+    (evil-define-key 'normal pdf-view-mode-map (kbd "B") 'pdf-history-backward)
+    (evil-define-key 'normal pdf-view-mode-map (kbd "F") 'pdf-history-forward)
+    (add-hook 'pdf-view-mode-hook #'evil-normalize-keymaps)
+    )
+ 
+    (add-hook 'pdf-view-mode-hook #'mysethistoryforwardbackward)
+  )
 
 (use-package linum-relative
   :config
