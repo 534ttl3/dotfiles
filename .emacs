@@ -15,7 +15,7 @@
     ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
  '(package-selected-packages
    (quote
-    (org-download desktop+ transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile))))
+    (org-ref org-download desktop+ transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -140,27 +140,54 @@
     (add-hook 'org-mode-hook 'visual-line-mode)
 
     (defun my-org-latex-pdf-export-async ()
-	(interactive)
-	    (org-latex-export-to-pdf t))
+    	(interactive)
+    	    (org-latex-export-to-pdf t))
 
-    (global-set-key (kbd "C-c i")
-	     'my-org-latex-pdf-export-async)
+    ;; (global-set-key (kbd "C-c i")
+    ;; 	     'my-org-latex-pdf-export-async)
 
-    (global-set-key (kbd "C-c t i")
-	     'toggle-pdf-export-on-save)
+    ;; (global-set-key (kbd "C-c t i")
+    ;; 	     'toggle-pdf-export-on-save)
 
-    (defun toggle-pdf-export-on-save ()
-    "Enable or disable export latex+pdf when saving current buffer."
-	(interactive)
-	(when (not (eq major-mode 'org-mode))
-	    (error "Not an org-mode file!"))
-	(if (memq 'my-org-latex-pdf-export-async after-save-hook)
-	    (progn (remove-hook 'after-save-hook  'my-org-latex-pdf-export-async)
-		    (message "Disabled org pdf export on save"))
-	    (add-hook 'after-save-hook 'my-org-latex-pdf-export-async)
-	    (set-buffer-modified-p t)
-	    (message "Enabled org pdf export on save")))
+    ;; (defun toggle-pdf-export-on-save ()
+    ;; "Enable or disable export latex+pdf when saving current buffer."
+    ;; 	(interactive)
+    ;; 	(when (not (eq major-mode 'org-mode))
+    ;; 	    (error "Not an org-mode file!"))
+    ;; 	(if (memq 'my-org-latex-pdf-export-async after-save-hook)
+    ;; 	    (progn (remove-hook 'after-save-hook  'my-org-latex-pdf-export-async)
+    ;; 		    (message "Disabled org pdf export on save"))
+    ;; 	    (add-hook 'after-save-hook 'my-org-latex-pdf-export-async)
+    ;; 	    (set-buffer-modified-p t)
+    ;; 	    (message "Enabled org pdf export on save")))
 
+    ;; (defun my-org-latex-export-to-latex ()
+    ;;   (interactive)
+    ;;   (org-latex-export-to-latex nil nil nil t nil)
+    ;;   )
+
+    ;; (defun toggle-org-latex-export-to-latex-on-save ()
+    ;; 	(interactive)
+    ;; 	(when (not (eq major-mode 'org-mode))
+    ;; 	    (error "Not an org-mode file!"))
+    ;; 	(if (memq 'my-org-latex-export-to-latex after-save-hook)
+    ;; 	    (progn (remove-hook 'after-save-hook  'my-org-latex-export-to-latex)
+    ;; 		    (message "Disabled my-org-latex-export-to-latex on save"))
+    ;; 	    (add-hook 'after-save-hook 'my-org-latex-export-to-latex)
+    ;; 	    (set-buffer-modified-p t)
+    ;; 	    (message "Enabled my-org-latex-export-to-latex on save")))
+
+    (fset 'bll-export
+    (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ("ll" 0 "%d")) arg)))
+    
+    (defun my-org-latex-export-and-save ()
+      (interactive)
+      (bll-export)
+      (save-buffer) 
+      )
+
+    (global-set-key (kbd "C-c w")
+	     'my-org-latex-export-and-save)
 
     ;; org-mode leuven theme
     ;;(add-to-list 'custom-theme-load-path "~/.emacs.d/elpa/emacs-leuven-theme")
@@ -444,6 +471,9 @@
 (use-package org-download
   :config
   (add-hook 'dired-mode-hook 'org-download-enable))
+
+(use-package org-ref
+  :after org)
 
 
 ;; I don't use org-noter right now. The concept is good though.
