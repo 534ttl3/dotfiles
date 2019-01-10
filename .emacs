@@ -448,8 +448,8 @@
 (use-package pdf-tools
   :config
   (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
-
   (define-key pdf-view-mode-map (kbd "C-c C-s") 'pdf-view-auto-slice-minor-mode)
+  (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
 )
 
 

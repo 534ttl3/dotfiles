@@ -60,6 +60,9 @@ Plugin 'tpope/vim-dispatch'
 " vim-tbone
 Plugin 'tpope/vim-tbone'
 
+" align commas, equal signs, a lot of stuff
+Plugin 'junegunn/vim-easy-align'
+
 " Latex-Suite
 " Plugin 'vim-latex/vim-latex'
 " let g:Tex_AutoFolding = 0
@@ -306,3 +309,11 @@ let g:airline#extensions#tabline#enabled = 1
 
 " ctrlp set directory where the index is stored in
 let g:ctrlp_cache_dir = "~/.cache/ctrlp"
+
+
+" vim-easy-align
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
