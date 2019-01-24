@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Name=name
+Exec=emacs --eval '(load-last-session)'
+Name[en_US]=emacs-last

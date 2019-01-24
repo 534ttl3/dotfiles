@@ -13,9 +13,10 @@
  '(custom-safe-themes
    (quote
     ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
+ '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (org-ref org-download desktop+ transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile))))
+    (centered-window org-ref org-download desktop+ transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -341,14 +342,14 @@
        (print latex-is-on)
 	 )
 
-    ; (toggle-latex)
+    ;; (toggle-latex)
 
-    (global-set-key (kbd "C-c t l")
-		    'toggle-latex)
+    ;; (local-set-key (kbd "C-c t l")
+    ;; 		    'toggle-latex)
 
 
-    (global-set-key (kbd "C-c t f")
-	     'org-latex-fragment-toggle)
+    ;; (local-set-key (kbd "C-c t f")
+    ;; 	     'org-latex-fragment-toggle)
 )
 
 (use-package evil
@@ -449,7 +450,7 @@
   :config
   (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
   (define-key pdf-view-mode-map (kbd "C-c C-s") 'pdf-view-auto-slice-minor-mode)
-  (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
+  ;; (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
 )
 
 
@@ -485,6 +486,8 @@
 (use-package org-ref
   :after org)
 
+(use-package centered-window :ensure t)
+
 
 ;; I don't use org-noter right now. The concept is good though.
 ;; I find pure org-mode with links a to be more versatile,
@@ -493,6 +496,48 @@
 
 (defun my-terminal-with-tmux ()
   (interactive)
-(shell-command "gnome-terminal -e 'tmux new' >/dev/null"))
+  (shell-command "gnome-terminal -e 'tmux new' >/dev/null")
+  )
 
-(global-set-key (kbd "C-x t") 'my-terminal-with-tmux)
+(global-set-key (kbd "C-c C-t") 'my-terminal-with-tmux)
+
+(defun my-explorer ()
+  (interactive)
+  (setq s (concat "nautilus " (file-name-directory buffer-file-name) " & "))
+  (message s)
+  (call-process-shell-command s nil 0)
+  )
+
+(global-set-key (kbd "C-c C-f C-e") 'my-explorer)
+
+(defun my-browser ()
+  (interactive)
+  (setq s (concat "chromium-browser " (file-name-directory buffer-file-name) " & "))
+  (message s)
+  (call-process-shell-command s nil 0)
+  )
+
+(global-set-key (kbd "C-c C-c C-b") 'my-browser)
+
+
+;; BEGIN remember last session 
+(defun read-lines (filePath)
+  "Return a list of lines of a file at filePath."
+  (with-temp-buffer
+    (insert-file-contents filePath)
+    (split-string (buffer-string) "\n" t)))
+
+(setq last-session-file-name ".lastsessionname")
+
+(defun load-last-session ()
+  (interactive)
+  (desktop+-load (nth 0 (read-lines last-session-file-name)))
+  )
+
+(add-hook 'kill-emacs-hook
+	  '(lambda ()
+	     (write-region (file-name-nondirectory (directory-file-name desktop-dirname)) nil last-session-file-name))
+	  )
+
+(global-set-key (kbd "C-c C-l C-l") 'load-last-session)
+;; END remember last session 
