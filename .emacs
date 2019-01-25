@@ -16,7 +16,7 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (centered-window org-ref org-download desktop+ transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile))))
+    (centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -122,7 +122,31 @@
 	   (shell-command-to-string
 	    (format "ln -s %s %s" my-cloud-emacs-desktops-dir (file-name-directory (directory-file-name emacsd-desktops-dir))))))
 
-  (setq desktop+-base-dir emacsd-desktops-dir))
+  (setq desktop+-base-dir emacsd-desktops-dir)
+
+  ;; BEGIN remember last session 
+  (defun read-lines (filePath)
+    "Return a list of lines of a file at filePath."
+    (with-temp-buffer
+      (insert-file-contents filePath)
+      (split-string (buffer-string) "\n" t)))
+  
+  (setq last-session-file-name ".lastsessionname")
+  
+  (defun load-last-session ()
+    (interactive)
+    (desktop+-load (nth 0 (read-lines last-session-file-name)))
+    )
+  
+  (add-hook 'kill-emacs-hook
+  	  '(lambda ()
+  	     (write-region (file-name-nondirectory (directory-file-name desktop-dirname)) nil last-session-file-name))
+  	  )
+  
+  (global-set-key (kbd "C-c C-l C-l") 'load-last-session)
+  ;; END remember last session 
+
+  )
 
 (use-package transpose-frame)
 
@@ -518,26 +542,3 @@
   )
 
 (global-set-key (kbd "C-c C-c C-b") 'my-browser)
-
-
-;; BEGIN remember last session 
-(defun read-lines (filePath)
-  "Return a list of lines of a file at filePath."
-  (with-temp-buffer
-    (insert-file-contents filePath)
-    (split-string (buffer-string) "\n" t)))
-
-(setq last-session-file-name ".lastsessionname")
-
-(defun load-last-session ()
-  (interactive)
-  (desktop+-load (nth 0 (read-lines last-session-file-name)))
-  )
-
-(add-hook 'kill-emacs-hook
-	  '(lambda ()
-	     (write-region (file-name-nondirectory (directory-file-name desktop-dirname)) nil last-session-file-name))
-	  )
-
-(global-set-key (kbd "C-c C-l C-l") 'load-last-session)
-;; END remember last session 
