@@ -16,7 +16,7 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile))))
+    (multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -124,27 +124,27 @@
 
   (setq desktop+-base-dir emacsd-desktops-dir)
 
-  ;; BEGIN remember last session 
-  (defun read-lines (filePath)
-    "Return a list of lines of a file at filePath."
-    (with-temp-buffer
-      (insert-file-contents filePath)
-      (split-string (buffer-string) "\n" t)))
-  
-  (setq last-session-file-name ".lastsessionname")
-  
-  (defun load-last-session ()
-    (interactive)
-    (desktop+-load (nth 0 (read-lines last-session-file-name)))
-    )
-  
-  (add-hook 'kill-emacs-hook
-  	  '(lambda ()
-  	     (write-region (file-name-nondirectory (directory-file-name desktop-dirname)) nil last-session-file-name))
-  	  )
-  
-  (global-set-key (kbd "C-c C-l C-l") 'load-last-session)
-  ;; END remember last session 
+  ;; ;; BEGIN remember last session 
+  ;; (defun read-lines (filePath)
+  ;;   "Return a list of lines of a file at filePath."
+  ;;   (with-temp-buffer
+  ;;     (insert-file-contents filePath)
+  ;;     (split-string (buffer-string) "\n" t)))
+  ;; 
+  ;; (setq last-session-file-name ".lastsessionname")
+  ;; 
+  ;; (defun load-last-session ()
+  ;;   (interactive)
+  ;;   (desktop+-load (nth 0 (read-lines last-session-file-name)))
+  ;;   )
+
+  ;; ;; (add-hook 'kill-emacs-hook
+  ;; ;; 	  '(lambda ()
+  ;; ;; 	     (write-region (file-name-nondirectory (directory-file-name desktop-dirname)) nil last-session-file-name))
+  ;; ;; 	  )
+  ;; ;; 
+  ;; ;; (global-set-key (kbd "C-c C-l C-l") 'load-last-session)
+  ;; ;; ;; END remember last session 
 
   )
 
@@ -523,7 +523,7 @@
   (shell-command "gnome-terminal -e 'tmux new' >/dev/null")
   )
 
-(global-set-key (kbd "C-c C-t") 'my-terminal-with-tmux)
+(global-set-key (kbd "C-x C-m C-t") 'my-terminal-with-tmux)
 
 (defun my-explorer ()
   (interactive)
@@ -532,7 +532,7 @@
   (call-process-shell-command s nil 0)
   )
 
-(global-set-key (kbd "C-c C-f C-e") 'my-explorer)
+(global-set-key (kbd "C-x C-m C-f") 'my-explorer)  ; open gui file explorer
 
 (defun my-browser ()
   (interactive)
@@ -541,4 +541,60 @@
   (call-process-shell-command s nil 0)
   )
 
-(global-set-key (kbd "C-c C-c C-b") 'my-browser)
+(global-set-key (kbd "C-x C-m C-b") 'my-browser)  ; open browser at that file
+
+(use-package multi-term
+  :config
+  (setq multi-term-program "/usr/local/bin/zsh")
+  
+  (add-hook 'term-mode-hook
+            (lambda ()
+              (setq term-buffer-maximum-size 10000)))
+  
+  (add-hook 'term-mode-hook
+            (lambda ()
+              (setq show-trailing-whitespace nil)))
+  
+  (defcustom term-unbind-key-list
+    '("C-z" "C-x" "C-c" "C-h" "C-y" "<ESC>")
+    "The key list that will need to be unbind."
+    :type 'list
+    :group 'multi-term)
+  
+  (defcustom term-bind-key-alist
+    '(
+      ("C-c C-c" . term-interrupt-subjob)
+      ("C-p" . previous-line)
+      ("C-n" . next-line)
+      ("C-s" . isearch-forward)
+      ("C-r" . isearch-backward)
+      ("C-m" . term-send-raw)
+      ("M-f" . term-send-forward-word)
+      ("M-b" . term-send-backward-word)
+      ("M-o" . term-send-backspace)
+      ("M-p" . term-send-up)
+      ("M-n" . term-send-down)
+      ("M-M" . term-send-forward-kill-word)
+      ("M-N" . term-send-backward-kill-word)
+      ("M-r" . term-send-reverse-search-history)
+      ("M-," . term-send-input)
+      ("M-." . comint-dynamic-complete))
+    "The key alist that will need to be bind.
+  If you do not like default setup, modify it, with (KEY . COMMAND) format."
+    :type 'alist
+    :group 'multi-term)
+  
+  (add-hook 'term-mode-hook
+            (lambda ()
+              (add-to-list 'term-bind-key-alist '("M-[" . multi-term-prev))
+              (add-to-list 'term-bind-key-alist '("M-]" . Multi-term-next))))
+  
+  (add-hook 'term-mode-hook
+            (lambda ()
+              (define-key term-raw-map (kbd "C-y") 'term-paste)))
+  
+
+  )
+
+
+(global-set-key (kbd "C-x C-m C-m") 'multi-term)  ; open multi-terminal
