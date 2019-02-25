@@ -16,13 +16,13 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+))))
+    (py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(fringe ((t (:background "#263238")))))
 
 ;; ---- use-package initialization, make sure use-package.el is cloned into ~/.emacs.d
 ;; This is only needed once, near the top of the file
@@ -75,7 +75,7 @@
         (buffer-substring (region-beginning) (region-end))
       (read-string "Google: ")))))
 
-(global-set-key (kbd "C-x g") 'prelude-google)
+ (global-set-key (kbd "C-x g") 'prelude-google)
 
 (tool-bar-mode -1)
 
@@ -596,5 +596,59 @@
 
   )
 
-
 (global-set-key (kbd "C-x C-m C-m") 'multi-term)  ; open multi-terminal
+
+(setq inhibit-startup-message t) ;; hide the startup message
+
+(use-package material-theme
+  :ensure t)
+(load-theme 'material t) ;; load material theme
+
+(use-package flycheck)
+(use-package py-autopep8)
+
+(use-package elpy
+  :config
+  (elpy-enable)
+
+  ;; switch out flymake for flycheck (less troubleshooting, real-time syntax checking)
+  (when (require 'flycheck nil t)
+    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+    (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+  (add-hook 'python-mode-hook 'elpy-mode)
+  (with-eval-after-load 'elpy
+  (remove-hook 'elpy-modules 'elpy-module-flymake)
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
+  ;; (add-hook 'elpy-mode-hook 'elpy-use-ipython)
+  ;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+
+  ;; ;; switch out the standard python interpreter with jupyter 
+  ;; (setq python-shell-interpreter "jupyter"
+  ;;       python-shell-interpreter-args "console --simple-prompt"
+  ;;       python-shell-prompt-detect-failure-warning nil)
+  ;; (add-to-list 'python-shell-completion-native-disabled-interpreters
+  ;;              "jupyter")
+
+  (defun my-restart-python-console ()
+    "Restart python console before evaluate buffer or region to avoid various uncanny conflicts, like not reloding modules even when they are changed"
+    (interactive)
+    (kill-process "Python")
+    (sleep-for 0.05)
+    (kill-buffer "*Python*")
+    (elpy-shell-send-region-or-buffer))
+    (global-set-key (kbd "C-, z") 'my-restart-python-console)
+  )
+
+(defun printbreakpoint ()
+	  (interactive)
+	  (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>"))
+(global-set-key (kbd "C-, b") 'printbreakpoint)
+
+(when (display-graphic-p)
+  (setq frame-resize-pixelwise t)
+  (set-frame-position (selected-frame) 0 0)
+  ;; (set-frame-size (selected-frame) (truncate (/ 1920 2.053)) 600 t)
+  (set-frame-size (selected-frame) 905 600 t)
+  )
+
