@@ -16,7 +16,7 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+))))
+    (neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -637,7 +637,9 @@
     (sleep-for 0.05)
     (kill-buffer "*Python*")
     (elpy-shell-send-region-or-buffer))
+
     (global-set-key (kbd "C-, z") 'my-restart-python-console)
+    (global-set-key (kbd "C-, d") 'elpy-goto-definition)
   )
 
 (defun printbreakpoint ()
@@ -645,10 +647,61 @@
 	  (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>"))
 (global-set-key (kbd "C-, b") 'printbreakpoint)
 
-(when (display-graphic-p)
-  (setq frame-resize-pixelwise t)
-  (set-frame-position (selected-frame) 0 0)
-  ;; (set-frame-size (selected-frame) (truncate (/ 1920 2.053)) 600 t)
-  (set-frame-size (selected-frame) 905 600 t)
+(if (display-graphic-p)
+  (progn
+    (setq frame-resize-pixelwise t)
+    (set-frame-position (selected-frame) 0 0)
+    ;; (set-frame-size (selected-frame) (truncate (/ 1920 2.053)) 600 t)
+    (set-frame-size (selected-frame) 905 600 t))
+  (progn
+    (menu-bar-mode -1))
   )
 
+(use-package projectile
+  :config
+  (projectile-mode +1)
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  )
+
+;; it caused an annoying warning, and has an ugly seperator
+;; (use-package dired-sidebar
+;;   :bind (("C-x C-n" . dired-sidebar-toggle-sidebar))
+;;   :ensure t
+;;   :commands (dired-sidebar-toggle-sidebar)
+;;   :init
+;;   (add-hook 'dired-sidebar-mode-hook
+;;             (lambda ()
+;;               (unless (file-remote-p default-directory)
+;;                 (auto-revert-mode))))
+;;   :config
+;;   (push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
+;;   (push 'rotate-windows dired-sidebar-toggle-hidden-commands)
+;; 
+;;   (setq dired-sidebar-subtree-line-prefix "__")
+;;   (setq dired-sidebar-theme 'vscode)
+;;   (setq dired-sidebar-use-term-integration t)
+;;   (setq dired-sidebar-use-custom-font t))
+
+
+(use-package neotree
+  :config 
+  (global-set-key (kbd "C-, t") 'neotree-toggle)
+  )
+
+(scroll-bar-mode -1)
+
+(defun halve-other-window-height ()
+  "Expand current window to use half of the other window's lines."
+  (interactive)
+  (enlarge-window (/ (window-height (next-window)) 2)))
+
+(global-set-key (kbd "C-, h") 'halve-other-window-height)
+
+;; A Cool functionality would be to
+;; Have a function associated with the project folder, that
+;; when having a file of the project open,
+;; on keypress:
+;; - activates the associated virtualenv using pyvenv-activate (saved in e.g. .local-vars.el)
+;; - opens a term window with a specific name in a small split (project name, e.g. saved in .local-vars.el) and makes sure the venv is in fact activated
+;; - sends the execution command (python main.py) to the term buffer and runs it
