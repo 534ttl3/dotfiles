@@ -630,15 +630,6 @@
   ;; (add-to-list 'python-shell-completion-native-disabled-interpreters
   ;;              "jupyter")
 
-  (defun my-restart-python-console ()
-    "Restart python console before evaluate buffer or region to avoid various uncanny conflicts, like not reloding modules even when they are changed"
-    (interactive)
-    (kill-process "Python")
-    (sleep-for 0.05)
-    (kill-buffer "*Python*")
-    (elpy-shell-send-region-or-buffer))
-
-    (global-set-key (kbd "C-, z") 'my-restart-python-console)
     (global-set-key (kbd "C-, d") 'elpy-goto-definition)
   )
 
@@ -705,3 +696,37 @@
 ;; - activates the associated virtualenv using pyvenv-activate (saved in e.g. .local-vars.el)
 ;; - opens a term window with a specific name in a small split (project name, e.g. saved in .local-vars.el) and makes sure the venv is in fact activated
 ;; - sends the execution command (python main.py) to the term buffer and runs it
+
+(use-package pyvenv
+        :ensure t
+        :init
+        (setenv "WORKON_HOME" "~/venvs")
+        (pyvenv-mode 1)
+        (pyvenv-tracking-mode 1))
+
+(defun my-echo ()
+  (interactive)
+  (switch-to-buffer "*terminal*")
+  (end-of-buffer)
+  (insert "echo hello")
+  (term-send-input))
+
+(defun visit-project-term-buffer ()
+  "Create or visit a terminal buffer."
+  (interactive)
+  (if (not (get-buffer (persp-ansi-buffer-name)))
+  (progn
+    (split-window-sensibly (selected-window))
+    (other-window 1)
+    (ansi-term (getenv "SHELL"))
+    (rename-buffer (persp-ansi-buffer-name))
+    (end-of-buffer)
+    (insert (format "cd %s" (projectile-project-root)))
+    (term-send-input))
+  (switch-to-buffer-other-window (persp-ansi-buffer-name))))
+
+(defun python-execute-main-in-terminal()
+  (interactive)
+  (comint-send-string "*terminal*" "python main.py\n"))
+
+(global-set-key (kbd "C-, z") 'python-execute-main-in-terminal)
