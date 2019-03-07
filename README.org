@@ -1,0 +1,329 @@
+* Configure Ubuntu
+  :PROPERTIES:
+  :CUSTOM_ID: configure-ubuntu
+  :END:
+
+* install crucial stuff
+  :PROPERTIES:
+  :CUSTOM_ID: install-crucial-stuff
+  :END:
+
+#+BEGIN_EXAMPLE
+    sudo apt install git git-annex vim nautilus-dropbox emacs mercurial
+#+END_EXAMPLE
+
+* install a few assistant tools
+  :PROPERTIES:
+  :CUSTOM_ID: install-a-few-assistant-tools
+  :END:
+
+#+BEGIN_EXAMPLE
+    sudo apt install xclip xdg-utils htop openssh-client curl tmux zsh samba samba-common smbclient build-essential python3-pip chromium-browser tree vlc openvpn pandoc
+#+END_EXAMPLE
+
+* install SSH and add keys to remote repos
+  :PROPERTIES:
+  :CUSTOM_ID: install-ssh-and-add-keys-to-remote-repos
+  :END:
+
+#+BEGIN_EXAMPLE
+    ssh-keygen
+#+END_EXAMPLE
+
+don't overwrite the existing rsa key pair go to github and add the
+contents of of your public key file
+
+#+BEGIN_EXAMPLE
+    cat $HOME/.ssh/id_rsa.pub
+#+END_EXAMPLE
+
+** add SSH configs and ssh-copy-id in order to connect automatically
+   :PROPERTIES:
+   :CUSTOM_ID: add-ssh-configs-and-ssh-copy-id-in-order-to-connect-automatically
+   :END:
+
+view the .ssh/config file (taken from Dropbox config folder)
+
+#+BEGIN_EXAMPLE
+    cat ~/.ssh/config
+#+END_EXAMPLE
+
+For each connection you want to add, do a
+
+#+BEGIN_EXAMPLE
+    ssh-copy-id User@HostName
+#+END_EXAMPLE
+
+Now, you can easily connect with the ssh server using
+
+#+BEGIN_EXAMPLE
+    ssh User@HostName
+#+END_EXAMPLE
+
+or with the shortcut (in .ssh/config)
+
+#+BEGIN_EXAMPLE
+    ssh my_server
+#+END_EXAMPLE
+
+* install dotfiles repo from github
+  :PROPERTIES:
+  :CUSTOM_ID: install-dotfiles-repo-from-github
+  :END:
+
+you probably have already installed git, so init a git repo in $HOME
+
+#+BEGIN_EXAMPLE
+    cd $HOME
+    git init
+    git remote add origin git@github.com:534ttl3/dotfiles.git
+    git remote -v
+    git config --global user.email "you@example.com"
+    git config --global user.name "Your Name"
+    git pull
+    git config --global push.default simple
+    git checkout master
+    git branch --set-upstream-to=origin/master master
+#+END_EXAMPLE
+
+this gets you a list of already-existing files, add them to the new
+commit then merge a remote branch (a similar system) into the already
+existing branch (new files) and resolve conflicts
+
+Install latest python version (anaconda) into =$HOME/opt/=
+
+** install scipy, matplotlib, numba, ...
+   :PROPERTIES:
+   :CUSTOM_ID: install-scipy-matplotlib-numba-...
+   :END:
+
+always install to the right locations (=pip= could be =pip2=, not
+=pip3=)
+
+#+BEGIN_EXAMPLE
+    sudo pip3 install scipy matplotlib numba flake8 ipdb sympy
+#+END_EXAMPLE
+
+matplotlib could use tkinter, so do
+
+#+BEGIN_EXAMPLE
+    sudo apt install python3-tk
+#+END_EXAMPLE
+
+* other TODO's for setting up a new system
+  :PROPERTIES:
+  :CUSTOM_ID: other-todos-for-setting-up-a-new-system
+  :END:
+
+** vim
+   :PROPERTIES:
+   :CUSTOM_ID: vim
+   :END:
+
+#+BEGIN_EXAMPLE
+    sudo apt-get install vim
+#+END_EXAMPLE
+
+and compile vim with =+conceal= and =--prefix=/opt/= (in
+=--with-feature=huge=) (jedi parameter list completion) =+python= and
+=+python3= support and add custom bin path to $PATH in .bashrc on
+=https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source=,
+there is a good tutorial on how to compile vim with certain options.
+
+** vundle plugin manager
+   :PROPERTIES:
+   :CUSTOM_ID: vundle-plugin-manager
+   :END:
+
+#+BEGIN_EXAMPLE
+    git clone https://github.com/gmarik/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
+    vim -c PluginInstall
+#+END_EXAMPLE
+
+** non-vundle-managed plugins
+   :PROPERTIES:
+   :CUSTOM_ID: non-vundle-managed-plugins
+   :END:
+
+*** Python folding
+    :PROPERTIES:
+    :CUSTOM_ID: python-folding
+    :END:
+
+#+BEGIN_EXAMPLE
+    mkdir -p ~/.vim/ftplugin
+#+END_EXAMPLE
+
+I prefer
+
+#+BEGIN_EXAMPLE
+    wget -O ~/.vim/ftplugin/python.vim https://www.vim.org/scripts/download_script.php?src_id=10034
+#+END_EXAMPLE
+
+But this one is also good
+
+#+BEGIN_EXAMPLE
+    wget -O ~/.vim/ftplugin/python.vim http://www.vim.org/scripts/download_script.php?src_id=5492
+#+END_EXAMPLE
+
+* install powerline fonts (for vim-airline)
+  :PROPERTIES:
+  :CUSTOM_ID: install-powerline-fonts-for-vim-airline
+  :END:
+
+follow the instructions at
+
+#+BEGIN_EXAMPLE
+    https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
+#+END_EXAMPLE
+
+*** plugins dependencies
+    :PROPERTIES:
+    :CUSTOM_ID: plugins-dependencies
+    :END:
+
+#+BEGIN_EXAMPLE
+    pip install jedi
+    pip install autopep8
+#+END_EXAMPLE
+
+** latex and pdf viewer
+   :PROPERTIES:
+   :CUSTOM_ID: latex-and-pdf-viewer
+   :END:
+
+#+BEGIN_EXAMPLE
+    sudo apt-get install texlive-full biber latexmk zathura
+#+END_EXAMPLE
+
+** pdftk
+   :PROPERTIES:
+   :CUSTOM_ID: pdftk
+   :END:
+
+see
+https://askubuntu.com/questions/1028522/how-can-i-install-pdftk-in-ubuntu-18-04-and-later
+
+#+BEGIN_EXAMPLE
+    sudo add-apt-repository ppa:malteworld/ppa
+    sudo apt update
+    sudo apt install pdftk
+#+END_EXAMPLE
+
+** some gui sketching and drafting programs
+   :PROPERTIES:
+   :CUSTOM_ID: some-gui-sketching-and-drafting-programs
+   :END:
+
+#+BEGIN_EXAMPLE
+    sudo apt install inkscape dia pinta
+#+END_EXAMPLE
+
+** install ruby development headers (to compile git-media)
+   :PROPERTIES:
+   :CUSTOM_ID: install-ruby-development-headers-to-compile-git-media
+   :END:
+
+On Ubuntu:
+
+#+BEGIN_EXAMPLE
+    sudo apt-get install ruby-all-dev
+#+END_EXAMPLE
+
+On Debian:
+
+#+BEGIN_EXAMPLE
+    sudo apt-get install ruby-dev
+#+END_EXAMPLE
+
+** Panda3d
+   :PROPERTIES:
+   :CUSTOM_ID: panda3d
+   :END:
+
+(for python)
+
+Detailed information here: =https://github.com/panda3d/panda3d=
+
+Usual install process on linux: Most dependencies you need:
+
+#+BEGIN_EXAMPLE
+    sudo apt-get install build-essential pkg-config python-dev libpng-dev
+    libjpeg-dev libtiff-dev zlib1g-dev libssl-dev libx11-dev libgl1-mesa-dev
+    libxrandr-dev libxxf86dga-dev libxcursor-dev bison flex libfreetype6-dev
+    libvorbis-dev libeigen3-dev libopenal-dev libode-dev libbullet-dev
+    nvidia-cg-toolkit libgtk2.0-dev
+#+END_EXAMPLE
+
+Then (for python2 use =pip= instead of =pip3=),
+
+#+BEGIN_EXAMPLE
+    pip3 install --pre --extra-index-url https://archive.panda3d.org/ panda3d
+#+END_EXAMPLE
+
+Now you should be able to run p3d programs.
+
+** Audio Editing/Processing
+   :PROPERTIES:
+   :CUSTOM_ID: audio-editingprocessing
+   :END:
+
+You will want to install the Kxstudio repository and apps, because it
+makes a workflow with Jack + Pulseaudio + Alsa + Midi way more
+streamlined. See =https://kxstudio.linuxaudio.org/Repositories= for
+updated installation instructions.
+
+You probably want Jack, Cadence, Qsampler, Carla, ...
+
+You probably want all the =kxstudio-meta= packages too (plugins, vsts,
+linux vsts, wine, ...)
+
+** Tweaking Unity
+   :PROPERTIES:
+   :CUSTOM_ID: tweaking-unity
+   :END:
+
+Remove the top bar shadow
+
+#+BEGIN_EXAMPLE
+    sudo mv /usr/share/unity/icons/panel_shadow.png /usr/share/unity/icons/panel_shadow_renamed.png
+#+END_EXAMPLE
+
+Install Unity-Tweak-Tool
+
+#+BEGIN_EXAMPLE
+    sudo apt-get install notify-osd overlay-scrollbar unity-tweak-tool
+#+END_EXAMPLE
+
+Install Numix GTK Theme
+
+#+BEGIN_EXAMPLE
+    sudo apt install numix-gtk-theme
+#+END_EXAMPLE
+
+Install Compiz Manager
+
+#+BEGIN_EXAMPLE
+    sudo apt-get install compizconfig-settings-manager 
+    sudo apt-get install compiz compiz-gnome compiz-plugins-extra 
+#+END_EXAMPLE
+
+** zsh
+   :PROPERTIES:
+   :CUSTOM_ID: zsh
+   :END:
+
+Go to ohmyzsh.sh or just run
+
+#+BEGIN_EXAMPLE
+    sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+#+END_EXAMPLE
+
+To set zsh as the current users default terminal, do (as a user, not as
+sudo)
+
+#+BEGIN_EXAMPLE
+    chsh -s $(which zsh)
+#+END_EXAMPLE
+
+then log out and log back in.
