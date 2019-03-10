@@ -2,6 +2,7 @@
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 (package-initialize)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -13,10 +14,13 @@
  '(custom-safe-themes
    (quote
     ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
+ '(org-modules
+   (quote
+    (org-bbdb org-bibtex org-docview org-gnus org-info org-irc org-mhe org-rmail org-w3m)))
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (pyvenv neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+))))
+    (neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+ use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -374,7 +378,11 @@
 
 
     ;; (local-set-key (kbd "C-c t f")
-    ;; 	     'org-latex-fragment-toggle)
+     ;; 	     'org-latex-fragment-toggle)
+
+    ;; org-drill: I never got it to work
+    ;; (add-to-list 'load-path "~/.emacs.d/custom_packages/drill/")
+    ;; (require 'org-drill)
 )
 
 (use-package evil
@@ -711,20 +719,6 @@
   (end-of-buffer)
   (insert "echo hello")
   (term-send-input))
-
-(defun visit-project-term-buffer ()
-  "Create or visit a terminal buffer."
-  (interactive)
-  (if (not (get-buffer (persp-ansi-buffer-name)))
-  (progn
-    (split-window-sensibly (selected-window))
-    (other-window 1)
-    (ansi-term (getenv "SHELL"))
-    (rename-buffer (persp-ansi-buffer-name))
-    (end-of-buffer)
-    (insert (format "cd %s" (projectile-project-root)))
-    (term-send-input))
-  (switch-to-buffer-other-window (persp-ansi-buffer-name))))
 
 (defun python-execute-main-in-terminal()
   (interactive)
