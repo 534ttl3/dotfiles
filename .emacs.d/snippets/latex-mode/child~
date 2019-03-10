@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: child
+# key: child
+# --
+c[]{$1}
