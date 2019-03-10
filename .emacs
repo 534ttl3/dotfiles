@@ -163,6 +163,7 @@
   (setq org-export-async-debug nil)
 
     (add-hook 'org-mode-hook 'visual-line-mode)
+    (add-hook 'org-mode-hook 'show-paren-mode)
 
     (defun my-org-latex-pdf-export-async ()
     	(interactive)
@@ -431,7 +432,7 @@
     ;; also don't use big ugly headings
     (setq font-latex-fontify-sectioning 'color)
     (setq font-latex-fontify-sectioning 1.0)
-)
+    )
 
 (use-package yasnippet
   :config
@@ -730,3 +731,7 @@
   (comint-send-string "*terminal*" "python main.py\n"))
 
 (global-set-key (kbd "C-, z") 'python-execute-main-in-terminal)
+
+(setq show-paren-delay 0)
+
+(add-hook 'latex-mode 'show-paren-mode)
