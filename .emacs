@@ -14,13 +14,16 @@
  '(custom-safe-themes
    (quote
     ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
+ '(helm-gtags-auto-update t)
+ '(helm-gtags-ignore-case t)
+ '(helm-gtags-path-style (quote relative))
  '(org-modules
    (quote
     (org-bbdb org-bibtex org-docview org-gnus org-info org-irc org-mhe org-rmail org-w3m)))
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+ use-package))))
+    (smartparens ws-butler dtrt-indent clean-aindent-mode stickyfunc-enhance company-c-headers sr-speedbar helm-gtags ialign function-args ggtags neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+ use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -639,9 +642,10 @@
   ;; (add-to-list 'python-shell-completion-native-disabled-interpreters
   ;;              "jupyter")
 
-    (global-set-key (kbd "C-, d") 'elpy-goto-definition)
+  (add-hook 'python-mode-hook
+	    '(lambda() (global-set-key (kbd "C-, d") 'elpy-goto-definition)))
   )
-
+	
 (defun printbreakpoint ()
 	  (interactive)
 	  (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>"))
@@ -726,6 +730,187 @@
 
 (global-set-key (kbd "C-, z") 'python-execute-main-in-terminal)
 
+(show-paren-mode 1)
 (setq show-paren-delay 0)
 
-(add-hook 'latex-mode 'show-paren-mode)
+;; (add-hook 'latex-mode 'show-paren-mode)
+
+(use-package helm
+  :ensure t
+  :config
+    (helm-mode 1)
+  )
+
+
+(use-package ggtags
+  :ensure t
+  ;; :pin melpa-stable   ; didn't work
+  :config
+    (require 'ggtags)
+    (add-hook 'c-mode-common-hook
+              (lambda ()
+                (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+                  (ggtags-mode 1))))
+    
+    (define-key ggtags-mode-map (kbd "C-c g s") 'ggtags-find-other-symbol)
+    (define-key ggtags-mode-map (kbd "C-c g h") 'ggtags-view-tag-history)
+    (define-key ggtags-mode-map (kbd "C-c g r") 'ggtags-find-reference)
+    (define-key ggtags-mode-map (kbd "C-c g f") 'ggtags-find-file)
+    (define-key ggtags-mode-map (kbd "C-c g c") 'ggtags-create-tags)
+    (define-key ggtags-mode-map (kbd "C-c g u") 'ggtags-update-tags)
+    (define-key ggtags-mode-map (kbd "C-, d") 'ggtags-find-tag-dwim)
+    (define-key ggtags-mode-map (kbd "C-, ,") 'pop-tag-mark)
+
+    ;; (define-key ggtags-mode-map (kbd "M-,") 'pop-tag-mark)
+    ;; (setq-local imenu-create-index-function #'ggtags-build-imenu-index)
+    )
+
+(use-package function-args
+  :ensure t
+  :config
+  (fa-config-default)
+  )
+
+(use-package ialign
+  :ensure t
+  :config
+  (global-set-key (kbd "C-x l") #'ialign)
+  )
+
+(use-package helm-gtags
+  :ensure t
+  :config
+    ;;; Enable helm-gtags-mode
+    (add-hook 'c-mode-hook 'helm-gtags-mode)
+    (add-hook 'c++-mode-hook 'helm-gtags-mode)
+    (add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+    ;; customize
+    (custom-set-variables
+    '(helm-gtags-path-style 'relative)
+    '(helm-gtags-ignore-case t)
+    '(helm-gtags-auto-update t))
+
+    ;; key bindings
+    (with-eval-after-load 'helm-gtags
+    (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)
+    (define-key helm-gtags-mode-map (kbd "M-r") 'helm-gtags-find-rtag)
+    (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-find-symbol)
+    (define-key helm-gtags-mode-map (kbd "M-g M-p") 'helm-gtags-parse-file)
+    (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+    (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
+    (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack))
+  )
+
+(use-package company
+  :ensure t
+  :config
+  (require 'cc-mode)
+  (add-hook 'after-init-hook 'global-company-mode)
+  (setq company-backends (delete 'company-semantic company-backends))
+  (define-key c-mode-map  [(tab)] 'company-complete)
+  (define-key c++-mode-map  [(tab)] 'company-complete)
+  ;; Weirdly, I didn't manually have to specify all my includes,
+  ;; maybe because projectile works with it?
+  ;; ((nil . ((company-clang-arguments . ("-I/home/<user>/project_root/include1/"
+                                       ;; "-I/home/<user>/project_root/include2/")))))
+   )
+
+(use-package sr-speedbar
+  :ensure t
+  :config
+  (global-set-key (kbd "C-, n") 'sr-speedbar-toggle)
+  )
+
+(use-package company-c-headers
+  :ensure t
+  :config
+
+  (with-eval-after-load "company"
+    (add-to-list 'company-backends 'company-c-headers)
+    (add-to-list 'company-c-headers-path-system "/usr/include/c++/7.3.0/")
+    )
+  )
+
+(require 'cc-mode)
+(use-package semantic
+  :config
+  (add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
+
+  (semantic-mode 1)
+
+  (global-semanticdb-minor-mode 1)
+  (global-semantic-idle-scheduler-mode 1)
+  ;; optionally, add company-semantic as company mode backend
+  ;; for language-aware code completion templates
+
+  ;; You can use semantic to parse
+  ;; and enable jumping to other-than-project-local source files
+  (semantic-add-system-include "/usr/local/include")
+  ;; (It takes a while at first, but is fast afterwards) You may use semantic 
+  ;; in combination with GNU Global and ggtags
+  ;; (semantic-add-system-include "~/linux/include")
+
+  )
+
+(use-package stickyfunc-enhance)
+
+;; Deal with indentation, tabs and white spaces
+
+;; Available C style:
+;; “gnu”: The default style for GNU projects
+;; “k&r”: What Kernighan and Ritchie, the authors of C used in their book
+;; “bsd”: What BSD developers use, aka “Allman style” after Eric Allman.
+;; “whitesmith”: Popularized by the examples that came with Whitesmiths C, an early commercial C compiler.
+;; “stroustrup”: What Stroustrup, the author of C++ used in his book
+;; “ellemtel”: Popular C++ coding standards as defined by “Programming in C++, Rules and Recommendations,” Erik Nyquist and Mats Henricson, Ellemtel
+;; “linux”: What the Linux developers use for kernel development
+;; “python”: What Python developers use for extension modules
+;; “java”: The default style for java-mode (see below)
+;; “user”: When you want to define your own style
+(setq
+ c-default-style "linux" ;; set style to "linux"
+ )
+(global-set-key (kbd "RET") 'newline-and-indent)  ;; automatically indent when press RET
+
+;; activate whitespace-mode to view all whitespace characters
+(global-set-key (kbd "C-c w") 'whitespace-mode)
+
+;; show unncessary whitespace that can mess up your diff
+(add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
+
+;; use space to indent by default
+(setq-default indent-tabs-mode nil)
+
+;; set appearance of a tab that is represented by 4 spaces
+(setq-default tab-width 4)
+
+(use-package clean-aindent-mode
+  :config
+  (add-hook 'prog-mode-hook 'clean-aindent-mode)
+  )
+
+(use-package dtrt-indent
+  :config
+  (dtrt-indent-mode 1)
+  (setq dtrt-indent-verbosity 0)
+  )
+
+(use-package ws-butler
+  :config
+  (add-hook 'c-mode-common-hook 'ws-butler-mode)
+  )
+
+
+(use-package smartparens
+  :config
+  (show-smartparens-global-mode +1)
+  (smartparens-global-mode 1)
+  
+  ;; when you press RET, the curly braces automatically
+  ;; add another newline
+  (sp-with-modes '(c-mode c++-mode)
+  (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
+  (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
+                                            ("* ||\n[i]" "RET"))))
+  )
