@@ -23,7 +23,7 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (smartparens ws-butler dtrt-indent clean-aindent-mode stickyfunc-enhance company-c-headers sr-speedbar helm-gtags ialign function-args ggtags neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+ use-package))))
+    (exwm exwm-config smartparens ws-butler dtrt-indent clean-aindent-mode stickyfunc-enhance company-c-headers sr-speedbar helm-gtags ialign function-args ggtags neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+ use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -728,7 +728,7 @@
   (interactive)
   (comint-send-string "*terminal*" "python main.py\n"))
 
-(global-set-key (kbd "C-, z") 'python-execute-main-in-terminal)
+(define-key python-mode-map (kbd "C-, z") 'python-execute-main-in-terminal)
 
 (show-paren-mode 1)
 (setq show-paren-delay 0)
@@ -890,11 +890,11 @@
   (add-hook 'prog-mode-hook 'clean-aindent-mode)
   )
 
-(use-package dtrt-indent
-  :config
-  (dtrt-indent-mode 1)
-  (setq dtrt-indent-verbosity 0)
-  )
+;; (use-package dtrt-indent
+;;   :config
+;;   (dtrt-indent-mode 1)
+;;   (setq dtrt-indent-verbosity 0)
+;;   )
 
 (use-package ws-butler
   :config
@@ -914,3 +914,31 @@
   (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
                                             ("* ||\n[i]" "RET"))))
   )
+
+(add-hook 'c-mode-hook 'flycheck-mode)
+(add-hook 'c++-mode-hook 'flycheck-mode)
+
+;; navigate through matches in list (may it be compilation messages or tag occurrences)
+(global-set-key (kbd "C-, k") (lambda ()
+                                (interactive)
+                                (next-match -1)))
+
+(global-set-key (kbd "C-, j") (lambda ()
+                                (interactive)
+                                (next-match +1)))
+
+(global-set-key (kbd "C-, o") (lambda ()
+                                (interactive)
+                                (next-match 0)))
+
+(define-key c++-mode-map (kbd "C-, z") 'compile)
+(define-key c-mode-map (kbd "C-, z") 'compile)
+
+;; debugging workspace setup
+(setq
+ ;; use gdb-many-windows by default
+ gdb-many-windows t
+
+ ;; Non-nil means display source file containing the main routine at startup
+ gdb-show-main t
+ )
