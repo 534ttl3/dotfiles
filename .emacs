@@ -20,7 +20,7 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+ use-package))))
+    (darkroom hide-mode-line neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview pdf-tools auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile desktop+ use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -729,3 +729,19 @@
 (setq show-paren-delay 0)
 
 (add-hook 'latex-mode 'show-paren-mode)
+
+(load-file "~/.emacs.d/nakedmode/nakedmode.el")
+
+(use-package hide-mode-line
+  :ensure t)
+
+(use-package darkroom
+  :ensure t
+  :config
+
+  (setq darkroom-text-scale-increase 0)
+  (add-hook 'darkroom-mode-hook 'visual-line-mode)
+
+  ;; (with-eval-after-load 'darkroom
+  ;;   )
+  )
