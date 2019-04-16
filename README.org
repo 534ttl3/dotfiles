@@ -327,3 +327,10 @@ sudo)
 #+END_EXAMPLE
 
 then log out and log back in.
+* emacs 
+** C++ ide
+install GNU GLOBAL (editor-independent code tagging system, works with many languages including C++ and Python)
+
+#+BEGIN_SRC 
+sudo apt install global
+#+END_SRC
