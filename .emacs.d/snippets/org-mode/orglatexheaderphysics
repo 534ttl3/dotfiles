@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: olatexheaderphysics
+# key: olhp
+# --
+#+LaTeX_HEADER: \\usepackage\{physics\}

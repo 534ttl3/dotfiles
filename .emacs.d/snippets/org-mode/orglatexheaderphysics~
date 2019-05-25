@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: orglatexheaderphysics
+# key: orglhp
+# --
+#+LaTeX_HEADER: \\usepackage\{physics\}

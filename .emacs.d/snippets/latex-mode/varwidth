@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: varwidth
+# key: vw
+# --
+\begin{varwidth}[t]{10cm}
+$0
+\end{varwidth}

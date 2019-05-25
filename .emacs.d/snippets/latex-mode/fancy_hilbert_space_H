@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: fancy_hilbert_space_H
+# key: Hf
+# --
+\mathcal{H}

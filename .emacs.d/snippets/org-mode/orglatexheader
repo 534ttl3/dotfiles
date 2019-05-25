@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: orglatexheader
+# key: orglh
+# --
+#+LaTeX_HEADER: \\usepackage\{$1\}

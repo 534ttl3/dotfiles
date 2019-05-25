@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: olatexheader
+# key: olh
+# --
+#+LaTeX_HEADER: \\usepackage\{$1\}
