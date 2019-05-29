@@ -79,8 +79,31 @@ Disable startup screen when opening a file from command line
 (add-hook 'command-line-functions #'my-inhibit-startup-screen-always)
 #+END_SRC
 
+Set scrolling behaviour (that is almost like smooth-scrolling)
+#+BEGIN_SRC emacs-lisp
+; (setq redisplay-dont-pause t
+;   scroll-margin 5
+;   scroll-step 1
+;   scroll-conservative
+;   scroll-preserve-screen-position 1)
+
+(setq scroll-step 1)
+(setq scroll-conservatively 10000)
+(setq auto-window-vscroll nil)
+(setq scroll-margin 5)
+
+#+END_SRC
 #+RESULTS:
-| my-inhibit-startup-screen-always |
+: 5
+
+Place auto-save files into seperate directory, away from the original files, to not have them be unintentionally stored in e.g. a git commit
+#+BEGIN_SRC emacs-lisp
+(setq auto-save-file-name-transforms
+          `((".*" ,(concat user-emacs-directory "auto-save/") t))) 
+#+END_SRC
+
+#+RESULTS:
+| .* | ~/.emacs.d/auto-save/ | t |
 
 ** COMMENT startup size and position
 #+BEGIN_SRC emacs-lisp
@@ -555,6 +578,44 @@ Disable startup screen when opening a file from command line
 #+RESULTS:
 : t
 
+** COMMENT smooth-scrolling
+#+BEGIN_SRC emacs-lisp
+(use-package smooth-scrolling
+:ensure t
+:config
+;; I tried to figure out how to call do-smooth-scroll after 
+;; the cursor moved into the margin, but so far couldn't figure out how
+;; (enable-smooth-scroll-for-function evil-scroll-up)
+;; (enable-smooth-scroll-for-function evil-scroll-down)
+;; 
+;; (enable-smooth-scroll-for-function scroll-down)
+;; (enable-smooth-scroll-for-function scroll-up)
+
+;; (defun his-tracing-function (orig-fun &rest args)
+;;        (message "orig-fun called with args %S" args)
+;;        ;; (let ((res (apply orig-fun args)))
+;;        ;;   (message "orig-fun returned %S" res)
+;;        ;;   res)
+;;        (apply orig-fun)
+;;        (do-smooth-scroll)
+;; )
+
+(add-hook 'python-mode-hook 'smooth-scrolling-mode)
+)
+
+#+END_SRC
+
+#+RESULTS:
+: t
+
+** beacon
+#+BEGIN_SRC emacs-lisp
+(use-package beacon
+:ensure t
+:config
+(add-hook 'python-mode-hook 'beacon-mode)
+)
+#+END_SRC
 * programming general behaviour
 #+BEGIN_SRC emacs-lisp
 (require 'cc-mode)
@@ -637,6 +698,7 @@ Disable startup screen when opening a file from command line
     ;; Activate org and LaTeX yas expansion in org-mode buffers.
     (yas-minor-mode)
     (yas-activate-extra-mode 'latex-mode)
+    (yas-activate-extra-mode 'org-mode)
 
     ;; hacky: let yasnippet expand with no whitespace in between
     ;; key and dollar sign (add $ to whitespace syntax class),
@@ -652,8 +714,6 @@ Disable startup screen when opening a file from command line
 
     (add-hook 'org-mode-hook #'my-org-latex-yas)
     (setq yas-triggers-in-field t))
-    
-
 #+END_SRC
 
 #+RESULTS:
@@ -728,6 +788,21 @@ Disable startup screen when opening a file from command line
 
 #+RESULTS:
 
+*** origami
+implements folding for many modes
+#+BEGIN_SRC emacs-lisp
+(use-package origami 
+  :ensure t
+  :config
+  (add-hook 'python-mode-hook 'origami-mode)
+  (require 'python)
+  (define-key python-mode-map (kbd "S-<iso-lefttab>") 'origami-toggle-all-nodes)
+)
+#+END_SRC
+
+#+RESULTS:
+: t
+
 ** latex
 *** auctex
 #+BEGIN_SRC emacs-lisp
@@ -781,8 +856,19 @@ Disable startup screen when opening a file from command line
   ;; (add-to-list 'python-shell-completion-native-disabled-interpreters
   ;;              "jupyter")
 
+  (defun goto-def-or-rgrep ()
+    "Go to definition of thing at point or do an rgrep in project if that fails"
+    (interactive)
+    (condition-case nil (elpy-goto-definition)
+      (error (elpy-rgrep-symbol (thing-at-point 'symbol)))))
+
+
+  ; (add-hook 'python-mode-hook
+  ;       '(lambda() (global-set-key (kbd "C-, d") 'elpy-goto-definition)))
+
   (add-hook 'python-mode-hook
-	    '(lambda() (global-set-key (kbd "C-, d") 'elpy-goto-definition))))
+        '(lambda() (global-set-key (kbd "C-, d") 'goto-def-or-rgrep)))
+)
 #+END_SRC
 
 #+RESULTS:
@@ -955,6 +1041,21 @@ Disable startup screen when opening a file from command line
 #+RESULTS:
 : t
 
+*** python-mode
+#+BEGIN_SRC emacs-lisp
+  (defun python-execute-main-in-terminal()
+    (interactive)
+    ;; usually the popup-shell has name *ansi-term-1* where, 1 is the index
+    (setq index 1)
+    (comint-send-string (shell-pop--shell-buffer-name index) "python3 main.py\n"))
+  
+  (define-key term-mode-map (kbd "C-, z") 'python-execute-main-in-terminal)
+  (define-key python-mode-map (kbd "C-, z") 'python-execute-main-in-terminal)
+#+END_SRC
+
+#+RESULTS:
+: python-execute-main-in-terminal
+
 * literature research packages
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/sword-to-org")
@@ -1019,19 +1120,19 @@ Disable startup screen when opening a file from command line
 )
 
 (global-set-key (kbd "C-x C-m C-b") 'outside-browser)  ; open browser at that file
-#+END_SRC
 
-#+RESULTS:
-: outside-browser
-
-* COMMENT phased out right now
-#+BEGIN_SRC emacs-lisp
 (defun kill-non-visible-buffers ()
   "Kill all buffers not currently shown in a window somewhere."
   (interactive)
   (dolist (buf  (buffer-list))
     (unless (get-buffer-window buf 'visible) (kill-buffer buf))))
+#+END_SRC
 
+#+RESULTS:
+: kill-non-visible-buffers
+
+* COMMENT phased out right now
+#+BEGIN_SRC emacs-lisp
 (defun kill-all-but-shown ()
   (interactive)
   (delete-other-frames)
@@ -1054,7 +1155,6 @@ Disable startup screen when opening a file from command line
 (defun my-echo ()
   (interactive)
   ;; usually the popup-shell has name *ansi-term-1* where, 1 is the index
-  ;; if that name is already taken, figure something out
   (setq index 1)
   (switch-to-buffer (shell-pop--shell-buffer-name index))
   (end-of-buffer)
