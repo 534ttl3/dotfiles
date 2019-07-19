@@ -1,0 +1,14 @@
+;; TODO:
+;; I am in an org file and want to cite something, that is not in crossref
+;; It needs a bibtex entry, to create that, I call
+org-ref-bibtex-new-entry/bibtex-Book-and-exit
+
+
+
+;; some useful stuff i figured out how to do:
+
+;; get the entry's text from the entry's key
+(org-ref-get-bibtex-entry "elb05")
+
+;; get the full file name of the book from search
+(nth 0 (split-string (shell-command-to-string "find ~/Dropbox -name \"*elberfel*\"") "\n"))

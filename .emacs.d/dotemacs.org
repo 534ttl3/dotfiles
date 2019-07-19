@@ -1056,7 +1056,7 @@ implements folding for many modes
 #+RESULTS:
 : python-execute-main-in-terminal
 
-* literature research packages
+* COMMENT literature research packages
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/sword-to-org")
 (require 'sword-to-org)
