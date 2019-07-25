@@ -98,8 +98,14 @@ Set scrolling behaviour (that is almost like smooth-scrolling)
 
 Place auto-save files into seperate directory, away from the original files, to not have them be unintentionally stored in e.g. a git commit
 #+BEGIN_SRC emacs-lisp
+(setq auto-save-subdir "auto-save/")
+(setq auto-save-dir (concat user-emacs-directory auto-save-subdir))
+
+(unless (file-exists-p auto-save-dir)
+    (make-directory auto-save-dir))
+
 (setq auto-save-file-name-transforms
-          `((".*" ,(concat user-emacs-directory "auto-save/") t))) 
+          `((".*" , auto-save-dir t))) 
 #+END_SRC
 
 #+RESULTS:
@@ -320,7 +326,7 @@ Place auto-save files into seperate directory, away from the original files, to 
       'org-babel-load-languages
       '((emacs-lisp . t)
         (python . t)
-        (shell . t)
+        (sh . t)
         (haskell . t))
       )
 
@@ -1040,7 +1046,17 @@ implements folding for many modes
 
 #+RESULTS:
 : t
+*** literature research packages
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "~/.emacs.d/sword-to-org")
+(require 'sword-to-org)
 
+(add-to-list 'load-path "~/.emacs.d/diatheke")
+(require 'diatheke)
+
+(add-to-list 'load-path "~/.emacs.d/etxt")
+(require 'etxt)
+#+END_SRC
 *** python-mode
 #+BEGIN_SRC emacs-lisp
   (defun python-execute-main-in-terminal()

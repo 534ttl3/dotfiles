@@ -334,3 +334,21 @@ install GNU GLOBAL (editor-independent code tagging system, works with many lang
 #+BEGIN_SRC 
 sudo apt install global
 #+END_SRC
+
+** literature research
+to leverage SWORD and diatheke libraries to access different bible texts, create these 3 folders and add .el files in there. 
+
+#+BEGIN_SRC sh
+mkdir ~/.emacs.d/sword-to-org
+mkdir ~/.emacs.d/diatheke
+mkdir ~/.emacs.d/etxt
+#+END_SRC
+
+Download some texts from 
+http://www.crosswire.org/sword/modules/ and
+http://www.crosswire.org/sword/modules/ModDisp.jsp?modType=Bibles
+and extract them in the /usr/share/sword/ folder, e.g.:
+
+#+BEGIN_SRC sh
+sudo wget http://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/KJV.zip -P /usr/share/sword/ && unzip /usr/share/sword/KJV.zip
+#+END_SRC
