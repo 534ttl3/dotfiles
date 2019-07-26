@@ -1046,17 +1046,6 @@ implements folding for many modes
 
 #+RESULTS:
 : t
-*** literature research packages
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "~/.emacs.d/sword-to-org")
-(require 'sword-to-org)
-
-(add-to-list 'load-path "~/.emacs.d/diatheke")
-(require 'diatheke)
-
-(add-to-list 'load-path "~/.emacs.d/etxt")
-(require 'etxt)
-#+END_SRC
 *** python-mode
 #+BEGIN_SRC emacs-lisp
   (defun python-execute-main-in-terminal()
