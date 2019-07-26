@@ -1,6 +1,6 @@
 * Package-Initialize and repos
 ** melpa and org repos
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
@@ -8,6 +8,7 @@
 #+END_SRC
 
 #+RESULTS:
+
 
 ** package-initialize-packages
 #+BEGIN_SRC emacs-lisp
@@ -653,7 +654,7 @@ Place auto-save files into seperate directory, away from the original files, to 
 #+END_SRC
 
 #+RESULTS:
-| linum-on | visual-line-mode | (lambda nil (interactive) (setq show-trailing-whitespace 1)) |
+| visual-line-mode | (lambda nil (interactive) (setq show-trailing-whitespace 1)) |
 
 ** latex
 #+BEGIN_SRC emacs-lisp
