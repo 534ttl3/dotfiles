@@ -8,34 +8,34 @@
   :CUSTOM_ID: install-crucial-stuff
   :END:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt install git git-annex vim nautilus-dropbox emacs mercurial
-#+END_EXAMPLE
+#+END_SOURCE
 
 * install a few assistant tools
   :PROPERTIES:
   :CUSTOM_ID: install-a-few-assistant-tools
   :END:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt install xclip xdg-utils htop openssh-client curl tmux zsh samba samba-common smbclient build-essential python3-pip chromium-browser tree vlc openvpn pandoc
-#+END_EXAMPLE
+#+END_SOURCE
 
 * install SSH and add keys to remote repos
   :PROPERTIES:
   :CUSTOM_ID: install-ssh-and-add-keys-to-remote-repos
   :END:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     ssh-keygen
-#+END_EXAMPLE
+#+END_SOURCE
 
 don't overwrite the existing rsa key pair go to github and add the
 contents of of your public key file
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     cat $HOME/.ssh/id_rsa.pub
-#+END_EXAMPLE
+#+END_SOURCE
 
 ** add SSH configs and ssh-copy-id in order to connect automatically
    :PROPERTIES:
@@ -44,27 +44,27 @@ contents of of your public key file
 
 view the .ssh/config file (taken from Dropbox config folder)
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     cat ~/.ssh/config
-#+END_EXAMPLE
+#+END_SOURCE
 
 For each connection you want to add, do a
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     ssh-copy-id User@HostName
-#+END_EXAMPLE
+#+END_SOURCE
 
 Now, you can easily connect with the ssh server using
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     ssh User@HostName
-#+END_EXAMPLE
+#+END_SOURCE
 
 or with the shortcut (in .ssh/config)
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     ssh my_server
-#+END_EXAMPLE
+#+END_SOURCE
 
 * install dotfiles repo from github
   :PROPERTIES:
@@ -73,7 +73,7 @@ or with the shortcut (in .ssh/config)
 
 you probably have already installed git, so init a git repo in $HOME
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     cd $HOME
     git init
     git remote add origin git@github.com:534ttl3/dotfiles.git
@@ -84,7 +84,7 @@ you probably have already installed git, so init a git repo in $HOME
     git config --global push.default simple
     git checkout master
     git branch --set-upstream-to=origin/master master
-#+END_EXAMPLE
+#+END_SOURCE
 
 this gets you a list of already-existing files, add them to the new
 commit then merge a remote branch (a similar system) into the already
@@ -100,15 +100,15 @@ Install latest python version (anaconda) into =$HOME/opt/=
 always install to the right locations (=pip= could be =pip2=, not
 =pip3=)
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo pip3 install scipy matplotlib numba flake8 ipdb sympy
-#+END_EXAMPLE
+#+END_SOURCE
 
 matplotlib could use tkinter, so do
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt install python3-tk
-#+END_EXAMPLE
+#+END_SOURCE
 
 * other TODO's for setting up a new system
   :PROPERTIES:
@@ -120,9 +120,9 @@ matplotlib could use tkinter, so do
    :CUSTOM_ID: vim
    :END:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt-get install vim
-#+END_EXAMPLE
+#+END_SOURCE
 
 and compile vim with =+conceal= and =--prefix=/opt/= (in
 =--with-feature=huge=) (jedi parameter list completion) =+python= and
@@ -135,10 +135,10 @@ there is a good tutorial on how to compile vim with certain options.
    :CUSTOM_ID: vundle-plugin-manager
    :END:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     git clone https://github.com/gmarik/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
     vim -c PluginInstall
-#+END_EXAMPLE
+#+END_SOURCE
 
 ** non-vundle-managed plugins
    :PROPERTIES:
@@ -150,21 +150,21 @@ there is a good tutorial on how to compile vim with certain options.
     :CUSTOM_ID: python-folding
     :END:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     mkdir -p ~/.vim/ftplugin
-#+END_EXAMPLE
+#+END_SOURCE
 
 I prefer
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     wget -O ~/.vim/ftplugin/python.vim https://www.vim.org/scripts/download_script.php?src_id=10034
-#+END_EXAMPLE
+#+END_SOURCE
 
 But this one is also good
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     wget -O ~/.vim/ftplugin/python.vim http://www.vim.org/scripts/download_script.php?src_id=5492
-#+END_EXAMPLE
+#+END_SOURCE
 
 * install powerline fonts (for vim-airline)
   :PROPERTIES:
@@ -173,28 +173,28 @@ But this one is also good
 
 follow the instructions at
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
-#+END_EXAMPLE
+#+END_SOURCE
 
 *** plugins dependencies
     :PROPERTIES:
     :CUSTOM_ID: plugins-dependencies
     :END:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     pip install jedi
     pip install autopep8
-#+END_EXAMPLE
+#+END_SOURCE
 
 ** latex and pdf viewer
    :PROPERTIES:
    :CUSTOM_ID: latex-and-pdf-viewer
    :END:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt-get install texlive-full biber latexmk zathura
-#+END_EXAMPLE
+#+END_SOURCE
 
 ** pdftk
    :PROPERTIES:
@@ -204,20 +204,20 @@ follow the instructions at
 see
 https://askubuntu.com/questions/1028522/how-can-i-install-pdftk-in-ubuntu-18-04-and-later
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo add-apt-repository ppa:malteworld/ppa
     sudo apt update
     sudo apt install pdftk
-#+END_EXAMPLE
+#+END_SOURCE
 
 ** some gui sketching and drafting programs
    :PROPERTIES:
    :CUSTOM_ID: some-gui-sketching-and-drafting-programs
    :END:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt install inkscape dia pinta
-#+END_EXAMPLE
+#+END_SOURCE
 
 ** install ruby development headers (to compile git-media)
    :PROPERTIES:
@@ -226,15 +226,15 @@ https://askubuntu.com/questions/1028522/how-can-i-install-pdftk-in-ubuntu-18-04-
 
 On Ubuntu:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt-get install ruby-all-dev
-#+END_EXAMPLE
+#+END_SOURCE
 
 On Debian:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt-get install ruby-dev
-#+END_EXAMPLE
+#+END_SOURCE
 
 ** Panda3d
    :PROPERTIES:
@@ -247,19 +247,19 @@ Detailed information here: =https://github.com/panda3d/panda3d=
 
 Usual install process on linux: Most dependencies you need:
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt-get install build-essential pkg-config python-dev libpng-dev
     libjpeg-dev libtiff-dev zlib1g-dev libssl-dev libx11-dev libgl1-mesa-dev
     libxrandr-dev libxxf86dga-dev libxcursor-dev bison flex libfreetype6-dev
     libvorbis-dev libeigen3-dev libopenal-dev libode-dev libbullet-dev
     nvidia-cg-toolkit libgtk2.0-dev
-#+END_EXAMPLE
+#+END_SOURCE
 
 Then (for python2 use =pip= instead of =pip3=),
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     pip3 install --pre --extra-index-url https://archive.panda3d.org/ panda3d
-#+END_EXAMPLE
+#+END_SOURCE
 
 Now you should be able to run p3d programs.
 
@@ -285,28 +285,28 @@ linux vsts, wine, ...)
 
 Remove the top bar shadow
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo mv /usr/share/unity/icons/panel_shadow.png /usr/share/unity/icons/panel_shadow_renamed.png
-#+END_EXAMPLE
+#+END_SOURCE
 
 Install Unity-Tweak-Tool
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt-get install notify-osd overlay-scrollbar unity-tweak-tool
-#+END_EXAMPLE
+#+END_SOURCE
 
 Install Numix GTK Theme
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt install numix-gtk-theme
-#+END_EXAMPLE
+#+END_SOURCE
 
 Install Compiz Manager
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sudo apt-get install compizconfig-settings-manager 
     sudo apt-get install compiz compiz-gnome compiz-plugins-extra 
-#+END_EXAMPLE
+#+END_SOURCE
 
 ** zsh
    :PROPERTIES:
@@ -315,27 +315,40 @@ Install Compiz Manager
 
 Go to ohmyzsh.sh or just run
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-#+END_EXAMPLE
+#+END_SOURCE
 
 To set zsh as the current users default terminal, do (as a user, not as
 sudo)
 
-#+BEGIN_EXAMPLE
+#+BEGIN_SOURCE shell
     chsh -s $(which zsh)
-#+END_EXAMPLE
+#+END_SOURCE
 
 then log out and log back in.
+
+#+BEGIN_SOURCE shell
+    chsh -s $(which zsh)
+#+END_SOURCE
+
+** fzf - command line fuzzy finder
+To enable fuzzy search completion in zsh and bash, install [[https://github.com/junegunn/fzf][~fzf~]]
+#+BEGIN_SOURCE shell
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+#+END_SOURCE
+and let it modify the ~.zshrc~ and ~.bashrc~ files. 
+
 * emacs 
 ** C++ ide
 install GNU GLOBAL (editor-independent code tagging system, works with many languages including C++ and Python)
 
-#+BEGIN_SRC 
+#+BEGIN_SRC shell
 sudo apt install global
 #+END_SRC
 
-** literature research
+** COMMENT literature research
 to leverage SWORD and diatheke libraries to access different bible texts, create these 3 folders and add .el files in there. 
 
 #+BEGIN_SRC sh
