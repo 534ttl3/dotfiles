@@ -119,3 +119,5 @@ fi
 function cl {
     builtin cd "$@" && ls -F
 }
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
