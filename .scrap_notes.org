@@ -20,6 +20,8 @@ To fix it, I deleted all compiled ~.elc~ files in ~~/.emacs.d/elpa/org-[VERSION]
 rm ~/.emacs.d/elpa/org-[VERSION]/*.elc
 #+END_SRC
 
+** Sound doesn't work on ubuntu
+
 * API Notes
 ** Panda3d 
 *** Panda3d internal geometry classes
