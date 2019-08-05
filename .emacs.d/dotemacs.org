@@ -129,6 +129,7 @@ Place auto-save files into seperate directory, away from the original files, to 
 
 * general packages
 ** helm
+Does a lot of useful auto-completion stuff all over emacs, e.g. when finding files or functions.
 #+BEGIN_SRC emacs-lisp
 (use-package helm
   :ensure t
@@ -428,6 +429,7 @@ Place auto-save files into seperate directory, away from the original files, to 
 : t
 
 ** pdf-tools
+ PDF Viewer for Emacs
 #+BEGIN_SRC emacs-lisp
 (use-package pdf-tools
   :config

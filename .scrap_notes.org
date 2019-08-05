@@ -1,9 +1,25 @@
 * Computer Issues
 ** Evaluation of this emacs-lisp code block is disabled.
-Then, I deleted all compiled ~.elc~ files in ~~/.emacs.d/elpa/org-[VERSION]/~: 
+This error came up, altough I had set
+#+BEGIN_SRC emacs-lisp
+;; make sure that python and elisp code
+;; blocks can be evaluated in org-mode
+(org-babel-do-load-languages
+    'org-babel-load-languages
+    '((emacs-lisp . t)
+    (python . t)
+    (sh . t)
+    (haskell . t))
+    )
+#+END_SRC
+
+in my ~.emacs~.
+
+To fix it, I deleted all compiled ~.elc~ files in ~~/.emacs.d/elpa/org-[VERSION]/~: 
 #+BEGIN_SRC shell
 rm ~/.emacs.d/elpa/org-[VERSION]/*.elc
 #+END_SRC
+
 * API Notes
 ** Panda3d 
 *** Panda3d internal geometry classes
