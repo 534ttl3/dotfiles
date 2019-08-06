@@ -53,7 +53,7 @@
 : t
 
 * general emacs behaviour
-customize annoying defaults
+customize annoyng defaults
 #+BEGIN_SRC emacs-lisp
 (setq ring-bell-function 'ignore)
 (global-auto-revert-mode 1)
@@ -789,6 +789,29 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 #+RESULTS:
 : t
 
+*** evil-paredit
+It is difficult to debug elisp code in the usual packages when in evil-mode, so even though I am installing some packages here that are supposed to make that easier, it's really not. 
+#+BEGIN_SRC emacs-lisp
+(use-package evil-paredit 
+:ensure t
+:config 
+;; (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
+;; (add-hook 'emacs-lisp-mode-hook 'evil-emacs-state)
+(add-hook 'emacs-lisp-mode-hook 'evil-paredit-mode)
+)
+#+END_SRC
+
+#+RESULTS:
+: t
+
+*** evil-cleverparens
+#+BEGIN_SRC emacs-lisp
+(use-package evil-cleverparens
+:ensure t
+:config 
+;; (add-hook 'emacs-lisp-mode-hook 'evil-cleverparens-mode)
+)
+#+END_SRC
 *** stickyfunc-enhance
 #+BEGIN_SRC emacs-lisp
 (use-package stickyfunc-enhance
@@ -1134,10 +1157,29 @@ implements folding for many modes
   (interactive)
   (dolist (buf  (buffer-list))
     (unless (get-buffer-window buf 'visible) (kill-buffer buf))))
+
+(defun new-buffer-frame ()
+  "Create a new frame with a new empty buffer."
+  (interactive)
+  (let ((buffer (generate-new-buffer "untitled")))
+    (set-buffer-major-mode buffer)
+    (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
+
+(global-set-key (kbd "C-c n") #'new-buffer-frame)
 #+END_SRC
 
 #+RESULTS:
 : kill-non-visible-buffers
+
+* documentation packages
+*** org-elisp-help
+#+BEGIN_SRC emacs-lisp
+(use-package org-elisp-help
+:ensure t
+)
+#+END_SRC
+
+#+RESULTS:
 
 * COMMENT phased out right now
 #+BEGIN_SRC emacs-lisp
@@ -1177,3 +1219,6 @@ implements folding for many modes
 
 #+RESULTS:
 | lambda | nil | (interactive) | (insert (buffer-name (window-buffer (minibuffer-selected-window)))) |
+* Stuff
+[[info:elisp:Introduction][info mode]]
+

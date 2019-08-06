@@ -373,3 +373,9 @@ and extract them in the /usr/share/sword/ folder, e.g.:
 #+BEGIN_SRC sh
 sudo wget http://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/KJV.zip -P /usr/share/sword/ && unzip /usr/share/sword/KJV.zip
 #+END_SRC
+
+** Documentation
+Elisp tutorial and manual for emacs
+#+BEGIN_SRC sh
+sudo apt install emacs25-common-non-dfsg
+#+END_SRC

@@ -382,21 +382,23 @@ TODO:
 
 - export .egg animations from blender and play them back in panda3d
 
+* Misc 
 ** Sympy rendering latex 
+
 to a semi-transparent bitmap buffer and displaying that in panda3d ** - Ok, done
 that. As it turns out, it's probably easier to handle it differently. But with
 some refining it may still be an option. It doesn't give you the full power of
 latex though. You may not be able to play tikz images. 
-
-Vim: formatting/breaking long lines 
+** Vim: formatting/breaking long lines
     gq{motion} % format the line that {motion} moves over
     {Visual}gq % format the visually selected area
     gqq        % format the current line
     
     re-connect broken lines with Shift + J    
 
-Fr 18. Mai 10:16:40 CEST 2018
+* Unstructured
 
+Fr 18. Mai 10:16:40 CEST 2018
 - scale latex textured quad to appropriate dimensions - DONE
 - find a way to compile and load a latex texture procedurally, then display it - DONE
 
@@ -660,3 +662,6 @@ After editing manually, switch org-mode back on
 ```
 M-x org-mode
 ```
+
+Mo 5. Aug 12:54:30 CEST 2019
+to quickly redefine elisp functions, type ~C-M-x~ when inside the function.
