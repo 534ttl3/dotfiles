@@ -61,7 +61,7 @@ customize annoying defaults
 
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
-(menu-bar-mode 0)
+(menu-bar-mode 1)
 
 (savehist-mode 1)
 (show-paren-mode 1)
@@ -138,7 +138,7 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 #+END_SRC
 
 #+RESULTS:
-: t
+: None
 
 ** COMMENT hide-mode-line
 #+BEGIN_SRC emacs-lisp
@@ -1177,3 +1177,11 @@ implements folding for many modes
 
 #+RESULTS:
 | lambda | nil | (interactive) | (insert (buffer-name (window-buffer (minibuffer-selected-window)))) |
+
+
+
+HEifwa
+
+[[pdfview:/home/chris/Dropbox/2TextBooks/1-Bible/elberfelder-1905-deuelo_a4.pdf::9][elberfelder::9]] 
+
+
