@@ -53,7 +53,7 @@
 : t
 
 * general emacs behaviour
-customize annoying defaults
+customize annoyng defaults
 #+BEGIN_SRC emacs-lisp
 (setq ring-bell-function 'ignore)
 (global-auto-revert-mode 1)
@@ -293,17 +293,18 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
     ;; 	    (set-buffer-modified-p t)
     ;; 	    (message "Enabled my-org-latex-export-to-latex on save")))
 
-    (fset 'bll-export
-    (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ("ll" 0 "%d")) arg)))
+   (fset 'latex-body-export
+     (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ("ll" 0 "%d")) arg)))
     
     (defun my-org-latex-export-and-save ()
       (interactive)
-      (bll-export)
-      (save-buffer) 
-      )
+      (latex-body-export)
+      (save-buffer))
 
-    (global-set-key (kbd "C-c w")
-	     'my-org-latex-export-and-save)
+    (eval-after-load 'evil-ex
+      '(evil-ex-define-cmd "wl[atex]" 'my-org-latex-export-and-save))
+    ;; (global-set-key (kbd "C-c w") 'my-org-latex-export-and-save)
+    ;; (define-key org-mode-map (kbd "C-, z") 'my-org-latex-export-and-save)
 
     (defun org-archive-done-tasks-subtree ()
       (interactive)
@@ -328,7 +329,7 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
       'org-babel-load-languages
       '((emacs-lisp . t)
         (python . t)
-        (sh . t)
+        (shell . t)
         (haskell . t))
       )
 
@@ -386,7 +387,8 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-    (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
+    (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+)
 #+END_SRC
 
 #+RESULTS:
@@ -789,6 +791,29 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 #+RESULTS:
 : t
 
+*** evil-paredit
+It is difficult to debug elisp code in the usual packages when in evil-mode, so even though I am installing some packages here that are supposed to make that easier, it's really not. 
+#+BEGIN_SRC emacs-lisp
+(use-package evil-paredit 
+:ensure t
+:config 
+;; (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
+;; (add-hook 'emacs-lisp-mode-hook 'evil-emacs-state)
+(add-hook 'emacs-lisp-mode-hook 'evil-paredit-mode)
+)
+#+END_SRC
+
+#+RESULTS:
+: t
+
+*** evil-cleverparens
+#+BEGIN_SRC emacs-lisp
+(use-package evil-cleverparens
+:ensure t
+:config 
+;; (add-hook 'emacs-lisp-mode-hook 'evil-cleverparens-mode)
+)
+#+END_SRC
 *** stickyfunc-enhance
 #+BEGIN_SRC emacs-lisp
 (use-package stickyfunc-enhance
@@ -1134,10 +1159,32 @@ implements folding for many modes
   (interactive)
   (dolist (buf  (buffer-list))
     (unless (get-buffer-window buf 'visible) (kill-buffer buf))))
+
+(defun new-buffer-frame ()
+  "Create a new frame with a new empty buffer."
+  (interactive)
+  (let ((buffer (generate-new-buffer "untitled")))
+    (set-buffer-major-mode buffer)
+    (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
+
+(global-set-key (kbd "C-c n") #'new-buffer-frame)
+
+;; search for the current folder's desktop-setup.el file, load it and execute the create-project-desktop-setup function
+
 #+END_SRC
 
 #+RESULTS:
-: kill-non-visible-buffers
+: start-project
+
+* documentation packages
+*** org-elisp-help
+#+BEGIN_SRC emacs-lisp
+(use-package org-elisp-help
+:ensure t
+)
+#+END_SRC
+
+#+RESULTS:
 
 * COMMENT phased out right now
 #+BEGIN_SRC emacs-lisp
@@ -1178,10 +1225,26 @@ implements folding for many modes
 #+RESULTS:
 | lambda | nil | (interactive) | (insert (buffer-name (window-buffer (minibuffer-selected-window)))) |
 
+* under construction
+#+BEGIN_SRC emacs-lisp
+(setq helm-buffers-fuzzy-matching t
+      helm-recentf-fuzzy-match    t)
+#+END_SRC
+
+#+RESULTS:
+: t
 
 
-HEifwa
+#+BEGIN_SRC emacs-lisp
+;; Tell emacs where is your personal elisp lib dir
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
 
-[[pdfview:/home/chris/Dropbox/2TextBooks/1-Bible/elberfelder-1905-deuelo_a4.pdf::9][elberfelder::9]] 
+(load "frame-fns") ;; refers to the file 
+(load "frame-cmds")
 
+(load-file (expand-file-name "~/.emacs.d/ucscript.el"))
+#+END_SRC
 
+#+RESULTS:
+: t

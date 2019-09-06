@@ -270,13 +270,21 @@ Now you should be able to run p3d programs.
 
 You will want to install the Kxstudio repository and apps, because it
 makes a workflow with Jack + Pulseaudio + Alsa + Midi way more
-streamlined. See =https://kxstudio.linuxaudio.org/Repositories= for
+streamlined. See https://kxstudio.linuxaudio.org/Repositories for
 updated installation instructions.
 
-You probably want Jack, Cadence, Qsampler, Carla, ...
+You probably want Jack
+#+BEGIN_SRC shell
+sudo apt-get install jackd qjackctl 
+#+END_SRC
 
-You probably want all the =kxstudio-meta= packages too (plugins, vsts,
+and the additional kxstudio stuff like Cadence Qsampler Carla
+
+You probably want all the ~kxstudio-meta~ packages too (plugins, vsts,
 linux vsts, wine, ...)
+#+BEGIN_SRC shell
+sudo apt install kxstudio-meta-all
+#+END_SRC
 
 ** Tweaking Unity
    :PROPERTIES:
@@ -364,4 +372,10 @@ and extract them in the /usr/share/sword/ folder, e.g.:
 
 #+BEGIN_SRC sh
 sudo wget http://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/KJV.zip -P /usr/share/sword/ && unzip /usr/share/sword/KJV.zip
+#+END_SRC
+
+** Documentation
+Elisp tutorial and manual for emacs
+#+BEGIN_SRC sh
+sudo apt install emacs25-common-non-dfsg
 #+END_SRC
