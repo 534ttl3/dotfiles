@@ -63,6 +63,10 @@ Plugin 'tpope/vim-tbone'
 " align commas, equal signs, a lot of stuff
 Plugin 'junegunn/vim-easy-align'
 
+" preview substitutions 
+Plugin 'osyo-manga/vim-over'
+
+
 " Latex-Suite
 " Plugin 'vim-latex/vim-latex'
 " let g:Tex_AutoFolding = 0
