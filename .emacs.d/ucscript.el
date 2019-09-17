@@ -56,3 +56,10 @@
 ;; in gnome through and Emacs 25, 26 (at least through raise-frame)
 ;; i do it only with visible and invisible frames, (which btw. don't show up in
 ;; gnome's window switcher.)
+
+
+;; (make-frame-visible (window-frame (get-buffer-window (get-buffer "elberfelder-1905-deuelo_a4.pdf") t)))
+;; (frame-visible-p (window-frame (get-buffer-window (get-buffer "elberfelder-1905-deuelo_a4.pdf") t)))
+;; (make-frame-invisible (window-frame (get-buffer-window (get-buffer "elberfelder-1905-deuelo_a4.pdf") t)))
+
+;; (defun get-all-pdf-buffers)
