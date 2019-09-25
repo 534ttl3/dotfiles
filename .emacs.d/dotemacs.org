@@ -99,15 +99,24 @@ Set scrolling behaviour (that is almost like smooth-scrolling)
 
 Place auto-save files into seperate directory, away from the original files, to not have them be unintentionally stored in e.g. a git commit
 #+BEGIN_SRC emacs-lisp
-(setq auto-save-subdir "auto-save/")
-(setq auto-save-dir (concat user-emacs-directory auto-save-subdir))
+(let (my-backup-folder)
+  (setq my-backup-folder (concat user-emacs-directory ".saves"))
+  (if (not (file-exists-p my-backup-folder))
+    (make-directory my-backup-folder))
 
-(unless (file-exists-p auto-save-dir)
-    (make-directory auto-save-dir))
-
-(setq auto-save-file-name-transforms
-          `((".*" , auto-save-dir t))) 
+  (setq backup-directory-alist `(("." . ,my-backup-folder)))
+  (setq backup-by-copying t)
+)
 #+END_SRC
+
+#+RESULTS:
+: t
+
+Map =eval-buffer= to a key
+#+BEGIN_SRC emacs-lisp
+(define-key emacs-lisp-mode-map (kbd "C-, e") 'eval-buffer)
+;; (global-set-key (kbd "C-, C-e") 'eval-buffer)
+#+END_SRC emacs-lisp
 
 #+RESULTS:
 | .* | ~/.emacs.d/auto-save/ | t |
@@ -134,11 +143,14 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 (use-package helm
   :ensure t
   :config
-    (helm-mode 1))
+    (helm-mode 1)
+    ;; (define-key global-map [remap find-file] 'helm-find-files)
+    (global-set-key (kbd "C-, C-f") 'helm-find-files)
+)
 #+END_SRC
 
 #+RESULTS:
-: None
+: t
 
 ** COMMENT hide-mode-line
 #+BEGIN_SRC emacs-lisp
@@ -388,6 +400,8 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
     (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+
+    ;; (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
 )
 #+END_SRC
 
@@ -797,9 +811,14 @@ It is difficult to debug elisp code in the usual packages when in evil-mode, so 
 (use-package evil-paredit 
 :ensure t
 :config 
-;; (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
 ;; (add-hook 'emacs-lisp-mode-hook 'evil-emacs-state)
+;; (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
 (add-hook 'emacs-lisp-mode-hook 'evil-paredit-mode)
+(progn 
+  (define-key evil-paredit-mode-map (kbd "C-)") 'paredit-forward-slurp-sexp)
+  (define-key evil-paredit-mode-map (kbd "C-(") 'paredit-backward-slurp-sexp)
+  (define-key evil-paredit-mode-map (kbd "C-8") 'paredit-backward-barf-sexp)
+  (define-key evil-paredit-mode-map (kbd "C-9") 'paredit-forward-barf-sexp))
 )
 #+END_SRC
 
@@ -935,6 +954,25 @@ implements folding for many modes
 
 #+RESULTS:
 : t
+*** elisp-slime-nav
+#+BEGIN_SRC emacs-lisp
+(use-package elisp-slime-nav
+ :ensure t
+ :config 
+
+  (defun elisp-slime-nav-register-jump-to-definition () 
+    (interactive)
+    (global-set-key (kbd "C-, d") (lambda () (interactive) (call-interactively 'elisp-slime-nav-find-elisp-thing-at-point))))
+
+  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+    (add-hook hook 'elisp-slime-nav-mode)
+    (add-hook hook 'elisp-slime-nav-register-jump-to-definition))
+)
+#+END_SRC
+
+#+RESULTS:
+: t
+
 ** c/c++
 *** flycheck
 #+BEGIN_SRC emacs-lisp
@@ -1088,7 +1126,6 @@ implements folding for many modes
 
 #+RESULTS:
 : python-execute-main-in-terminal
-
 * COMMENT literature research packages
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/sword-to-org")
@@ -1240,7 +1277,7 @@ implements folding for many modes
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
 
-(load "frame-fns") ;; refers to the file 
+(load "frame-fns")  ;; refers to the file 
 (load "frame-cmds")
 
 (load-file (expand-file-name "~/.emacs.d/ucscript.el"))
