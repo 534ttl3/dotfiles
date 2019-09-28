@@ -27,7 +27,7 @@
   (setq description (nth 2 mylist))
   (string-match "p\\.\\s-*\\([0-9]*\\)" description)
   (setq page-str (match-string 1 description))
-  (open-bibtex-document-on-page bibtexkey (string-to-number page-str))
+  (klin-open-pdf-from-bibtex bibtexkey (string-to-number page-str))
   )
 
 (defun search-nearest-link-and-open ()
@@ -110,3 +110,27 @@
       )
     )
   )
+
+(defun make-invisible ()
+  "Make the current frame invisible."
+  (interactive)
+  (make-frame-invisible (window-frame (get-buffer-window (current-buffer) t))))
+
+(defun make-visible (&optional bufname)
+  "Make frame with a certain BUFNAME in it visible."
+  (interactive)
+  (unless bufname
+    (setq bufname "elberfelder-1905-deuelo_a4.pdf"))
+  (let* ((buffer (get-buffer bufname))
+         (bufwindow (get-buffer-window buffer t)))
+    (if bufwindow
+        (make-frame-visible (window-frame bufwindow))
+      ;; (setq newframe (make-frame))
+      ;; (select-frame newframe)
+      ;; (when (display-graphic-p frame)
+      ;; (switch-to-buffer buffer)
+      (switch-to-buffer-other-frame bufname)
+      ;; (message (concat "current buffer: " (buffer-name (current-buffer))))
+      (pdf-view-redisplay) ;; That fixed the raw-pdf "fundamentalmode" stalling for me in emacs 25.2.2 and pdf-tools 1.0
+      ;; (message (concat "i tried pdf-view-redisplay"))
+      )))

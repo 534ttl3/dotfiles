@@ -342,8 +342,7 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
       '((emacs-lisp . t)
         (python . t)
         (shell . t)
-        (haskell . t))
-      )
+        (haskell . t)))
 
     (setq org-confirm-babel-evaluate nil)
 
@@ -386,27 +385,23 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 #+BEGIN_SRC emacs-lisp
 (use-package evil
   :init 
-    (setq evil-want-C-u-scroll t) ;; do this before you require evil
+    (setq evil-want-C-u-scroll t) ; do this before you require evil
     (add-to-list 'load-path "~/.emacs.d/evil")
 
-    ;; evil-collection, see https://github.com/emacs-evil/evil-collection#installation
-    (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+    ;; evil-collection,
+    ;; see https://github.com/emacs-evil/evil-collection#installation
+    (setq evil-want-integration t) ; should be already set to t by default
     (setq evil-want-keybinding nil)
   :config
     (evil-mode 1)
     (add-to-list 'evil-emacs-state-modes 'nav-mode)
     (add-to-list 'evil-emacs-state-modes 'pdf-occur-buffer-mode)
-
     (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
-    (add-to-list 'evil-emacs-state-modes 'paredit-mode)
-
     (add-to-list 'evil-emacs-state-modes 'help-mode)
 
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
     (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
-
-    ;; (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
 )
 #+END_SRC
 
@@ -641,11 +636,26 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 ** beacon
 #+BEGIN_SRC emacs-lisp
 (use-package beacon
-:ensure t
-:config
-(add-hook 'python-mode-hook 'beacon-mode)
-)
+  :ensure t
+  :config
+  (add-hook 'python-mode-hook 'beacon-mode))
 #+END_SRC
+** crux 
+Some commands are re-defined so that they are (may be) more convenient (in certain situations).
+#+BEGIN_SRC emacs-lisp
+(use-package crux
+  :ensure t
+  :config
+  ;; (global-set-key [remap move-beginning-of-line] #'crux-move-beginning-of-line)
+  ;; (global-set-key [remap beginning-of-visual-line] #'crux-move-beginning-of-line)
+  (global-set-key (kbd "C-a") #'crux-move-beginning-of-line)
+  (global-set-key (kbd "C-c d") #'crux-duplicate-current-line-or-region)
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
+
 * programming general behaviour
 #+BEGIN_SRC emacs-lisp
 (require 'cc-mode)
@@ -678,6 +688,18 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
 #+RESULTS:
 | visual-line-mode | (lambda nil (interactive) (setq show-trailing-whitespace 1)) |
+
+** python
+#+BEGIN_SRC emacs-lisp
+(defun printbreakpoint ()
+  (interactive)
+  (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>"))
+
+(define-key python-mode-map (kbd "C-, b") 'printbreakpoint)
+#+END_SRC
+
+#+RESULTS:
+: printbreakpoint
 
 ** latex
 #+BEGIN_SRC emacs-lisp
@@ -817,9 +839,6 @@ It is difficult to debug elisp code in the usual packages when in evil-mode, so 
 (use-package evil-paredit 
 :ensure t
 :config 
-;; (add-hook 'emacs-lisp-mode-hook 'evil-emacs-state)
-;; (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
-
 ;; (add-hook 'emacs-lisp-mode-hook 'evil-paredit-mode)
 ;; (progn 
 ;;   (define-key evil-paredit-mode-map (kbd "C-)") 'paredit-forward-slurp-sexp)
@@ -923,9 +942,8 @@ implements folding for many modes
     (condition-case nil (elpy-goto-definition)
       (error (elpy-rgrep-symbol (thing-at-point 'symbol)))))
 
-
-  ; (add-hook 'python-mode-hook
-  ;       '(lambda() (global-set-key (kbd "C-, d") 'elpy-goto-definition)))
+  ;; (add-hook 'python-mode-hook
+  ;;       '(lambda() (global-set-key (kbd "C-, d") 'elpy-goto-definition)))
 
   (add-hook 'python-mode-hook
         '(lambda() (global-set-key (kbd "C-, d") 'goto-def-or-rgrep)))
@@ -988,6 +1006,7 @@ implements folding for many modes
   :ensure t
 :config 
 (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
+(setq-default flycheck-emacs-lisp-load-path 'inherit)
 )
 #+END_SRC
 
@@ -1139,7 +1158,7 @@ implements folding for many modes
 #+RESULTS:
 : python-execute-main-in-terminal
 ** Emacs-Lisp
-*** COMMENT flycheck
+*** flycheck
 Complains about unconventional style when writing emacs-lisp packages. 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
@@ -1148,6 +1167,18 @@ Complains about unconventional style when writing emacs-lisp packages.
 
 #+RESULTS:
 : indent-sexp
+
+*** semantic-refactor for lisp 
+This tool is based on semantic. It doesn't really refactor, but it can e.g. reformat a whole emacs-lisp buffer. This is potentially also useful for C/C++.
+#+BEGIN_SRC emacs-lisp
+(use-package srefactor
+  :ensure t
+  (add-hook 'emacs-lisp-mode-hook 
+             (lambda () 
+               (require 'srefactor)
+               (require 'srefactor-lisp)
+               (semantic-mode 1))))
+#+END_SRC
 
 * COMMENT literature research packages
 #+BEGIN_SRC emacs-lisp
@@ -1172,11 +1203,13 @@ Complains about unconventional style when writing emacs-lisp packages.
 
 * general utility functions
 #+BEGIN_SRC emacs-lisp
-(defun printbreakpoint ()
-	  (interactive)
-	  (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>"))
-
-(global-set-key (kbd "C-, b") 'printbreakpoint)
+(defun list-packages-and-versions ()
+  "Returns a list of all installed packages and their versions"
+  (mapcar
+   (lambda (pkg)
+     `(,pkg ,(package-desc-version
+                (cadr (assq pkg package-alist)))))
+   package-activated-list))
 
 (defun google-quickly()
   "Googles a query or region if any."
