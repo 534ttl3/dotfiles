@@ -397,6 +397,11 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
     (add-to-list 'evil-emacs-state-modes 'nav-mode)
     (add-to-list 'evil-emacs-state-modes 'pdf-occur-buffer-mode)
 
+    (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
+    (add-to-list 'evil-emacs-state-modes 'paredit-mode)
+
+    (add-to-list 'evil-emacs-state-modes 'help-mode)
+
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
     (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
@@ -768,11 +773,11 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 #+RESULTS:
 : t
 
-*** clean-aindent-mode
+*** COMMENT clean-aindent-mode
 #+BEGIN_SRC emacs-lisp
-;; (use-package clean-aindent-mode
-;;   :config
-;;   (add-hook 'prog-mode-hook 'clean-aindent-mode))
+(use-package clean-aindent-mode
+  :config
+  (add-hook 'prog-mode-hook 'clean-aindent-mode))
 #+END_SRC
 
 #+RESULTS:
@@ -781,7 +786,8 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 #+BEGIN_SRC emacs-lisp
 (use-package ws-butler
   :config
-  (add-hook 'c-mode-common-hook 'ws-butler-mode))
+  (add-hook 'c-mode-common-hook 'ws-butler-mode)
+  (add-hook 'emacs-lisp-mode-hook 'ws-butler-mode))
 #+END_SRC
 
 #+RESULTS:
@@ -813,19 +819,21 @@ It is difficult to debug elisp code in the usual packages when in evil-mode, so 
 :config 
 ;; (add-hook 'emacs-lisp-mode-hook 'evil-emacs-state)
 ;; (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
-(add-hook 'emacs-lisp-mode-hook 'evil-paredit-mode)
-(progn 
-  (define-key evil-paredit-mode-map (kbd "C-)") 'paredit-forward-slurp-sexp)
-  (define-key evil-paredit-mode-map (kbd "C-(") 'paredit-backward-slurp-sexp)
-  (define-key evil-paredit-mode-map (kbd "C-8") 'paredit-backward-barf-sexp)
-  (define-key evil-paredit-mode-map (kbd "C-9") 'paredit-forward-barf-sexp))
+
+;; (add-hook 'emacs-lisp-mode-hook 'evil-paredit-mode)
+;; (progn 
+;;   (define-key evil-paredit-mode-map (kbd "C-)") 'paredit-forward-slurp-sexp)
+;;   (define-key evil-paredit-mode-map (kbd "C-(") 'paredit-backward-slurp-sexp)
+;;   (define-key evil-paredit-mode-map (kbd "C-8") 'paredit-backward-barf-sexp)
+;;   (define-key evil-paredit-mode-map (kbd "C-9") 'paredit-forward-barf-sexp))
+
 )
 #+END_SRC
 
 #+RESULTS:
 : t
 
-*** evil-cleverparens
+*** COMMENT evil-cleverparens
 #+BEGIN_SRC emacs-lisp
 (use-package evil-cleverparens
 :ensure t
@@ -977,10 +985,14 @@ implements folding for many modes
 *** flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :ensure t)
+  :ensure t
+:config 
+(add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
+)
 #+END_SRC
 
 #+RESULTS:
+: t
 
 *** ggtags
 #+BEGIN_SRC emacs-lisp
@@ -1126,6 +1138,17 @@ implements folding for many modes
 
 #+RESULTS:
 : python-execute-main-in-terminal
+** Emacs-Lisp
+*** COMMENT flycheck
+Complains about unconventional style when writing emacs-lisp packages. 
+#+BEGIN_SRC emacs-lisp
+(add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+(define-key emacs-lisp-mode-map (kbd "C-c i") 'indent-sexp)
+#+END_SRC
+
+#+RESULTS:
+: indent-sexp
+
 * COMMENT literature research packages
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/sword-to-org")
@@ -1285,3 +1308,26 @@ implements folding for many modes
 
 #+RESULTS:
 : t
+
+* Klin
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path (expand-file-name "/home/chris/Dropbox/stuff/klin"))
+(require 'klin-main)
+
+;; klin-mode, use-package looks for the provide statement in a file in the load path, 
+;; requires that package, then configures it
+;; (use-package klin
+;; :load-path (expand-file-name "/home/chris/Dropbox/stuff/klin")
+;; ;; :ensure nil
+;; :config
+;; (klin-mode) ;; enable it globally
+
+;; if it's a global minor mode, it's automatically enabled in all files i figure
+;; (add-hook 'pdf-view-mode-hook 'evil-normalize-keymaps)
+;; (add-hook 'emacs-lisp-mode-hook 'klin-mode)
+;; (add-hook 'org-mode-hook 'klin-mode)
+;; (add-hook 'bibtex-mode-hook 'klin-mode)
+;; )
+#+END_SRC
+
+#+RESULTS:
