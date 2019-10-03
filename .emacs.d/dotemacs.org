@@ -99,14 +99,14 @@ Set scrolling behaviour (that is almost like smooth-scrolling)
 
 Place auto-save files into seperate directory, away from the original files, to not have them be unintentionally stored in e.g. a git commit
 #+BEGIN_SRC emacs-lisp
-(let (my-backup-folder)
-  (setq my-backup-folder (concat user-emacs-directory ".saves"))
-  (if (not (file-exists-p my-backup-folder))
-    (make-directory my-backup-folder))
-
-  (setq backup-directory-alist `(("." . ,my-backup-folder)))
-  (setq backup-by-copying t)
-)
+;; (let (my-backup-folder)
+;;   (setq my-backup-folder (concat user-emacs-directory ".saves"))
+;;   (if (not (file-exists-p my-backup-folder))
+;;     (make-directory my-backup-folder))
+;; 
+;;   (setq backup-directory-alist `(("." . ,my-backup-folder)))
+;;   (setq backup-by-copying t)
+;; )
 #+END_SRC
 
 #+RESULTS:
@@ -116,10 +116,24 @@ Map =eval-buffer= to a key
 #+BEGIN_SRC emacs-lisp
 (define-key emacs-lisp-mode-map (kbd "C-, e") 'eval-buffer)
 ;; (global-set-key (kbd "C-, C-e") 'eval-buffer)
-#+END_SRC emacs-lisp
+#+END_SRC
 
-#+RESULTS:
-| .* | ~/.emacs.d/auto-save/ | t |
+Quick up and down navigation
+#+BEGIN_SRC emacs-lisp
+;; replaces forward-sentence
+(global-set-key (kbd "M-e")
+  (lambda ()
+    (interactive)
+    (setq this-command 'next-line)
+    (next-line 3)))
+
+;; replaces backward-sentence
+(global-set-key (kbd "M-a")
+  (lambda ()
+    (interactive)
+    (setq this-command 'previous-line)
+    (previous-line 3)))
+#+END_SRC
 
 ** COMMENT startup size and position
 #+BEGIN_SRC emacs-lisp
@@ -143,10 +157,12 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 (use-package helm
   :ensure t
   :config
-    (helm-mode 1)
-    ;; (define-key global-map [remap find-file] 'helm-find-files)
-    (global-set-key (kbd "C-, C-f") 'helm-find-files)
-)
+  (helm-mode 1)
+  ;; (define-key global-map [remap find-file] 'helm-find-files)
+  (global-set-key (kbd "C-, C-f") 'helm-find-files)
+
+  ;; select buffers with C-Space, delete selection with M-S-d
+  (define-key map (kbd "C-2") 'helm-mini))
 #+END_SRC
 
 #+RESULTS:
@@ -506,8 +522,8 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
 ** COMMENT centered-window
 #+BEGIN_SRC emacs-lisp
-;; (use-package centered-window 
-;;   :ensure t)
+(use-package centered-window 
+  :ensure t)
 #+END_SRC
 
 #+RESULTS:
@@ -678,7 +694,7 @@ Some commands are re-defined so that they are (may be) more convenient (in certa
 ;; navigate through matches in list (may it be compilation messages or tag occurrences)
 (global-set-key (kbd "C-, k") (lambda () (interactive) (next-match -1)))
 (global-set-key (kbd "C-, j") (lambda () (interactive) (next-match +1)))
-(global-set-key (kbd "C-, o") (lambda () (interactive) (next-match 0)))
+;; (global-set-key (kbd "C-, o") (lambda () (interactive) (next-match 0)))
 
 (define-key c++-mode-map (kbd "C-, z") 'compile)
 (define-key c-mode-map (kbd "C-, z") 'compile)
@@ -695,11 +711,13 @@ Some commands are re-defined so that they are (may be) more convenient (in certa
   (interactive)
   (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>"))
 
-(define-key python-mode-map (kbd "C-, b") 'printbreakpoint)
+(add-hook 'python-mode-hook 
+          (lambda () 
+            (define-key python-mode-map (kbd "C-, b") 'printbreakpoint)))
 #+END_SRC
 
 #+RESULTS:
-: printbreakpoint
+| (lambda nil (define-key python-mode-map (kbd C-, b) (quote printbreakpoint))) | beacon-mode |
 
 ** latex
 #+BEGIN_SRC emacs-lisp
@@ -845,7 +863,6 @@ It is difficult to debug elisp code in the usual packages when in evil-mode, so 
 ;;   (define-key evil-paredit-mode-map (kbd "C-(") 'paredit-backward-slurp-sexp)
 ;;   (define-key evil-paredit-mode-map (kbd "C-8") 'paredit-backward-barf-sexp)
 ;;   (define-key evil-paredit-mode-map (kbd "C-9") 'paredit-forward-barf-sexp))
-
 )
 #+END_SRC
 
@@ -875,8 +892,11 @@ implements folding for many modes
   :ensure t
   :config
   (add-hook 'python-mode-hook 'origami-mode)
+  (add-hook 'emacs-lisp-mode-hook 'origami-mode)
   (require 'python)
   (define-key python-mode-map (kbd "S-<iso-lefttab>") 'origami-toggle-all-nodes)
+  (define-key emacs-lisp-mode-map (kbd "S-<iso-lefttab>") 'origami-toggle-all-nodes)
+  (define-key emacs-lisp-mode-map (kbd "TAB") 'origami-toggle-node)
 )
 #+END_SRC
 
@@ -1003,7 +1023,7 @@ implements folding for many modes
 *** flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :ensure t
+:ensure t
 :config 
 (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
 (setq-default flycheck-emacs-lisp-load-path 'inherit)
@@ -1173,6 +1193,7 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 #+BEGIN_SRC emacs-lisp
 (use-package srefactor
   :ensure t
+  :config
   (add-hook 'emacs-lisp-mode-hook 
              (lambda () 
                (require 'srefactor)
@@ -1318,29 +1339,11 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 #+RESULTS:
 | lambda | nil | (interactive) | (insert (buffer-name (window-buffer (minibuffer-selected-window)))) |
 
-* under construction
+* COMMENT under construction
 #+BEGIN_SRC emacs-lisp
 (setq helm-buffers-fuzzy-matching t
       helm-recentf-fuzzy-match    t)
 #+END_SRC
-
-#+RESULTS:
-: t
-
-
-#+BEGIN_SRC emacs-lisp
-;; Tell emacs where is your personal elisp lib dir
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
-
-(load "frame-fns")  ;; refers to the file 
-(load "frame-cmds")
-
-(load-file (expand-file-name "~/.emacs.d/ucscript.el"))
-#+END_SRC
-
-#+RESULTS:
-: t
 
 * Klin
 #+BEGIN_SRC emacs-lisp
@@ -1363,4 +1366,15 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 ;; )
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+;; Tell emacs where is your personal elisp lib dir
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
+
+(load "frame-fns")  ;; refers to the file 
+(load "frame-cmds")
+
+(load-file (expand-file-name "~/.emacs.d/ucscript.el"))
+#+END_SRC
 #+RESULTS:
+: t
