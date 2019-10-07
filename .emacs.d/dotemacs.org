@@ -1,10 +1,10 @@
 * Package-Initialize and repos
 ** melpa and org repos
 #+BEGIN_SRC emacs-lisp 
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
-(package-initialize)
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+  (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+  (package-initialize)
 #+END_SRC
 
 #+RESULTS:
@@ -77,22 +77,22 @@ Disable startup screen when opening a file from command line
   ;; Startup screen inhibitor for `command-line-functions`.
   ;; Inhibits startup screen on the first unrecognised option.
   (ignore (setq inhibit-startup-screen t)))
+
 (add-hook 'command-line-functions #'my-inhibit-startup-screen-always)
 #+END_SRC
 
 Set scrolling behaviour (that is almost like smooth-scrolling)
 #+BEGIN_SRC emacs-lisp
-; (setq redisplay-dont-pause t
-;   scroll-margin 5
-;   scroll-step 1
-;   scroll-conservative
-;   scroll-preserve-screen-position 1)
+;; (setq redisplay-dont-pause t
+;;   scroll-margin 5
+;;   scroll-step 1
+;;   scroll-conservative
+;;   scroll-preserve-screen-position 1)
 
 (setq scroll-step 1)
 (setq scroll-conservatively 10000)
 (setq auto-window-vscroll nil)
 (setq scroll-margin 5)
-
 #+END_SRC
 #+RESULTS:
 : 5
@@ -111,12 +111,6 @@ Place auto-save files into seperate directory, away from the original files, to 
 
 #+RESULTS:
 : t
-
-Map =eval-buffer= to a key
-#+BEGIN_SRC emacs-lisp
-(define-key emacs-lisp-mode-map (kbd "C-, e") 'eval-buffer)
-;; (global-set-key (kbd "C-, C-e") 'eval-buffer)
-#+END_SRC
 
 Quick up and down navigation
 #+BEGIN_SRC emacs-lisp
@@ -162,7 +156,7 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
   (global-set-key (kbd "C-, C-f") 'helm-find-files)
 
   ;; select buffers with C-Space, delete selection with M-S-d
-  (define-key map (kbd "C-2") 'helm-mini))
+  (global-set-key (kbd "C-2") 'helm-mini))
 #+END_SRC
 
 #+RESULTS:
@@ -183,9 +177,9 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
   :config
   (setq darkroom-text-scale-increase 0)
   (add-hook 'darkroom-mode-hook 'visual-line-mode)
-  (add-hook 'darkroom-mode-hook '(lambda () (scroll-bar-mode 0)))
-  (add-hook 'darkroom-mode-hook '(lambda () (tool-bar-mode 0)))
-  (add-hook 'darkroom-mode-hook '(lambda () (menu-bar-mode 0)))
+  (add-hook 'darkroom-mode-hook (lambda () (scroll-bar-mode 0)))
+  (add-hook 'darkroom-mode-hook (lambda () (tool-bar-mode 0)))
+  (add-hook 'darkroom-mode-hook (lambda () (menu-bar-mode 0)))
 
   (scroll-bar-mode 0)
   (tool-bar-mode 0)
@@ -276,54 +270,46 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
 ** org-mode
 #+BEGIN_SRC emacs-lisp
-(use-package org
-  :config
+  (use-package org
+    :config
+    ;; ---- general behaviour of org-mode
+    (setq org-startup-indented t)
 
-    (add-hook 'org-mode-hook 'visual-line-mode)
-    (add-hook 'org-mode-hook 'show-paren-mode)
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (visual-line-mode 1)))
 
-    (setq org-export-async-debug nil)
-    (defun my-org-latex-pdf-export-async ()
-    	(interactive)
-    	    (org-latex-export-to-pdf t))
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (show-paren-mode 1)))
 
-    ;; (global-set-key (kbd "C-c i")
-    ;; 	     'my-org-latex-pdf-export-async)
+    ;; custom org-mode functions
+    (defun org-archive-done-tasks-subtree ()
+      (interactive)
+      (org-map-entries
+       (lambda ()
+         (org-archive-subtree)
+         (setq org-map-continue-from (outline-previous-heading)))
+      "/DONE" 'tree))
 
-    ;; (global-set-key (kbd "C-c t i")
-    ;; 	     'toggle-pdf-export-on-save)
+    (defun org-archive-done-tasks-file ()
+      (interactive)
+      (org-map-entries
+       (lambda ()
+         (org-archive-subtree)
+         (setq org-map-continue-from (outline-previous-heading)))
+                       "/DONE"
+                       'file))
 
-    ;; (defun toggle-pdf-export-on-save ()
-    ;; "Enable or disable export latex+pdf when saving current buffer."
-    ;; 	(interactive)
-    ;; 	(when (not (eq major-mode 'org-mode))
-    ;; 	    (error "Not an org-mode file!"))
-    ;; 	(if (memq 'my-org-latex-pdf-export-async after-save-hook)
-    ;; 	    (progn (remove-hook 'after-save-hook  'my-org-latex-pdf-export-async)
-    ;; 		    (message "Disabled org pdf export on save"))
-    ;; 	    (add-hook 'after-save-hook 'my-org-latex-pdf-export-async)
-    ;; 	    (set-buffer-modified-p t)
-    ;; 	    (message "Enabled org pdf export on save")))
+    ;; ----- latex workflow
+    ;; export body shortcut
+    (fset 'latex-body-export
+          (lambda (&optional arg)
+            "Keyboard macro for LaTeX body export only."
+            (interactive "p")
+            (kmacro-exec-ring-item (quote ("ll" 0 "%d"))
+                                   arg)))
 
-    ;; (defun my-org-latex-export-to-latex ()
-    ;;   (interactive)
-    ;;   (org-latex-export-to-latex nil nil nil t nil)
-    ;;   )
-
-    ;; (defun toggle-org-latex-export-to-latex-on-save ()
-    ;; 	(interactive)
-    ;; 	(when (not (eq major-mode 'org-mode))
-    ;; 	    (error "Not an org-mode file!"))
-    ;; 	(if (memq 'my-org-latex-export-to-latex after-save-hook)
-    ;; 	    (progn (remove-hook 'after-save-hook  'my-org-latex-export-to-latex)
-    ;; 		    (message "Disabled my-org-latex-export-to-latex on save"))
-    ;; 	    (add-hook 'after-save-hook 'my-org-latex-export-to-latex)
-    ;; 	    (set-buffer-modified-p t)
-    ;; 	    (message "Enabled my-org-latex-export-to-latex on save")))
-
-   (fset 'latex-body-export
-     (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ("ll" 0 "%d")) arg)))
-    
     (defun my-org-latex-export-and-save ()
       (interactive)
       (latex-body-export)
@@ -331,36 +317,9 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
     (eval-after-load 'evil-ex
       '(evil-ex-define-cmd "wl[atex]" 'my-org-latex-export-and-save))
-    ;; (global-set-key (kbd "C-c w") 'my-org-latex-export-and-save)
-    ;; (define-key org-mode-map (kbd "C-, z") 'my-org-latex-export-and-save)
 
-    (defun org-archive-done-tasks-subtree ()
-      (interactive)
-      (org-map-entries
-      (lambda ()
-      (org-archive-subtree)
-      (setq org-map-continue-from (outline-previous-heading)))
-      "/DONE" 'tree))
-    
-    (defun org-archive-done-tasks-file ()
-      (interactive)
-      (org-map-entries
-      (lambda ()
-      (org-archive-subtree)
-
-      (setq org-map-continue-from (outline-previous-heading)))
-      "/DONE" 'file))
-
-    ;; make sure that python and elisp code
-    ;; blocks can be evaluated in org-mode
-    (org-babel-do-load-languages
-      'org-babel-load-languages
-      '((emacs-lisp . t)
-        (python . t)
-        (shell . t)
-        (haskell . t)))
-
-    (setq org-confirm-babel-evaluate nil)
+    (setq org-latex-pdf-process
+          '("latexmk -pdf -pdflatex=lualatex -bibtex %f"))
 
     ;; add koma-article to org-mode
     (with-eval-after-load "ox-latex"
@@ -371,27 +330,16 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
                      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                      ("\\paragraph{%s}" . "\\paragraph*{%s}")
                      ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
-    
-    (setq org-latex-pdf-process 
-	  '("latexmk -pdf -pdflatex=lualatex -bibtex %f"))
+  
+    ;; ---- org-babel ----
+    (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((emacs-lisp . t)
+        (python . t)
+        (shell . t)
+        (haskell . t)))
 
-    ;; (setq org-latex-create-formula-image-program 'imagemagick)
-
-    (require 'org-inlinetask)  ;; new inline-todo with C-c C-x t
-
-    (setq org-startup-indented t) ; Enable `org-indent-mode' by default
-
-    ;; (setq org-export-async-init-file
-    ;;   (expand-file-name "init-org-async.el" (file-name-directory user-init-file)))
-    (setq org-export-async-init-file "~/.emacs")
-
-    ;; bigger latex fragments
-    (plist-put org-format-latex-options :scale 1.1)
-
-    ;; unbind a key to free up keybinding for shell-pop
-    (with-eval-after-load 'org
-      (define-key org-mode-map [(control ?,)] nil))
-)
+    (setq org-confirm-babel-evaluate nil))
 #+END_SRC
 
 #+RESULTS:
@@ -399,26 +347,16 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
 ** evil-mode
 #+BEGIN_SRC emacs-lisp
-(use-package evil
-  :init 
-    (setq evil-want-C-u-scroll t) ; do this before you require evil
-    (add-to-list 'load-path "~/.emacs.d/evil")
-
-    ;; evil-collection,
-    ;; see https://github.com/emacs-evil/evil-collection#installation
-    (setq evil-want-integration t) ; should be already set to t by default
-    (setq evil-want-keybinding nil)
-  :config
+  (use-package evil
+    :init (setq evil-want-C-u-scroll t)(add-to-list 'load-path "~/.emacs.d/evil")(setq evil-want-integration t)(setq evil-want-keybinding nil):config
     (evil-mode 1)
     (add-to-list 'evil-emacs-state-modes 'nav-mode)
     (add-to-list 'evil-emacs-state-modes 'pdf-occur-buffer-mode)
     (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
     (add-to-list 'evil-emacs-state-modes 'help-mode)
-
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-    (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
-)
+    (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
 #+END_SRC
 
 #+RESULTS:
@@ -426,20 +364,17 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
 ** evil-collection
 #+BEGIN_SRC emacs-lisp
-(use-package evil-collection
-  :after evil
-  :ensure t
-  :config 
-  (evil-collection-init)
-
-  (defun mysethistoryforwardbackward ()
-    (interactive)
-    (evil-define-key 'normal pdf-view-mode-map (kbd "B") 'pdf-history-backward)
-    (evil-define-key 'normal pdf-view-mode-map (kbd "F") 'pdf-history-forward)
-    (add-hook 'pdf-view-mode-hook #'evil-normalize-keymaps)
-    )
- 
-    (add-hook 'pdf-view-mode-hook #'mysethistoryforwardbackward))
+  (use-package evil-collection
+    :after evil
+    :ensure t
+    :config
+    (evil-collection-init)
+    (defun mysethistoryforwardbackward ()
+      (interactive)
+      (evil-define-key 'normal pdf-view-mode-map (kbd "B") 'pdf-history-backward)
+      (evil-define-key 'normal pdf-view-mode-map (kbd "F") 'pdf-history-forward)
+      (add-hook 'pdf-view-mode-hook #'evil-normalize-keymaps))
+      (add-hook 'pdf-view-mode-hook #'mysethistoryforwardbackward))
 #+END_SRC
 
 #+RESULTS:
@@ -447,14 +382,11 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
 ** COMMENT linum-relative
 #+BEGIN_SRC emacs-lisp
-(use-package linum-relative
-  :config
+  (use-package linum-relative
+    :config
     (add-hook 'prog-mode-hook 'linum-on)
     (setq linum-relative-current-symbol "")
-    (linum-relative-mode)
-    ;; only for files, not for regular other buffers
-    ;; (add-hook 'find-file-hook 'linum-mode)
-)
+    (linum-relative-mode))
 #+END_SRC
 
 #+RESULTS:
@@ -476,27 +408,30 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
 ** org-pdfview
 #+BEGIN_SRC emacs-lisp
-(use-package org-pdfview
-  ;; org-pdfview: it's not a minor-mode, just a few functions that adapt
-  ;; orgs behavior if pdf-view-mode is enabled, e.g. for storing links,
-  ;; a special function is called
-  :config
-    (pdf-tools-install)
-    ;; (pdf-loader-install)
-    
-    ;; override a function in org-pdfview so that the description is not the whole file path
-    (eval-after-load "org-pdfview"
-      (defun org-pdfview-store-link ()
-        "  Store a link to a pdfview buffer."
-        (when (eq major-mode 'pdf-view-mode)
-          ;; This buffer is in pdf-view-mode
-          (let* ((path buffer-file-name)
-         	  (page (pdf-view-current-page))
-         	  (link (concat "pdfview:" path "::" (number-to-string page))))
-            (org-store-link-props
-             :type "pdfview"
-             :link link
-             :description (concat (nth 0 (split-string (file-name-nondirectory buffer-file-name) "-")) "::" (number-to-string (pdf-view-current-page)))))))))
+  (use-package org-pdfview
+    ;; org-pdfview: it's not a minor-mode, just a few functions that adapt
+    ;; orgs behavior if pdf-view-mode is enabled, e.g. for storing links,
+    ;; a special function is called
+    :config
+      (pdf-tools-install)
+      ;; (pdf-loader-install)
+
+      ;; override a function in org-pdfview so that the description is not the whole file path
+      (eval-after-load "org-pdfview"
+        (defun org-pdfview-store-link ()
+          "  Store a link to a pdfview buffer."
+          (when (eq major-mode 'pdf-view-mode)
+            ;; This buffer is in pdf-view-mode
+            (let* ((path buffer-file-name)
+                (page (pdf-view-current-page))
+                (link (concat "pdfview:" path "::" (number-to-string page))))
+              (org-store-link-props
+               :type "pdfview"
+               :link link
+               :description
+               (concat (nth 0 (split-string (file-name-nondirectory buffer-file-name) "-"))
+                       "::"
+                       (number-to-string (pdf-view-current-page)))))))))
 #+END_SRC
 
 #+RESULTS:
@@ -672,6 +607,14 @@ Some commands are re-defined so that they are (may be) more convenient (in certa
 #+RESULTS:
 : t
 
+** free-keys
+Show free key bindings in a particular mode combination.  
+#+BEGIN_SRC emacs-lisp
+(use-package free-keys 
+  :ensure t
+  :config
+)
+#+END_SRC
 * programming general behaviour
 #+BEGIN_SRC emacs-lisp
 (require 'cc-mode)
@@ -694,7 +637,6 @@ Some commands are re-defined so that they are (may be) more convenient (in certa
 ;; navigate through matches in list (may it be compilation messages or tag occurrences)
 (global-set-key (kbd "C-, k") (lambda () (interactive) (next-match -1)))
 (global-set-key (kbd "C-, j") (lambda () (interactive) (next-match +1)))
-;; (global-set-key (kbd "C-, o") (lambda () (interactive) (next-match 0)))
 
 (define-key c++-mode-map (kbd "C-, z") 'compile)
 (define-key c-mode-map (kbd "C-, z") 'compile)
@@ -757,6 +699,11 @@ Some commands are re-defined so that they are (may be) more convenient (in certa
 #+RESULTS:
 : t
 
+** emacs-lisp
+Map =eval-buffer= to a key
+#+BEGIN_SRC emacs-lisp
+(define-key emacs-lisp-mode-map (kbd "C-, e") 'eval-buffer)
+#+END_SRC
 * programming packages
 ** generally useful
 *** yasnippet
@@ -1347,34 +1294,23 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 * Klin
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path (expand-file-name "/home/chris/Dropbox/stuff/klin"))
-(require 'klin-main)
 
-;; klin-mode, use-package looks for the provide statement in a file in the load path, 
-;; requires that package, then configures it
-;; (use-package klin
-;; :load-path (expand-file-name "/home/chris/Dropbox/stuff/klin")
-;; ;; :ensure nil
-;; :config
-;; (klin-mode) ;; enable it globally
+  ;; (use-package klin  ; not in melpa, must be manually put in the load path
+  ;; :load-path (expand-file-name "~/Dropbox/stuff/klin"))
 
-;; if it's a global minor mode, it's automatically enabled in all files i figure
-;; (add-hook 'pdf-view-mode-hook 'evil-normalize-keymaps)
-;; (add-hook 'emacs-lisp-mode-hook 'klin-mode)
-;; (add-hook 'org-mode-hook 'klin-mode)
-;; (add-hook 'bibtex-mode-hook 'klin-mode)
-;; )
+  (add-to-list 'load-path (expand-file-name "~/Dropbox/stuff/klin/"))
+  (require 'klin)
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-;; Tell emacs where is your personal elisp lib dir
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/"))
-
-(load "frame-fns")  ;; refers to the file 
-(load "frame-cmds")
-
-(load-file (expand-file-name "~/.emacs.d/ucscript.el"))
-#+END_SRC
 #+RESULTS:
-: t
+: klin
+
+Tabbar for simple pdf switching
+#+BEGIN_SRC emacs-lisp
+  (use-package tabbar
+    :ensure t
+    :config
+    )
+#+END_SRC
+
+#+RESULTS:

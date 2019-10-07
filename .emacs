@@ -1,4 +1,3 @@
-
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
@@ -29,7 +28,7 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (helm-mode klin elisp-slime-nav org-elisp-help beacon smooth-scrolling origami shell-pop darkroom hide-mode-line neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile use-package))))
+    (tabbar free-keys helm-mode klin elisp-slime-nav org-elisp-help beacon smooth-scrolling origami shell-pop darkroom hide-mode-line neotree dired-sidebar py-autopep8 flycheck elpy material-theme multi-term centered-window org-ref org-download transpose-frame evil-collection evil org-pdfview auctex-lua auctex-latexmk auctex yasnippet linum-relative exec-path-from-shell projectile use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
