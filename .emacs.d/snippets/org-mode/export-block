@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: export-block
+# key: eb
+# condition: (or (= (current-column) 2) (= (current-column) 0))
+# --
+#+BEGIN_EXPORT $0
+#+END_EXPORT

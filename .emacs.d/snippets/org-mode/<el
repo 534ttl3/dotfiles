@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: <el
-# key: <el
-# --
-#+BEGIN_SRC emacs-lisp
-
-#+END_SRC
