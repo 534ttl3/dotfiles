@@ -851,7 +851,58 @@ Provide multiple cursors
 #+RESULTS:
 : t
 
-* programming general behaviour
+** hydra
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra
+    :ensure t
+    :config
+    (defhydra hydra-zoom
+      (global-map "<f2>")
+      "zoom"
+      ("g" text-scale-increase "in")
+      ("l" text-scale-decrease "out"))
+
+    (defhydra hydra-buffer-menu (:color pink
+                               :hint nil)
+    "
+  ^Mark^             ^Unmark^           ^Actions^          ^Search
+  ^^^^^^^^-----------------------------------------------------------------
+  _m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
+  _s_: save          _U_: unmark up     _b_: bury          _I_: isearch
+  _d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
+  _D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
+  _~_: modified
+  "
+    ("m" Buffer-menu-mark)
+    ("u" Buffer-menu-unmark)
+    ("U" Buffer-menu-backup-unmark)
+    ("d" Buffer-menu-delete)
+    ("D" Buffer-menu-delete-backwards)
+    ("s" Buffer-menu-save)
+    ("~" Buffer-menu-not-modified)
+    ("x" Buffer-menu-execute)
+    ("b" Buffer-menu-bury)
+    ("g" revert-buffer)
+    ("T" Buffer-menu-toggle-files-only)
+    ("O" Buffer-menu-multi-occur :color blue)
+    ("I" Buffer-menu-isearch-buffers :color blue)
+    ("R" Buffer-menu-isearch-buffers-regexp :color blue)
+    ("c" nil "cancel")
+    ("v" Buffer-menu-select "select" :color blue)
+    ("o" Buffer-menu-other-window "other-window" :color blue)
+    ("q" quit-window "quit" :color blue))
+
+  (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+nn
+#+RESULTS:
+: t
+
+* Programming general behaviour
 #+BEGIN_SRC emacs-lisp
 (require 'cc-mode)
 
@@ -952,39 +1003,39 @@ Bind some keys and some hooks
 ** generally useful
 *** yasnippet
 #+BEGIN_SRC emacs-lisp
-      (use-package yasnippet
-        :config
-        (yas-global-mode)
-        ;; hack to get it to expand after non-whitespace
-        (modify-syntax-entry 36 " " org-mode-syntax-table)
-        (modify-syntax-entry 92 "w" org-mode-syntax-table)
-        ;; (add-hook 'org-mode-hook #'my-org-latex-yas)
-        (setq yas-triggers-in-field t)
-        (setq yas-maybe-expand nil)
+  (use-package yasnippet
+    :config
+    ;; hack to get it to expand after non-whitespace
+    (modify-syntax-entry 36 " " org-mode-syntax-table)
+    (modify-syntax-entry 92 "w" org-mode-syntax-table)
+    ;; (add-hook 'org-mode-hook #'my-org-latex-yas)
+    (setq yas-triggers-in-field t)
+    (setq yas-maybe-expand nil)
 
-        (defvar cs/default-snippet-dir "~/.emacs.d/snippets")
-    
-        ;; exclusively put snippets in here, so it's not scattered
-        (setq yas-snippet-dirs (list cs/default-snippet-dir))
-      
-        (add-hook 'org-mode-hook
-                  (lambda ()
-                    (yas-minor-mode)
-                    (yas-activate-extra-mode 'latex-mode)
-                    (yas-activate-extra-mode 'org-mode)))
+    (defvar cs/default-snippet-dir (expand-file-name"~/.emacs.d/snippets"))
 
-        ;; i find it annoying to edit yasnippet snippet files in the usual way
-        ;; so now i use helm and fuzzy matching
-        (defun yas-find-snippet-file ()
-          "Find snippet file with fuzzy matching."
-          (interactive)
-          (find-file-other-window  (helm-read-file-name
-                                    "Select snippet: "
-                                    :initial-input (concat
-                                                    (expand-file-name cs/default-snippet-dir)
-                                                    "/ ")
-                                    ;; :marked-candidates t
-                                    ))))
+    ;; exclusively put snippets in here, so they aren't scattered
+    ;; around everywhere
+    (setq yas-snippet-dirs (list cs/default-snippet-dir))
+
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (yas-activate-extra-mode 'latex-mode))
+
+    ;; i find it annoying to edit yasnippet snippet files in the usual way
+    ;; so now i use helm and fuzzy matching
+    (defun yas-find-snippet-file ()
+      "Find snippet file with fuzzy matching."
+      (interactive)
+      (find-file-other-window  (helm-read-file-name
+                                "Select snippet: "
+                                :initial-input (concat
+                                                (expand-file-name cs/default-snippet-dir)
+                                                "/ ")
+                                ;; :marked-candidates t
+                                ))))
+
+    (yas-global-mode))
 #+END_SRC
 
 #+RESULTS:
