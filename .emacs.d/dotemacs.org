@@ -500,12 +500,20 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 ** pdf-tools
  PDF Viewer for Emacs
 #+BEGIN_SRC emacs-lisp
-(use-package pdf-tools
-  :config
-  (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
-  (define-key pdf-view-mode-map (kbd "C-c C-s") 'pdf-view-auto-slice-minor-mode)
-  ;; (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
-)
+  (use-package pdf-tools
+    :config
+    (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
+    (define-key pdf-view-mode-map (kbd "C-c C-s") 'pdf-view-auto-slice-minor-mode)
+    ;; (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
+
+  ;; --------- pdf-view-mode, make pdf pinch/zoom more chrome-like
+  (define-key pdf-view-mode-map (kbd "<S-mouse-5>") 'image-forward-hscroll)
+  (define-key pdf-view-mode-map (kbd "<S-mouse-4>") 'image-backward-hscroll)
+  (define-key pdf-view-mode-map (kbd "<C-mouse-5>") (lambda () (interactive) (pdf-view-enlarge 1.1)))
+  (define-key pdf-view-mode-map (kbd "<C-mouse-4>") (lambda () (interactive) (pdf-view-shrink 1.1)))
+  ;; ---------
+
+  )
 #+END_SRC
 
 #+RESULTS:
@@ -899,6 +907,32 @@ Provide multiple cursors
 : t
 
 nn
+#+RESULTS:
+: t
+
+** COMMENT guide-key
+guide-key even says in it's github that you should probably use which-key
+#+BEGIN_SRC emacs-lisp
+  (use-package guide-key
+    :ensure t
+    :config
+    ;; (setq guide-key/guide-key-sequence '("C-x r" "C-x 4"))
+    (setq guide-key/guide-key-sequence '("C-M-,"))
+    (guide-key-mode 1)  ; Enable guide-key-mode
+    )
+#+END_SRC
+
+#+RESULTS:
+: t
+
+** which-key
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-mode))
+#+END_SRC
+
 #+RESULTS:
 : t
 
@@ -1623,15 +1657,21 @@ Tabbar for simple pdf switching
 #+RESULTS:
 ** elscreen
 #+BEGIN_SRC emacs-lisp
-    (use-package elscreen
-      :ensure t
-      :config
-      (elscreen-start)
-      )
+  (use-package elscreen
+    :ensure t
+    :config (elscreen-start)
+    (global-set-key (kbd "<C-M-S-prior>")
+                    'elscreen-move-tab-left)
+    (global-set-key (kbd "<C-M-S-next>")
+                    'elscreen-move-tab-right)
+    (global-set-key (kbd "<C-M-prior>")
+                    'elscreen-previous)
+    (global-set-key (kbd "<C-M-next>")
+                    'elscreen-next))
 
-  ;; (use-package elscreen-tab  ; incompatible with Emacs 25.2.2 (see package-list-packages)
-  ;;   :ensure t
-  ;;   :config (require 'elscreen-tab)(elscreen-tab-mode))
+    ;; (use-package elscreen-tab  ; incompatible with Emacs 25.2.2 (see package-list-packages)
+    ;;   :ensure t
+    ;;   :config (require 'elscreen-tab)(elscreen-tab-mode))
 #+END_SRC
 
 #+RESULTS:
