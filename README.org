@@ -355,6 +355,11 @@ install GNU GLOBAL (editor-independent code tagging system, works with many lang
 #+BEGIN_SRC shell
 sudo apt install global
 #+END_SRC
+** ivy, swiper, counsel
+For these 3 packages (smart autocompletion), you need to install some external programs
+#+BEGIN_SRC shell
+sudo apt install elpa-counsel
+#+END_SRC
 
 ** COMMENT literature research
 to leverage SWORD and diatheke libraries to access different bible texts, create these 3 folders and add .el files in there. 
