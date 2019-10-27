@@ -9,7 +9,6 @@
 
 #+RESULTS:
 
-
 ** package-initialize-packages
 #+BEGIN_SRC emacs-lisp
     (custom-set-variables
@@ -36,7 +35,8 @@
 
 #+RESULTS:
 
-* use-package
+* Package-Management
+** use-package
 #+BEGIN_SRC emacs-lisp
 ;; ---- use-package initialization, make sure use-package.el is cloned into ~/.emacs.d
 ;; This is only needed once, near the top of the file
@@ -49,8 +49,14 @@
 (setq use-package-always-ensure t)
 #+END_SRC
 
-#+RESULTS:
-: t
+*** manual install
+Manual download of packages from e.g. the EmacsWiki, interfaces with use-package by giving use-package a load-path (but doesn't update automatically).
+#+BEGIN_SRC emacs-lisp :results output silent
+  (defvar cs/manual-install-packages-load-path
+    (expand-file-name "~/.emacs.d/elisp/")
+    "Here, custom packages or packages from e.g. EmacsWiki that I update manually are stored.")
+  (add-to-list 'load-path cs/manual-install-packages-load-path)
+#+END_SRC
 
 * general emacs behaviour
 customize annoyng defaults
@@ -277,30 +283,30 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
     (setq org-startup-indented t)
 
     (add-hook 'org-mode-hook
-              (lambda ()
-                (visual-line-mode 1)))
+          (lambda ()
+        (visual-line-mode 1)))
 
     (add-hook 'org-mode-hook
-              (lambda ()
-                (show-paren-mode 1)))
+          (lambda ()
+        (show-paren-mode 1)))
 
     ;; custom org-mode functions
     (defun org-archive-done-tasks-subtree ()
       (interactive)
       (org-map-entries
        (lambda ()
-         (org-archive-subtree)
-         (setq org-map-continue-from (outline-previous-heading)))
+     (org-archive-subtree)
+     (setq org-map-continue-from (outline-previous-heading)))
       "/DONE" 'tree))
 
     (defun org-archive-done-tasks-file ()
       (interactive)
       (org-map-entries
        (lambda ()
-         (org-archive-subtree)
-         (setq org-map-continue-from (outline-previous-heading)))
-                       "/DONE"
-                       'file))
+     (org-archive-subtree)
+     (setq org-map-continue-from (outline-previous-heading)))
+               "/DONE"
+               'file))
 
     ;; ----- latex workflow
 
@@ -309,11 +315,11 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
     ;; export body shortcut
     (fset 'latex-body-export
-          (lambda (&optional arg)
-            "Keyboard macro for LaTeX body export only."
-            (interactive "p")
-            (kmacro-exec-ring-item (quote ("ll" 0 "%d"))
-                                   arg)))
+      (lambda (&optional arg)
+        "Keyboard macro for LaTeX body export only."
+        (interactive "p")
+        (kmacro-exec-ring-item (quote ("ll" 0 "%d"))
+                   arg)))
 
     (defun my-org-latex-export-and-save ()
       (interactive)
@@ -324,126 +330,52 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
       '(evil-ex-define-cmd "wl[atex]" 'my-org-latex-export-and-save))
 
     (setq org-latex-pdf-process
-          '("latexmk -pdf -pdflatex=lualatex -bibtex %f"))
+      '("latexmk -pdf -pdflatex=lualatex -bibtex %f"))
 
     ;; add koma-article to org-mode
     (with-eval-after-load "ox-latex"
       (add-to-list 'org-latex-classes
-                   '("koma-article" "\\documentclass{scrartcl}"
-                     ("\\section{%s}" . "\\section*{%s}")
-                     ("\\subsection{%s}" . "\\subsection*{%s}")
-                     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                     ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+           '("koma-article" "\\documentclass{scrartcl}"
+             ("\\section{%s}" . "\\section*{%s}")
+             ("\\subsection{%s}" . "\\subsection*{%s}")
+             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+             ("\\paragraph{%s}" . "\\paragraph*{%s}")
+             ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+
+    ;; ---- beamer presentations with org mode ----
+    (eval-after-load "ox-latex"
+      ;; update the list of LaTeX classes and associated header (encoding, etc.)
+      ;; and structure
+
+      '(add-to-list 'org-latex-classes
+                    `("beamer" ,(concat "\\documentclass[presentation]{beamer}\n"
+                                        "[DEFAULT-PACKAGES]" "[PACKAGES]" "[EXTRA]\n")
+                      ("\\section{%s}" . "\\section*{%s}")
+                      ("\\subsection{%s}" . "\\subsection*{%s}")
+                      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
+
+    ;; nicer code-blocks with listings instead of verbatim
+    (setq org-latex-listings t)
 
     ;; ---- org-babel ----
     (org-babel-do-load-languages
       'org-babel-load-languages
       '((emacs-lisp . t)
-        (python . t)
-        (shell . t)
-        (haskell . t)))
+    (python . t)
+    (shell . t)
+    (haskell . t)))
 
     (setq org-confirm-babel-evaluate nil)
     ;; ------------
 
-    ;; ------- latex fragments preview, automate
-     (defvar kk/org-latex-fragment-last nil
-      "Holds last fragment/environment you were on.")
+    ;; ------------ latex fragments preview (small custom library)
+    (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
+    (require 'cs-latex-fragments-preview)
+    ;; -----------
 
-    (defun kk/org-in-latex-fragment-p ()
-      "Return the point where the latex fragment begins, if inside
-    a latex fragment. Else return false"
-      (let* ((el (org-element-context))
-             (el-type (car el)))
-        (and (or (eq 'latex-fragment el-type) (eq 'latex-environment el-type))
-            (org-element-property :begin el))))
-
-    (defun kk/org-latex-fragment-toggle ()
-      "Toggle a latex fragment image "
-      (and (eq 'org-mode major-mode)
-       (let ((begin (kk/org-in-latex-fragment-p)))
-             (cond
-              ;; were on a fragment and now on a new fragment
-              ((and
-                ;; fragment we were on
-                kk/org-latex-fragment-last
-                ;; and are on a fragment now
-                begin
-
-                ;; but not on the last one this is a little tricky. as you edit the
-                ;; fragment, it is not equal to the last one. We use the begin
-                ;; property which is less likely to change for the comparison.
-                (not (and kk/org-latex-fragment-last
-              (= begin
-                 kk/org-latex-fragment-last))))
-               ;; go back to last one and put image back, provided there is still a fragment there
-               (save-excursion
-                 (goto-char kk/org-latex-fragment-last)
-                 (when (kk/org-in-latex-fragment-p) (org-preview-latex-fragment))
-
-                 ;; now remove current image
-                 (goto-char begin)
-                 (let ((ov (loop for ov in (org--list-latex-overlays)
-                                 if
-                                 (and
-                  (<= (overlay-start ov) (point))
-                  (>= (overlay-end ov) (point)))
-                                 return ov)))
-           (when ov
-                     (delete-overlay ov)))
-                 ;; and save new fragment
-                 (setq kk/org-latex-fragment-last begin)))
-
-              ;; were on a fragment and now are not on a fragment
-              ((and
-                ;; not on a fragment now
-                (not begin)
-                ;; but we were on one
-                kk/org-latex-fragment-last)
-               ;; put image back on, provided that there is still a fragment here.
-               (save-excursion
-                 (goto-char kk/org-latex-fragment-last)
-                 (when (kk/org-in-latex-fragment-p) (org-preview-latex-fragment)))
-
-               ;; unset last fragment
-               (setq kk/org-latex-fragment-last nil))
-
-              ;; were not on a fragment, and now are
-              ((and
-                ;; we were not one one
-                (not kk/org-latex-fragment-last)
-                ;; but now we are
-                begin)
-               ;; remove imagex
-               (save-excursion
-                 (goto-char begin)
-                 (let ((ov (loop for ov in (org--list-latex-overlays)
-                                 if
-                                 (and
-                  (<= (overlay-start ov) (point))
-                  (>= (overlay-end ov) (point)))
-                                 return ov)))
-           (when ov
-                     (delete-overlay ov))))
-               (setq kk/org-latex-fragment-last begin))))))
-
-    (defvar auto-compile-cursor-traversed-latex-fragments t
-      "toggle variable nil or t")
-
-    (defun toggle-org-latex-fragment ()
-      "Toggle on/off the post-command-hook
-  kk/org-latex-fragment-toggle"
-      (if auto-compile-cursor-traversed-latex-fragments
-          (progn
-            ;; it was set to t, so now set it to nil
-            (setq auto-compile-cursor-traversed-latex-fragments nil)
-            (remove-hook 'post-command-hook 'kk/org-latex-fragment-toggle t))
-        ;; else, activate it
-        (setq auto-compile-cursor-traversed-latex-fragments t)
-        (add-hook 'post-command-hook 'kk/org-latex-fragment-toggle t))))
-
-    ;; -------
+    (define-key org-mode-map (kbd "C-c C-x l t")
+      'toggle-org-dynamic-preview-latex-fragment)
+    )
 #+END_SRC
 
 #+RESULTS:
@@ -452,8 +384,12 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 ** evil-mode
 #+BEGIN_SRC emacs-lisp
   (use-package evil
-    :init (setq evil-want-C-u-scroll t)(add-to-list 'load-path "~/.emacs.d/evil")(setq evil-want-integration t)(setq evil-want-keybinding nil):config
-    ;; (evil-mode 1)
+    :init
+    (setq evil-want-C-u-scroll t)
+    (add-to-list 'load-path "~/.emacs.d/evil")
+    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil)
+    :config
     (add-to-list 'evil-emacs-state-modes 'org-mode)
     (add-to-list 'evil-emacs-state-modes 'nav-mode)
     (add-to-list 'evil-emacs-state-modes 'pdf-occur-buffer-mode)
@@ -461,13 +397,22 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
     (add-to-list 'evil-emacs-state-modes 'help-mode)
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-    (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
+    (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+    (global-set-key (kbd "C-S-s-k")
+                    'evil-window-move-very-top)
+    (global-set-key (kbd "C-S-s-j")
+                    'evil-window-move-very-bottom)
+    (global-set-key (kbd "C-S-s-h")
+                    'evil-window-move-far-left)
+    (global-set-key (kbd "C-S-s-l")
+                    'evil-window-move-far-right))
 #+END_SRC
 
 #+RESULTS:
 : t
 
 ** evil-collection
+
 #+BEGIN_SRC emacs-lisp
   (use-package evil-collection
     :after evil
@@ -550,7 +495,7 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 #+RESULTS:
 : t
 
-** COMMENT org-download
+** org-download
 #+BEGIN_SRC emacs-lisp
 (use-package org-download
   :config
@@ -787,33 +732,43 @@ Provide multiple cursors
     :ensure t
     :config
     (define-key org-noter-doc-mode-map (kbd "C-M-, h") 'org-noter-set-hide-other)
-    (define-key org-noter-notes-mode-map (kbd "C-M-, h") 'org-noter-set-hide-other)
 
-    ;; toggle off an org-noter session
-    (define-key org-noter-notes-mode-map (kbd "C-M-, C-M-n") 'org-noter)
-    (define-key org-noter-notes-mode-map (kbd "C-M-, C-M-k")
-      (lambda ()
-        (unless (fboundp 'elscreen-get-current-screen)
-          (org-noter-kill-session))))
+      ;; prevent killing of a session
+    ;; (define-key org-noter-notes-mode-map (kbd "C-M-, C-M-k")
+    ;;   (lambda ()
+    ;;     (unless (fboundp 'elscreen-get-current-screen)
+    ;;       (org-noter-kill-session))))
+    ;; (define-key org-noter-doc-mode-map (kbd "C-M-, C-M-k")
+    ;;   (lambda ()
+    ;;     (unless (fboundp 'elscreen-get-current-screen)
+    ;;       (org-noter-kill-session))))
+
     ;; if you run elscreen, never do org-noter-kill-session
-    (define-key org-noter-doc-mode-map (kbd "C-M-, C-M-n") 'org-noter)
-    (define-key org-noter-doc-mode-map (kbd "C-M-, C-M-k")
-      (lambda ()
-        (unless (fboundp 'elscreen-get-current-screen)
-          (org-noter-kill-session))))
+    (define-key org-noter-doc-mode-map (kbd "C-M-, n") 'org-noter)
+    (define-key org-noter-notes-mode-map (kbd "C-M-, n") 'org-noter)
 
-    ;; start one fresh
+    ;; start one fresh from either a plain org file or a plain pdf file
     (define-key org-mode-map (kbd "C-M-, C-M-n") 'org-noter)
     (define-key pdf-view-mode-map (kbd "C-M-, C-M-n") 'org-noter)
 
     ;; insert notes
     ;; (define-key org-mode-map (kbd "C-M-, C-M-n") 'org-noter)
-    ;; (define-key org-noter-notes-mode-map (kbd "C-M-, C-M-i") 'org-noter-insert-note)
-    ;; (define-key org-noter-notes-mode-map (kbd "C-M-, C-M-i") 'org-noter-insert-note)
+    ;; (define-key org-noter-notes-mode-map (kbd "C-M-, p25") 'org-noter-insert-precise-note)
+    ;; (define-key org-noter-notes-mode-map (kbd "C-M-, C-i") 'org-noter-insert-note)
     ;; (define-key org-noter-doc-mode-map (kbd "C-M-, C-M-p") 'org-noter-insert-precise-note)
     ;; (define-key org-noter-doc-mode-map (kbd "C-M-, C-M-p") 'org-noter-insert-precise-note)
 
     (define-key org-noter-doc-mode-map (kbd "i") 'org-noter-insert-note)
+
+    (defun org-noter-widen-buffer ()
+      "This removes the narrowing and enables seeing things above first heading.
+  Useful if you want to add e.g. some LATEX_HEADER."
+      (interactive)
+      (widen)
+      (message "the org-noter buffer has been widened"))
+
+    (define-key org-noter-notes-mode-map (kbd "C-M-, C-w")
+      'org-noter-widen-buffer)
 
     ;; don't force org-noter sessions into always a new frame
     (setq org-noter-always-create-frame nil)
@@ -853,6 +808,35 @@ Provide multiple cursors
     ;; other-window (cycle)
     (global-set-key (kbd "s-n") (lambda () (interactive) (other-window 1)))
     ;; (global-set-key (kbd "s-p") (lambda () (interactive) (other-window -1)))
+    )
+#+END_SRC
+
+#+RESULTS:
+: t
+
+** framemove
+#+BEGIN_SRC emacs-lisp
+  ;; manual install
+  (use-package framemove
+    :load-path cs/manual-install-packages-load-path
+    :config
+    ;; (framemove-default-keybindings)
+    (require 'framemove)
+    ;; (windmove-default-keybindings)
+    (setq framemove-hook-into-windmove t)
+    )
+#+end_src
+
+#+RESULTS:
+: t
+
+** emacs-rotate
+#+BEGIN_SRC emacs-lisp
+  (use-package rotate
+    :ensure t
+    :config
+    (global-set-key (kbd "C-S-s-r w") 'rotate-window)
+    (global-set-key (kbd "C-S-s-r l") 'rotate-layout)
     )
 #+END_SRC
 
@@ -902,11 +886,6 @@ Provide multiple cursors
 
   (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body))
 #+END_SRC
-
-#+RESULTS:
-: t
-
-nn
 #+RESULTS:
 : t
 
@@ -1038,38 +1017,98 @@ Bind some keys and some hooks
 *** yasnippet
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
-    :config
-    ;; hack to get it to expand after non-whitespace
-    (modify-syntax-entry 36 " " org-mode-syntax-table)
-    (modify-syntax-entry 92 "w" org-mode-syntax-table)
-    ;; (add-hook 'org-mode-hook #'my-org-latex-yas)
-    (setq yas-triggers-in-field t)
-    (setq yas-maybe-expand nil)
+      :config
+      ;; hack to get it to expand in specific siutations
+      (modify-syntax-entry ?$ " " org-mode-syntax-table)
+      (modify-syntax-entry ?\\ "w" org-mode-syntax-table)
+      ;; (add-hook 'org-mode-hook #'my-org-latex-yas)
 
-    (defvar cs/default-snippet-dir (expand-file-name"~/.emacs.d/snippets"))
 
-    ;; exclusively put snippets in here, so they aren't scattered
-    ;; around everywhere
-    (setq yas-snippet-dirs (list cs/default-snippet-dir))
+      ;; bind extra keys to produce super and subscript
+      (defun cs/insert-latex-subscript ()
+        (interactive)
+        (progn
+          (insert "_{}")
+          (left-char)))
 
-    (add-hook 'org-mode-hook
-              (lambda ()
-                (yas-activate-extra-mode 'latex-mode))
+      (defun cs/insert-latex-superscript ()
+        (interactive)
+        (progn
+          (insert "^{}")
+          (left-char)))
 
-    ;; i find it annoying to edit yasnippet snippet files in the usual way
-    ;; so now i use helm and fuzzy matching
-    (defun yas-find-snippet-file ()
-      "Find snippet file with fuzzy matching."
-      (interactive)
-      (find-file-other-window  (helm-read-file-name
-                                "Select snippet: "
-                                :initial-input (concat
-                                                (expand-file-name cs/default-snippet-dir)
-                                                "/ ")
-                                ;; :marked-candidates t
-                                ))))
+      (global-set-key (kbd "<C-dead-circumflex>") 'cs/insert-latex-superscript)
+    
+      (eval-after-load 'undo-tree
+        (define-key undo-tree-map (kbd "C-_") nil))
+      (global-set-key (kbd "C-_") 'cs/insert-latex-subscript)
 
-    (yas-global-mode))
+      (setq yas-triggers-in-field t)
+      (setq yas-maybe-expand nil)
+
+      (defvar cs/default-snippet-dir (expand-file-name"~/.emacs.d/snippets"))
+
+      ;; exclusively put snippets in here, so they aren't scattered
+      ;; around everywhere
+      (setq yas-snippet-dirs (list cs/default-snippet-dir))
+
+      (add-hook 'org-mode-hook
+                (lambda ()
+                  (yas-activate-extra-mode 'latex-mode)))
+
+      ;; i find it annoying to edit yasnippet snippet files in the usual way
+      ;; so now i use helm and fuzzy matching
+      (defun yas-find-snippet-file ()
+        "Find snippet file with fuzzy matching."
+        (interactive)
+        (find-file-other-window  (helm-read-file-name
+                                  "Select snippet: "
+                                  :initial-input (concat
+                                                  (expand-file-name cs/default-snippet-dir)
+                                                  "/ ")
+                                  ;; :marked-candidates t
+                                  )))
+
+
+      (yas-global-mode))
+
+
+  ;; hacky: before snippet expansion with (yas-expand, add whitespace)
+  ;; afterwards, subtract whitespace again
+
+  ;; (defvar current-yas-expand-advice-whitespace-pos nil
+  ;;   "Self-documenting.")
+
+  ;; (defun after-yas-expand-advice ()
+  ;;   (message "hello after")
+  ;;   (if current-yas-expand-advice-whitespace-pos
+  ;;       ;; remove the whitespace at that position again
+  ;;       (save-excursion
+  ;;         (goto-char current-yas-expand-advice-whitespace-pos)
+  ;;         (setq current-yas-expand-advice-whitespace-pos nil)
+  ;;         (delete-char 1))
+  ;;       )
+  ;;   (remove-function (symbol-function 'yas-expand) #'after-yas-expand-advice)
+  ;;   )
+
+  ;; (defun before-yas-expand-advice ()
+  ;;   (insert ",")
+  ;;   (setq current-yas-expand-advice-whitespace-pos (point))
+  ;;   (message "hello before")
+  ;;   ;; (remove-function (symbol-function 'yas-expand) #'before-yas-expand-advice)
+  ;;   (add-function :after (symbol-function 'yas-expand) #'after-yas-expand-advice))
+
+
+  ;; (add-function :before (symbol-function 'yas-expand) #'before-yas-expand-advice)
+
+
+  ;; (defun yas-remove-all-advice ()
+  ;;   "Remove all advice."
+  ;;   (interactive)
+  ;;   (remove-function (symbol-function 'yas-expand)
+  ;;                    #'before-yas-expand-advice)
+  ;;   (remove-function (symbol-function 'yas-expand)
+  ;;                    #'after-yas-expand-advice))
 #+END_SRC
 
 #+RESULTS:
@@ -1477,15 +1516,21 @@ Complains about unconventional style when writing emacs-lisp packages.
 *** semantic-refactor for lisp 
 This tool is based on semantic. It doesn't really refactor, but it can e.g. reformat a whole emacs-lisp buffer. This is potentially also useful for C/C++.
 #+BEGIN_SRC emacs-lisp
-(use-package srefactor
-  :ensure t
-  :config
-  (add-hook 'emacs-lisp-mode-hook 
-             (lambda () 
-               (require 'srefactor)
-               (require 'srefactor-lisp)
-               (semantic-mode 1))))
+  (use-package srefactor
+    :ensure t
+    :config
+    (add-hook 'emacs-lisp-mode-hook 
+               (lambda () 
+                 (require 'srefactor)
+                 (require 'srefactor-lisp)
+                 (semantic-mode 1)))
+    (define-key emacs-lisp-mode-map (kbd "C-, f r s") 'srefactor-lisp-format-sexp)
+    (define-key emacs-lisp-mode-map (kbd "C-, f d i") 'delete-indentation))
+
 #+END_SRC
+
+#+RESULTS:
+: t
 
 * COMMENT literature research packages
 #+BEGIN_SRC emacs-lisp
