@@ -2,9 +2,10 @@
 ** COMMENT melpa and org repos
 #+BEGIN_SRC emacs-lisp 
   (require 'package)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
   (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
   (package-initialize)
+  (setq package-check-signature nil)
 #+END_SRC
 
 #+RESULTS:
@@ -21,7 +22,7 @@
      '(custom-safe-themes
        (quote
         ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
-     '(helm-ff-auto-update-initial-value t)
+     '(helm-ff-auto-update-Zinitial-value t)
      '(helm-gtags-auto-update t)
      '(helm-gtags-ignore-case t)
      '(helm-gtags-path-style (quote relative))
@@ -48,6 +49,9 @@
 ;; use-package
 (setq use-package-always-ensure t)
 #+END_SRC
+
+#+RESULTS:
+: t
 
 *** manual install
 Manual download of packages from e.g. the EmacsWiki, interfaces with use-package by giving use-package a load-path (but doesn't update automatically).
@@ -151,6 +155,50 @@ Quick up and down navigation
 
 #+RESULTS:
 
+** Keys that take global precendence
+Make a minor mode with keys that override all other keys and always take precendence.
+#+BEGIN_SRC emacs-lisp
+  ;; https://stackoverflow.com/a/683575
+  ;; the minor mode
+  (defvar my-keys-minor-mode-map
+    (let ((map (make-sparse-keymap)))
+
+      (define-key map (kbd "C-o")
+                      'evil-jump-backward)
+      (define-key map (kbd "C-i")
+                      'evil-jump-forward)
+      map)
+    "my-keys-minor-mode keymap.")
+
+  (define-minor-mode my-keys-minor-mode
+    "A minor mode so that my key settings override annoying major modes."
+    :init-value t
+    :lighter " my-keys")
+
+  (defun my-minibuffer-setup-hook ()
+    (my-keys-minor-mode 0))
+
+  (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup-hook)
+
+  (my-keys-minor-mode 1)
+
+  ;; https://stackoverflow.com/a/5340797
+  ;; make precendence last
+  (add-hook 'after-load-functions 'my-keys-have-priority)
+
+  (defun my-keys-have-priority (_file)
+    "Try to ensure that my keybindings retain priority over other minor modes.
+
+  Called via the `after-load-functions' special hook."
+    (unless (eq (caar minor-mode-map-alist) 'my-keys-minor-mode)
+      (let ((mykeys (assq 'my-keys-minor-mode minor-mode-map-alist)))
+        (assq-delete-all 'my-keys-minor-mode minor-mode-map-alist)
+        (add-to-list 'minor-mode-map-alist mykeys))))
+#+END_SRC
+
+#+RESULTS:
+: my-keys-have-priority
+
 * general packages
 ** helm
 Does a lot of useful auto-completion stuff all over emacs, e.g. when finding files or functions.
@@ -177,6 +225,9 @@ sudo apt install elpa-counsel
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
+  (use-package counsel
+    :ensure t)
+
   (use-package ivy
     :ensure t
     :config
@@ -244,12 +295,185 @@ sudo apt install elpa-counsel
 #+RESULTS:
 : t
 
-** material-theme
+** COMMENT material-theme
 #+BEGIN_SRC emacs-lisp
 (use-package material-theme
   :ensure t)
 
 ;; (load-theme 'material t) ;; load material theme
+#+END_SRC
+
+#+RESULTS:
+
+** doom-themes
+Awesome looking modern themes.
+#+BEGIN_SRC emacs-lisp
+  (use-package doom-themes
+    :ensure t
+    :config
+    (require 'doom-themes)
+
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+    ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
+    ;; may have their own settings.
+    ;; (load-theme 'doom-one t)
+    (load-theme 'doom-city-lights t)
+
+    ;; Enable flashing mode-line on errors
+    (doom-themes-visual-bell-config)
+
+    ;; Enable custom neotree theme (all-the-icons must be installed!)
+    (doom-themes-neotree-config)
+    ;; or for treemacs users
+    (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+    (doom-themes-treemacs-config)
+
+    ;; Corrects (and improves) org-mode's native fontification.
+    (doom-themes-org-config))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+*** doom-modeline
+A fitting modeline.
+#+BEGIN_SRC emacs-lisp
+  (use-package doom-modeline
+        :ensure t
+        :hook (after-init . doom-modeline-mode)
+        :config
+        ;; How tall the mode-line should be. It's only respected in GUI.
+  ;; If the actual char height is larger, it respects the actual height.
+  (setq doom-modeline-height 25)
+
+  ;; How wide the mode-line bar should be. It's only respected in GUI.
+  (setq doom-modeline-bar-width 3)
+
+  ;; How to detect the project root.
+  ;; The default priority of detection is `ffip' > `projectile' > `project'.
+  ;; nil means to use `default-directory'.
+  ;; The project management packages have some issues on detecting project root.
+  ;; e.g. `projectile' doesn't handle symlink folders well, while `project' is unable
+  ;; to hanle sub-projects.
+  ;; You can specify one if you encounter the issue.
+  (setq doom-modeline-project-detection 'project)
+
+  ;; Determines the style used by `doom-modeline-buffer-file-name'.
+  ;;
+  ;; Given ~/Projects/FOSS/emacs/lisp/comint.el
+  ;;   truncate-upto-project => ~/P/F/emacs/lisp/comint.el
+  ;;   truncate-from-project => ~/Projects/FOSS/emacs/l/comint.el
+  ;;   truncate-with-project => emacs/l/comint.el
+  ;;   truncate-except-project => ~/P/F/emacs/l/comint.el
+  ;;   truncate-upto-root => ~/P/F/e/lisp/comint.el
+  ;;   truncate-all => ~/P/F/e/l/comint.el
+  ;;   relative-from-project => emacs/lisp/comint.el
+  ;;   relative-to-project => lisp/comint.el
+  ;;   file-name => comint.el
+  ;;   buffer-name => comint.el<2> (uniquify buffer name)
+  ;;
+  ;; If you are expereicing the laggy issue, especially while editing remote files
+  ;; with tramp, please try `file-name' style.
+  ;; Please refer to https://github.com/bbatsov/projectile/issues/657.
+  (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
+
+  ;; Whether display icons in mode-line. It respects `all-the-icons-color-icons'.
+  ;; While using the server mode in GUI, should set the value explicitly.
+  (setq doom-modeline-icon (display-graphic-p))
+
+  ;; Whether display the icon for `major-mode'. It respects `doom-modeline-icon'.
+  (setq doom-modeline-major-mode-icon t)
+
+  ;; Whether display the colorful icon for `major-mode'.
+  ;; It respects `doom-modeline-major-mode-icon'.
+  (setq doom-modeline-major-mode-color-icon t)
+
+  ;; Whether display the icon for the buffer state. It respects `doom-modeline-icon'.
+  (setq doom-modeline-buffer-state-icon t)
+
+  ;; Whether display the modification icon for the buffer.
+  ;; It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'.
+  (setq doom-modeline-buffer-modification-icon t)
+
+  ;; Whether to use unicode as a fallback (instead of ASCII) when not using icons.
+  (setq doom-modeline-unicode-fallback t)
+
+  ;; Whether display minor modes in mode-line.
+  (setq doom-modeline-minor-modes (featurep 'minions))
+
+  ;; If non-nil, a word count will be added to the selection-info modeline segment.
+  (setq doom-modeline-enable-word-count nil)
+
+  ;; Whether display buffer encoding.
+  (setq doom-modeline-buffer-encoding t)
+
+  ;; Whether display indentation information.
+  (setq doom-modeline-indent-info nil)
+
+  ;; If non-nil, only display one number for checker information if applicable.
+  (setq doom-modeline-checker-simple-format t)
+
+  ;; The maximum number displayed for notifications.
+  (setq doom-modeline-number-limit 99)
+
+  ;; The maximum displayed length of the branch name of version control.
+  (setq doom-modeline-vcs-max-length 12)
+
+  ;; Whether display perspective name. Non-nil to display in mode-line.
+  (setq doom-modeline-persp-name t)
+
+  ;; Whether display `lsp' state. Non-nil to display in mode-line.
+  (setq doom-modeline-lsp t)
+
+  ;; Whether display GitHub notifications. It requires `ghub` package.
+  (setq doom-modeline-github nil)
+
+  ;; The interval of checking GitHub.
+  (setq doom-modeline-github-interval (* 30 60))
+
+  ;; Whether display mu4e notifications. It requires `mu4e-alert' package.
+  (setq doom-modeline-mu4e t)
+
+  ;; Whether display irc notifications. It requires `circe' package.
+  (setq doom-modeline-irc t)
+
+  ;; Function to stylize the irc buffer names.
+  (setq doom-modeline-irc-stylize 'identity)
+
+  ;; Whether display environment version.
+  (setq doom-modeline-env-version t)
+  ;; Or for individual languages
+  (setq doom-modeline-env-enable-python t)
+  (setq doom-modeline-env-enable-ruby t)
+  (setq doom-modeline-env-enable-perl t)
+  (setq doom-modeline-env-enable-go t)
+  (setq doom-modeline-env-enable-elixir t)
+  (setq doom-modeline-env-enable-rust t)
+
+  ;; Change the executables to use for the language version string
+  (setq doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
+  (setq doom-modeline-env-ruby-executable "ruby")
+  (setq doom-modeline-env-perl-executable "perl")
+  (setq doom-modeline-env-go-executable "go")
+  (setq doom-modeline-env-elixir-executable "iex")
+  (setq doom-modeline-env-rust-executable "rustc")
+
+  ;; What to dispaly as the version while a new one is being loaded
+  (setq doom-modeline-env-load-string "...")
+
+  ;; Hooks that run before/after the modeline version string is updated
+  (setq doom-modeline-before-update-env-hook nil)
+  (setq doom-modeline-after-update-env-hook nil)
+  )
+#+END_SRC
+
+*** all-the-icons 
+Provides icons for various themes, also for doom-modeline
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons)
 #+END_SRC
 
 #+RESULTS:
@@ -435,15 +659,39 @@ sudo apt install elpa-counsel
     (add-to-list 'load-path "~/.emacs.d/evil")
     (setq evil-want-integration t)
     (setq evil-want-keybinding nil)
+    ;; should be called before the package is loaded to take effect
+    (setq evil-toggle-key "<C-S-dead-grave>")
+  
     :config
+    ;; enable evil mode by default (but heavily, heavily restrict it afterwards)
+    (evil-mode 1)
+
+    ;; map all modes to emacs-state-modes, since I only want
+    ;; access to some evil functions, but not any keybindings, please
+    (dolist (item evil-normal-state-modes)
+      (add-to-list 'evil-emacs-state-modes item))
+
+    (setq evil-normal-state-modes nil)
+
+    (dolist (item evil-motion-state-modes)
+      (add-to-list 'evil-emacs-state-modes item))
+
+    (setq evil-motion-state-modes nil)
+
     (add-to-list 'evil-emacs-state-modes 'org-mode)
     (add-to-list 'evil-emacs-state-modes 'nav-mode)
     (add-to-list 'evil-emacs-state-modes 'pdf-occur-buffer-mode)
     (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
     (add-to-list 'evil-emacs-state-modes 'help-mode)
+    (add-to-list 'evil-emacs-state-modes 'prog-mode)
+    (add-to-list 'evil-emacs-state-modes 'grep-mode)
+
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
     (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+
+    ;; now the functions that emacs doesn't have a good ootb solution for,
+    ;; and therefore I have to use evil:
     (global-set-key (kbd "C-S-s-k")
                     'evil-window-move-very-top)
     (global-set-key (kbd "C-S-s-j")
@@ -451,7 +699,20 @@ sudo apt install elpa-counsel
     (global-set-key (kbd "C-S-s-h")
                     'evil-window-move-far-left)
     (global-set-key (kbd "C-S-s-l")
-                    'evil-window-move-far-right))
+                    'evil-window-move-far-right)
+
+    (global-set-key (kbd "C-o")
+                    'evil-jump-backward)
+    (global-set-key (kbd "C-i")
+                    'evil-jump-forward)
+
+    (define-key my-keys-minor-mode-map (kbd "C-o") 'evil-jump-backward)
+    (define-key my-keys-minor-mode-map (kbd "C-i") 'evil-jump-forward)
+
+    ;; elscreen could use these two, so unset them
+    (define-key evil-normal-state-map (kbd "C-z") nil)
+    (define-key evil-emacs-state-map (kbd "C-z") nil)
+    )
 #+END_SRC
 
 #+RESULTS:
@@ -504,6 +765,8 @@ sudo apt install elpa-counsel
   (define-key pdf-view-mode-map (kbd "<C-mouse-4>") (lambda () (interactive) (pdf-view-shrink 1.1)))
   ;; ---------
 
+  ;; use isearch instead of swiper
+  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
   )
 #+END_SRC
 
@@ -1750,7 +2013,10 @@ Tabbar for simple pdf switching
 #+BEGIN_SRC emacs-lisp
   (use-package elscreen
     :ensure t
-    :config (elscreen-start)
+    :config
+    ;; (setq elscreen-prefix-key "C-M-z")
+  
+    (elscreen-start)
     (global-set-key (kbd "<C-M-S-prior>")
                     'elscreen-move-tab-left)
     (global-set-key (kbd "<C-M-S-next>")
