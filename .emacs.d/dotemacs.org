@@ -661,7 +661,7 @@ Provides icons for various themes, also for doom-modeline
     (setq evil-want-keybinding nil)
     ;; should be called before the package is loaded to take effect
     (setq evil-toggle-key "<C-S-dead-grave>")
-  
+
     :config
     ;; enable evil mode by default (but heavily, heavily restrict it afterwards)
     (evil-mode 1)
@@ -685,6 +685,11 @@ Provides icons for various themes, also for doom-modeline
     (add-to-list 'evil-emacs-state-modes 'help-mode)
     (add-to-list 'evil-emacs-state-modes 'prog-mode)
     (add-to-list 'evil-emacs-state-modes 'grep-mode)
+    (add-to-list 'evil-emacs-state-modes 'bibtex-mode)
+    (add-to-list 'evil-emacs-state-modes 'dired-mode)
+    (add-to-list 'evil-emacs-state-modes 'debugger-mode)
+    (add-to-list 'evil-emacs-state-modes 'package-menu-mode)
+
 
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
