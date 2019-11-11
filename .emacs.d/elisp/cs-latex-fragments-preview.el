@@ -117,7 +117,65 @@ Else return false."
   (if (not (member 'kk/org-latex-fragment-toggle post-command-hook))
       (add-hook 'post-command-hook 'kk/org-latex-fragment-toggle t 'local)
     (remove-hook 'post-command-hook 'kk/org-latex-fragment-toggle 'local)))
+
+(defun cs-turn-on-org-dynamic-preview-latex-fragment ()
+  (interactive)
+  (add-hook 'post-command-hook 'kk/org-latex-fragment-toggle t 'local))
+
+(defun org-renumber-environment (orig-func &rest args)
+  (let ((results '())
+        (counter -1)
+        (numberp))
+
+    (setq results (loop for (begin .  env) in
+                        (org-element-map (org-element-parse-buffer) 'latex-environment
+                          (lambda (env)
+                            (cons
+                             (org-element-property :begin env)
+                             (org-element-property :value env))))
+                        collect
+                        (cond
+                         ((and (string-match "\\\\begin{equation}" env)
+                               (not (string-match "\\\\tag{" env)))
+                          (incf counter)
+                          (cons begin counter))
+                         ((string-match "\\\\begin{align}" env)
+                          (prog2
+                              (incf counter)
+                              (cons begin counter)
+                            (with-temp-buffer
+                              (insert env)
+                              (goto-char (point-min))
+                              ;; \\ is used for a new line. Each one leads to a number
+                              (incf counter (count-matches "\\\\$"))
+                              ;; unless there are nonumbers.
+                              (goto-char (point-min))
+                              (decf counter (count-matches "\\nonumber")))))
+                         (t
+                          (cons begin nil)))))
+
+    (when (setq numberp (cdr (assoc (point) results)))
+      (setf (car args)
+            (concat
+             (format "\\setcounter{equation}{%s}\n" numberp)
+             (car args)))))
+
+  (apply orig-func args))
+
+
+
+;; ;; TODO: awesome possibility of getting closer to visual in-line latex editing
+;; ;; get string of underlying latex with (org-element-property :value context)
+;; (defun my-insert-latex-preview-cursor ()
+;;   (interactive)
+;;   (save-excursion (insert "\\textcolor{green}{\\textbf{|}}")))
+
+;; (advice-add 'org-create-formula-image :before #'my-insert-latex-preview-cursor)
+;; (advice-add 'org-create-formula-image :before #'my-insert-latex-preview-cursor)
+(advice-add 'org-create-formula-image :around #'org-renumber-environment)
 ;; -------
+
+;; (advice-remove 'org-create-formula-image #'org-renumber-environment)
 
 (provide 'cs-latex-fragments-preview)
 ;;; cs-latex-fragments-preview.el ends here

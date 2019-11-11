@@ -76,10 +76,11 @@ customize annoyng defaults
 (savehist-mode 1)
 (show-paren-mode 1)
 (setq show-paren-delay 0)
+
+(blink-cursor-mode 0)
 #+END_SRC
 
 #+RESULTS:
-: 0
 
 Disable startup screen when opening a file from command line
 #+BEGIN_SRC emacs-lisp
@@ -198,6 +199,22 @@ Make a minor mode with keys that override all other keys and always take precend
 
 #+RESULTS:
 : my-keys-have-priority
+
+** line spacing 
+#+BEGIN_SRC emacs-lisp
+(defun xah-toggle-line-spacing ()
+  "Toggle line spacing between no extra space to extra half line height.
+URL `http://ergoemacs.org/emacs/emacs_toggle_line_spacing.html'
+Version 2017-06-02"
+  (interactive)
+  (if line-spacing
+      (setq line-spacing nil)
+    (setq line-spacing 0.5))
+  (redraw-frame (selected-frame)))
+#+END_SRC
+
+#+RESULTS:
+: xah-toggle-line-spacing
 
 * general packages
 ** helm
@@ -549,6 +566,10 @@ Provides icons for various themes, also for doom-modeline
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :config
+    ;; hacks
+    (require 'org-mode-hacks)
+    (define-key org-mode-map (kbd "C-x i s") 'my-org-screenshot)
+
     ;; ---- general behaviour of org-mode
     (setq org-startup-indented t)
 
@@ -689,6 +710,14 @@ Provides icons for various themes, also for doom-modeline
     (add-to-list 'evil-emacs-state-modes 'dired-mode)
     (add-to-list 'evil-emacs-state-modes 'debugger-mode)
     (add-to-list 'evil-emacs-state-modes 'package-menu-mode)
+    (add-to-list 'evil-emacs-state-modes 'pdf-view-mode)
+    (add-to-list 'evil-emacs-state-modes 'ediff-mode)
+    (add-to-list 'evil-emacs-state-modes 'minibuffer-inactive-mode)
+    (add-to-list 'evil-emacs-state-modes 'latex-mode)
+    (add-to-list 'evil-emacs-state-modes 'eshell-mode)
+    (add-to-list 'evil-emacs-state-modes 'term-mode)
+    (add-to-list 'evil-emacs-state-modes 'process-menu-mode)
+    (add-to-list 'evil-emacs-state-modes 'tabulated-list-mode)
 
 
     ;; only ever go up/down visual lines
@@ -697,13 +726,13 @@ Provides icons for various themes, also for doom-modeline
 
     ;; now the functions that emacs doesn't have a good ootb solution for,
     ;; and therefore I have to use evil:
-    (global-set-key (kbd "C-S-s-k")
+    (global-set-key (kbd "C-M-s-k")
                     'evil-window-move-very-top)
-    (global-set-key (kbd "C-S-s-j")
+    (global-set-key (kbd "C-M-s-j")
                     'evil-window-move-very-bottom)
-    (global-set-key (kbd "C-S-s-h")
+    (global-set-key (kbd "C-M-s-h")
                     'evil-window-move-far-left)
-    (global-set-key (kbd "C-S-s-l")
+    (global-set-key (kbd "C-M-s-l")
                     'evil-window-move-far-right)
 
     (global-set-key (kbd "C-o")
@@ -771,8 +800,7 @@ Provides icons for various themes, also for doom-modeline
   ;; ---------
 
   ;; use isearch instead of swiper
-  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
-  )
+  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
 #+END_SRC
 
 #+RESULTS:
@@ -1047,7 +1075,7 @@ Provide multiple cursors
     :config
     (define-key org-noter-doc-mode-map (kbd "C-M-, h") 'org-noter-set-hide-other)
 
-      ;; prevent killing of a session
+    ;; prevent killing of a session
     ;; (define-key org-noter-notes-mode-map (kbd "C-M-, C-M-k")
     ;;   (lambda ()
     ;;     (unless (fboundp 'elscreen-get-current-screen)
@@ -1115,12 +1143,17 @@ Provide multiple cursors
     :ensure t
     :config
     ;; (windmove-default-keybindings)
-    (global-set-key (kbd "s-k") 'windmove-up)
-    (global-set-key (kbd "s-j") 'windmove-down)
-    (global-set-key (kbd "s-h") 'windmove-left)
-    (global-set-key (kbd "s-l") 'windmove-right)
+    ;; (global-set-key (kbd "s-k") nil)
+    ;; (global-set-key (kbd "s-j") nil)
+    ;; (global-set-key (kbd "s-h") nil)
+    ;; (global-set-key (kbd "s-l") nil)
+
+    (global-set-key (kbd "M-s-k") 'windmove-up)
+    (global-set-key (kbd "M-s-j") 'windmove-down)
+    (global-set-key (kbd "M-s-h") 'windmove-left)
+    (global-set-key (kbd "M-s-l") 'windmove-right)
     ;; other-window (cycle)
-    (global-set-key (kbd "s-n") (lambda () (interactive) (other-window 1)))
+    (global-set-key (kbd "M-s-n") (lambda () (interactive) (other-window 1)))
     ;; (global-set-key (kbd "s-p") (lambda () (interactive) (other-window -1)))
     )
 #+END_SRC
@@ -1128,7 +1161,7 @@ Provide multiple cursors
 #+RESULTS:
 : t
 
-** framemove
+** COMMENT framemove
 #+BEGIN_SRC emacs-lisp
   ;; manual install
   (use-package framemove
@@ -1229,6 +1262,10 @@ guide-key even says in it's github that you should probably use which-key
 #+RESULTS:
 : t
 
+** list-processes+
+#+BEGIN_SRC emacs-lisp
+(require 'list-processes+)
+#+END_SRC
 * Programming general behaviour
 #+BEGIN_SRC emacs-lisp
 (require 'cc-mode)
@@ -1572,41 +1609,42 @@ implements folding for many modes
 
 *** elpy
 #+BEGIN_SRC emacs-lisp
-(use-package elpy
-  :config
-  (elpy-enable)
+  (use-package elpy
+    :ensure t
+    :config
+    (elpy-enable)
 
-  ;; switch out flymake for flycheck (less troubleshooting, real-time syntax checking)
-  (when (require 'flycheck nil t)
-    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-    (add-hook 'elpy-mode-hook 'flycheck-mode))
+    ;; switch out flymake for flycheck (less troubleshooting, real-time syntax checking)
+    (when (require 'flycheck nil t)
+      (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+      (add-hook 'elpy-mode-hook 'flycheck-mode))
 
-  (add-hook 'python-mode-hook 'elpy-mode)
-  (with-eval-after-load 'elpy
-  (remove-hook 'elpy-modules 'elpy-module-flymake)
-  (add-hook 'elpy-mode-hook 'flycheck-mode))
-  ;; (add-hook 'elpy-mode-hook 'elpy-use-ipython)
-  ;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+    (add-hook 'python-mode-hook 'elpy-mode)
+    (with-eval-after-load 'elpy
+      (remove-hook 'elpy-modules 'elpy-module-flymake)
+      (add-hook 'elpy-mode-hook 'flycheck-mode))
+    ;; (add-hook 'elpy-mode-hook 'elpy-use-ipython)
+    ;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
 
-  ;; ;; switch out the standard python interpreter with jupyter 
-  ;; (setq python-shell-interpreter "jupyter"
-  ;;       python-shell-interpreter-args "console --simple-prompt"
-  ;;       python-shell-prompt-detect-failure-warning nil)
-  ;; (add-to-list 'python-shell-completion-native-disabled-interpreters
-  ;;              "jupyter")
+    ;; ;; switch out the standard python interpreter with jupyter 
+    ;; (setq python-shell-interpreter "jupyter"
+    ;;       python-shell-interpreter-args "console --simple-prompt"
+    ;;       python-shell-prompt-detect-failure-warning nil)
+    ;; (add-to-list 'python-shell-completion-native-disabled-interpreters
+    ;;              "jupyter")
 
-  (defun goto-def-or-rgrep ()
-    "Go to definition of thing at point or do an rgrep in project if that fails"
-    (interactive)
-    (condition-case nil (elpy-goto-definition)
-      (error (elpy-rgrep-symbol (thing-at-point 'symbol)))))
+    (defun goto-def-or-rgrep ()
+      "Go to definition of thing at point or do an rgrep in project if that fails"
+      (interactive)
+      (condition-case nil (elpy-goto-definition)
+        (error (elpy-rgrep-symbol (thing-at-point 'symbol)))))
 
-  ;; (add-hook 'python-mode-hook
-  ;;       '(lambda() (global-set-key (kbd "C-, d") 'elpy-goto-definition)))
+    ;; (add-hook 'python-mode-hook
+    ;;       '(lambda() (global-set-key (kbd "C-, d") 'elpy-goto-definition)))
 
-  (add-hook 'python-mode-hook
-        '(lambda() (global-set-key (kbd "C-, d") 'goto-def-or-rgrep)))
-)
+    (add-hook 'python-mode-hook
+          '(lambda() (global-set-key (kbd "C-, d") 'goto-def-or-rgrep)))
+  )
 #+END_SRC
 
 #+RESULTS:
@@ -1869,71 +1907,82 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 * general utility functions
 #+BEGIN_SRC emacs-lisp
-(defun list-packages-and-versions ()
-  "Returns a list of all installed packages and their versions"
-  (mapcar
-   (lambda (pkg)
-     `(,pkg ,(package-desc-version
-                (cadr (assq pkg package-alist)))))
-   package-activated-list))
+  (defun cs-make-all-writable ()
+    "Sometimes sections (e.g. properties of org files)
+  are not writeable. This makes them writeable."
+    (interactive)
+    (let ((inhibit-read-only t))
+      (remove-text-properties (point-min)
+                              (point-max)
+                              '(read-only t))))
 
-(defun google-quickly()
-  "Googles a query or region if any."
-  (interactive)
-  (browse-url
-   (concat
-    "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
-    (if mark-active
-        (buffer-substring (region-beginning) (region-end))
-      (read-string "Google: ")))))
+  (global-set-key (kbd "C-x w") 'cs-make-all-writable)
 
-(global-set-key (kbd "C-x g") 'google-quickly)
+  (defun list-packages-and-versions ()
+    "Returns a list of all installed packages and their versions"
+    (mapcar
+     (lambda (pkg)
+       `(,pkg ,(package-desc-version
+                  (cadr (assq pkg package-alist)))))
+     package-activated-list))
+
+  (defun google-quickly()
+    "Googles a query or region if any."
+    (interactive)
+    (browse-url
+     (concat
+      "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
+      (if mark-active
+          (buffer-substring (region-beginning) (region-end))
+        (read-string "Google: ")))))
+
+  (global-set-key (kbd "C-x C-g") 'google-quickly)
 
 
-(defun outside-terminal-with-tmux ()
-  (interactive)
-  (shell-command "gnome-terminal -e 'tmux new' >/dev/null"))
+  (defun outside-terminal-with-tmux ()
+    (interactive)
+    (shell-command "gnome-terminal -e 'tmux new' >/dev/null"))
 
-(global-set-key (kbd "C-x C-m C-t") 'outside-terminal-with-tmux)
+  (global-set-key (kbd "C-x C-m C-t") 'outside-terminal-with-tmux)
 
-(defun outside-explorer ()
-  (interactive)
-  (setq s (concat "nautilus " (file-name-directory buffer-file-name) " & "))
-  (message s)
-  (call-process-shell-command s nil 0))
+  (defun outside-explorer ()
+    (interactive)
+    (setq s (concat "nautilus " (file-name-directory buffer-file-name) " & "))
+    (message s)
+    (call-process-shell-command s nil 0))
 
-(global-set-key (kbd "C-x C-m C-f") 'outside-explorer)  ; open gui file explorer
+  (global-set-key (kbd "C-x C-m C-f") 'outside-explorer)  ; open gui file explorer
 
-(defun outside-browser ()
-  (interactive)
-  (setq s (concat "chromium-browser " (file-name-directory buffer-file-name) " & "))
-  (message s)
-  (call-process-shell-command s nil 0)
-)
+  (defun outside-browser ()
+    (interactive)
+    (setq s (concat "chromium-browser " (file-name-directory buffer-file-name) " & "))
+    (message s)
+    (call-process-shell-command s nil 0)
+  )
 
-(global-set-key (kbd "C-x C-m C-b") 'outside-browser)  ; open browser at that file
+  (global-set-key (kbd "C-x C-m C-b") 'outside-browser)  ; open browser at that file
 
-(defun kill-non-visible-buffers ()
-  "Kill all buffers not currently shown in a window somewhere."
-  (interactive)
-  (dolist (buf  (buffer-list))
-    (unless (get-buffer-window buf 'visible) (kill-buffer buf))))
+  (defun kill-non-visible-buffers ()
+    "Kill all buffers not currently shown in a window somewhere."
+    (interactive)
+    (dolist (buf  (buffer-list))
+      (unless (get-buffer-window buf 'visible) (kill-buffer buf))))
 
-(defun new-buffer-frame ()
-  "Create a new frame with a new empty buffer."
-  (interactive)
-  (let ((buffer (generate-new-buffer "untitled")))
-    (set-buffer-major-mode buffer)
-    (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
+  (defun new-buffer-frame ()
+    "Create a new frame with a new empty buffer."
+    (interactive)
+    (let ((buffer (generate-new-buffer "untitled")))
+      (set-buffer-major-mode buffer)
+      (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
 
-(global-set-key (kbd "C-c n") #'new-buffer-frame)
+  (global-set-key (kbd "C-c n") #'new-buffer-frame)
 
-;; search for the current folder's desktop-setup.el file, load it and execute the create-project-desktop-setup function
+  ;; search for the current folder's desktop-setup.el file, load it and execute the create-project-desktop-setup function
 
 #+END_SRC
 
 #+RESULTS:
-: start-project
+: new-buffer-frame
 
 * documentation packages
 *** org-elisp-help
