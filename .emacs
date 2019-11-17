@@ -26,7 +26,7 @@
    [default default default italic underline success warning error])
  '(custom-safe-themes
    (quote
-    ("43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
+    ("1728dfd9560bff76a7dc6c3f61e9f4d3e6ef9d017a83a841c117bd9bebe18613" "43c1a8090ed19ab3c0b1490ce412f78f157d69a29828aa977dae941b994b4147" default)))
  '(helm-ff-auto-update-Zinitial-value t)
  '(helm-ff-auto-update-initial-value t)
  '(helm-gtags-auto-update t)
@@ -39,7 +39,7 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (doom-modeline doom-themes magit counsel swiper framemove rotate which-key guide-key elscreen org-noter multiple-cursors ws-butler use-package transpose-frame tabbar stickyfunc-enhance srefactor shell-pop py-autopep8 projectile origami org-ref org-pdfview org-elisp-help org-download neotree multi-term material-theme linum-relative ialign hide-mode-line helm-gtags golden-ratio ggtags function-args free-keys flycheck flash-region evil-paredit evil-collection evil-cleverparens elpy elisp-slime-nav desktop+ darkroom crux company-c-headers centered-window beacon auctex))))
+    (pdfgrep undo-tree doom-modeline doom-themes magit counsel swiper framemove rotate which-key guide-key elscreen org-noter multiple-cursors ws-butler use-package transpose-frame tabbar stickyfunc-enhance srefactor shell-pop py-autopep8 projectile origami org-ref org-pdfview org-elisp-help org-download neotree multi-term material-theme linum-relative ialign hide-mode-line helm-gtags golden-ratio ggtags function-args free-keys flycheck flash-region evil-paredit evil-collection evil-cleverparens elpy elisp-slime-nav desktop+ darkroom crux company-c-headers centered-window beacon auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -141,17 +141,16 @@ Quick up and down navigation
     (previous-line 3)))
 #+END_SRC
 
-** COMMENT startup size and position
+** startup size and position
 #+BEGIN_SRC emacs-lisp
-(if (display-graphic-p)
-  (progn
+  ;; (menu-bar-mode -1)
+  (when (display-graphic-p)
     (setq frame-resize-pixelwise t)
-    (set-frame-position (selected-frame) 0 0)
-    ;; (set-frame-size (selected-frame) (truncate (/ 1920 2.053)) 600 t)
-    (set-frame-size (selected-frame) 905 600 t))
-  (progn
-    (menu-bar-mode -1))
-  )
+    ;; (set-frame-position (selected-frame) 0 0)
+    ;; (set-frame-size (selected-frame) 905 600 t))
+    (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
+    (require 'cs-frame-resize)
+    (make-frame-almost-fit-desktop))
 #+END_SRC
 
 #+RESULTS:
@@ -201,22 +200,36 @@ Make a minor mode with keys that override all other keys and always take precend
 : my-keys-have-priority
 
 ** line spacing 
+#+BEGIN_SRC emacs-lisp :results output silent
+  (defun xah-toggle-line-spacing ()
+    "Toggle line spacing between no extra space to extra half line height.
+  URL `http://ergoemacs.org/emacs/emacs_toggle_line_spacing.html'
+  Version 2017-06-02"
+    (interactive)
+    (if line-spacing
+        (setq line-spacing nil)
+      (setq line-spacing 0.5))
+    (redraw-frame (selected-frame)))
+
+  (defun my-set-line-spacing ()
+    (interactive)
+    (setq line-spacing 0.5)
+    (redraw-frame (selected-frame)))
+
+  (with-eval-after-load 'org
+    (add-hook 'org-mode-hook
+              'my-set-line-spacing))
+#+END_SRC
+
+* general packages
+** undo-tree
+Version 0.6.5 produces errors when creating new frames. 0.6.6 fixes this (ostensibly).
 #+BEGIN_SRC emacs-lisp
-(defun xah-toggle-line-spacing ()
-  "Toggle line spacing between no extra space to extra half line height.
-URL `http://ergoemacs.org/emacs/emacs_toggle_line_spacing.html'
-Version 2017-06-02"
-  (interactive)
-  (if line-spacing
-      (setq line-spacing nil)
-    (setq line-spacing 0.5))
-  (redraw-frame (selected-frame)))
+(require 'undo-tree)
 #+END_SRC
 
 #+RESULTS:
-: xah-toggle-line-spacing
-
-* general packages
+: undo-tree
 ** helm
 Does a lot of useful auto-completion stuff all over emacs, e.g. when finding files or functions.
 #+BEGIN_SRC emacs-lisp
@@ -579,7 +592,64 @@ Provides icons for various themes, also for doom-modeline
 
     (add-hook 'org-mode-hook
           (lambda ()
-        (show-paren-mode 1)))
+            (show-paren-mode 1)))
+
+  (setq org-todo-keywords
+    '((sequence "TODO"
+        "MAYBE"
+        "NEXT"
+        "STARTED"
+        "WAITING"
+        "DELEGATED"
+        "|"
+        "DONE"
+        "DEFERRED"
+        "CANCELLED")))
+
+  (setq org-todo-keyword-faces '(("PROJ" :background "blue"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("TODO" :background "red1"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("NEXT" :background "red1"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("STARTED" :background "orange"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("WAITING" :background "yellow"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("DEFERRED" :background "gold"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("DELEGATED" :background "gold"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("MAYBE" :background "gray"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("APPT" :background "red1"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("DONE" :background "forest green"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("CANCELLED" :background "lime green"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))))
+
 
     ;; custom org-mode functions
     (defun org-archive-done-tasks-subtree ()
@@ -600,6 +670,8 @@ Provides icons for various themes, also for doom-modeline
                'file))
 
     ;; ----- latex workflow
+    (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
+    (require 'cs-org-colored-keywords)
 
     ;; bigger latex fragment
     (plist-put org-format-latex-options :scale 1.5)
@@ -986,11 +1058,17 @@ Provides icons for various themes, also for doom-modeline
 
 ** beacon
 #+BEGIN_SRC emacs-lisp
-(use-package beacon
-  :ensure t
-  :config
-  (add-hook 'python-mode-hook 'beacon-mode))
+  (use-package beacon
+    :ensure t
+    :config
+    (add-hook 'python-mode-hook 'beacon-mode)
+    (add-hook 'org-mode-hook 'beacon-mode)
+    (add-hook 'bibtex-mode-hook 'beacon-mode))
 #+END_SRC
+
+#+RESULTS:
+: t
+
 ** crux 
 Some commands are re-defined so that they are (may be) more convenient (in certain situations).
 #+BEGIN_SRC emacs-lisp
@@ -1884,7 +1962,8 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 #+RESULTS:
 : t
 
-* COMMENT literature research packages
+* literature research packages
+** COMMENT Bible
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/sword-to-org")
 (require 'sword-to-org)
@@ -1895,12 +1974,12 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 (add-to-list 'load-path "~/.emacs.d/etxt")
 (require 'etxt)
 #+END_SRC
-
-#+RESULTS:
-: etxt
-** silver searcher ag
+** pdfgrep
 #+BEGIN_SRC emacs-lisp
-
+  (use-package pdfgrep
+    :ensure t
+    :config
+    )
 #+END_SRC
 
 #+RESULTS:

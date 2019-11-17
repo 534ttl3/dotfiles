@@ -122,6 +122,10 @@ Else return false."
   (interactive)
   (add-hook 'post-command-hook 'kk/org-latex-fragment-toggle t 'local))
 
+(defun cs-turn-off-org-dynamic-preview-latex-fragment ()
+  (interactive)
+  (remove-hook 'post-command-hook 'kk/org-latex-fragment-toggle 'local))
+
 (defun org-renumber-environment (orig-func &rest args)
   (let ((results '())
         (counter -1)
