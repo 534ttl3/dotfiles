@@ -63,6 +63,13 @@ Manual download of packages from e.g. the EmacsWiki, interfaces with use-package
 #+END_SRC
 
 * general emacs behaviour
+start the emacs server at startup of an emacs instance
+#+BEGIN_SRC emacs-lisp
+(server-start)
+#+END_SRC
+
+#+RESULTS:
+
 customize annoyng defaults
 #+BEGIN_SRC emacs-lisp
 (setq ring-bell-function 'ignore)
@@ -71,7 +78,7 @@ customize annoyng defaults
 
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
-(menu-bar-mode 1)
+(menu-bar-mode 0)
 
 (savehist-mode 1)
 (show-paren-mode 1)
@@ -282,11 +289,14 @@ sudo apt install elpa-counsel
   (global-set-key (kbd "C-x l") 'counsel-locate)
   (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
-    )
+  )
+
+  ;; this calls counsel-find-file
+  (require 'cs-find-file-utils)
 #+END_SRC
 
 #+RESULTS:
-: t
+: cs-find-file-utils
 ** magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit
@@ -581,10 +591,14 @@ Provides icons for various themes, also for doom-modeline
     :config
     ;; hacks
     (require 'org-mode-hacks)
-    (define-key org-mode-map (kbd "C-x i s") 'my-org-screenshot)
+    (require 'ky-org-mode-agenda)
+
+    (global-set-key (kbd "C-c a l") 'org-agenda-list)
+    ;; (global-set-key (kbd "C-x i s") 'my-org-screenshot)
 
     ;; ---- general behaviour of org-mode
     (setq org-startup-indented t)
+    (setq org-startup-folded nil)
 
     (add-hook 'org-mode-hook
           (lambda ()
@@ -594,18 +608,19 @@ Provides icons for various themes, also for doom-modeline
           (lambda ()
             (show-paren-mode 1)))
 
-  (setq org-todo-keywords
+    (setq org-todo-keywords
     '((sequence "TODO"
         "MAYBE"
         "NEXT"
         "STARTED"
+        "TOASK"
         "WAITING"
         "DELEGATED"
         "|"
         "DONE"
         "DEFERRED"
-        "CANCELLED")))
-
+        "CANCELLED"
+        "TOREVIEW")))
 
     (custom-set-faces
       '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
@@ -635,6 +650,10 @@ Provides icons for various themes, also for doom-modeline
                                   :foreground "black"
                                   :weight bold
                                   :box (:line-width 2 :style released-button))
+                                 ("TOASK" :background "orange"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
                                  ("DEFERRED" :background "gold"
                                   :foreground "black"
                                   :weight bold
@@ -655,6 +674,10 @@ Provides icons for various themes, also for doom-modeline
                                   :weight bold
                                   :box (:line-width 2 :style released-button))
                                  ("CANCELLED" :background "lime green"
+                                  :foreground "black"
+                                  :weight bold
+                                  :box (:line-width 2 :style released-button))
+                                 ("TOREVIEW" :background "green"
                                   :foreground "black"
                                   :weight bold
                                   :box (:line-width 2 :style released-button))))
@@ -682,8 +705,17 @@ Provides icons for various themes, also for doom-modeline
     (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
     (require 'cs-org-colored-keywords)
 
+    ;; fix color handling in org-preview-latex-fragment
+    (let ((dvipng--plist (alist-get 'dvipng org-preview-latex-process-alist)))
+    (plist-put dvipng--plist :use-xcolor t)
+    (plist-put dvipng--plist :image-converter '("dvipng -D %D -T tight -o %O %f")))
+
     ;; bigger latex fragment
+    ;; for text-scale-mode-amount 0, take scale 1.5
     (plist-put org-format-latex-options :scale 1.5)
+
+    (plist-put org-format-latex-options :foreground 'default)
+    (plist-put org-format-latex-options :background 'default)
 
     ;; export body shortcut
     (fset 'latex-body-export
@@ -780,6 +812,8 @@ Provides icons for various themes, also for doom-modeline
 
     (setq evil-motion-state-modes nil)
 
+    (add-to-list 'evil-emacs-state-modes 'mhtml-mode)
+    (add-to-list 'evil-emacs-state-modes 'custom-mode)
     (add-to-list 'evil-emacs-state-modes 'org-mode)
     (add-to-list 'evil-emacs-state-modes 'nav-mode)
     (add-to-list 'evil-emacs-state-modes 'pdf-occur-buffer-mode)
@@ -1207,7 +1241,9 @@ Provide multiple cursors
 
     ;; my convention: put the org file as a hidden file right next to the pdf
     (setq org-noter-notes-search-path '())
-    )
+
+    (setq org-noter-hide-other nil)
+    (setq org-noter-kill-frame-at-session-end nil))
 #+END_SRC
 
 #+RESULTS:
@@ -2067,10 +2103,76 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
   ;; search for the current folder's desktop-setup.el file, load it and execute the create-project-desktop-setup function
 
+  ;; ------- put filename to clipboard --------
+  (defun my-put-file-name-on-clipboard ()
+    "Put the current file name on the clipboard"
+    (interactive)
+    (let ((filename (if (equal major-mode 'dired-mode)
+                        default-directory
+                      (buffer-file-name))))
+      (when filename
+        (with-temp-buffer
+          (insert filename)
+          (clipboard-kill-region (point-min) (point-max)))
+        (message filename))))
+
+  (global-set-key (kbd "C-M-, u f") 'my-put-file-name-on-clipboard)
+
+
+  ;; ---- open file from clipboard
+  (defun cs-open-file-from-clipboard ()
+    (interactive)
+    (find-file
+     (helm-read-file-name
+      "open filepath from clipboard: "
+      :initial-input (with-temp-buffer (yank) (buffer-string)))))
+
+
+  ;; ---- drag and drop files (as links) from explorer into org-mode -----
+
+  (defun my-dnd-func (event)
+    (interactive "e")
+    (goto-char (nth 1 (event-start event)))
+    (x-focus-frame nil)
+    (let* ((payload (car (last event)))
+           (type (car payload))
+           (fname (cadr payload))
+           (img-regexp "\\(png\\|jp[e]?g\\)\\>"))
+      (cond
+       ;; insert image link
+       ((and  (eq 'drag-n-drop (car event))
+              (eq 'file type)
+              (string-match img-regexp fname))
+        (insert (format "[[%s]]" fname))
+        (org-display-inline-images t t))
+       ;; insert image link with caption
+       ((and  (eq 'C-drag-n-drop (car event))
+              (eq 'file type)
+              (string-match img-regexp fname))
+        (insert "#+ATTR_ORG: :width 300\n")
+        (insert (concat  "#+CAPTION: " (read-input "Caption: ") "\n"))
+        (insert (format "[[%s]]" fname))
+        (org-display-inline-images t t))
+       ;; C-drag-n-drop to open a file
+       ((and  (eq 'C-drag-n-drop (car event))
+              (eq 'file type))
+        (find-file fname))
+       ((and (eq 'M-drag-n-drop (car event))
+             (eq 'file type))
+        (insert (format "[[attachfile:%s]]" fname)))
+       ;; regular drag and drop on file
+       ((eq 'file type)
+        (insert (format "[[%s]]\n" fname)))
+       (t
+        (error "I am not equipped for dnd on %s" payload)))))
+
+  (define-key org-mode-map (kbd "<drag-n-drop>") 'my-dnd-func)
+  (define-key org-mode-map (kbd "<C-drag-n-drop>") 'my-dnd-func)
+  (define-key org-mode-map (kbd "<M-drag-n-drop>") 'my-dnd-func)
 #+END_SRC
 
 #+RESULTS:
-: new-buffer-frame
+: my-dnd-func
 
 * documentation packages
 *** org-elisp-help

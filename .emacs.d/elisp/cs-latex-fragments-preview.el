@@ -41,6 +41,7 @@ Else return false."
 
 (defun kk/org-latex-fragment-toggle ()
   "Toggle a latex fragment image."
+  (set-latex-fragment-rendering-size-based-automatically)
   (and (eq 'org-mode major-mode)
        (let ((begin (kk/org-in-latex-fragment-p)))
          (cond

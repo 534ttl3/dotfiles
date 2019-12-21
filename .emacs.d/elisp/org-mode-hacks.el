@@ -38,5 +38,51 @@ same directory as the org-buffer and insert a link to this file."
   (insert (concat "[[" filename "]]"))
   (org-display-inline-images))
 
+(defun my-toggle-margins ()
+"Set margins in current buffer."
+(interactive)
+  (if (or (> left-margin-width 0) (> right-margin-width 0))
+    (progn
+      (setq left-margin-width 0)
+      (setq right-margin-width 0)
+      (set-window-buffer (selected-window) (current-buffer)))
+    (setq left-margin-width 26)
+    (setq right-margin-width 26)
+    (set-window-buffer (selected-window) (current-buffer))))
+
+(global-set-key [f5] 'my-toggle-margins)
+
+(defun update-org-latex-fragments ()
+  ;; (org-toggle-latex-fragment '(16))
+  ;; (plist-put org-format-latex-options :scale text-scale-mode-amount)
+  ;; (org-toggle-latex-fragment '(16))
+
+  ;; readjust latex fragment size parameter based on text zoom size
+  (set-latex-fragment-rendering-size-based-automatically)
+  ;; plainly disable latex fragments
+  (turn-off-latex-toggling-and-render-all-previews)
+  ;; (when (org-remove-latex-fragment-image-overlays ,(point-min)
+  ;;                                                 ,(point-max))
+  ;;   (message "LaTeX fragment images removed from section")
+  ;;   (turn-off-latex-toggling-and-render-all-previews)
+  ;;   (if (not (buffer-narrowed-p))
+  ;;       (org-global-prop-set render-latex-preview-prop-key
+  ;;                            "f")
+  ;;     (user-error "Global property not edited. This buffer just is a clone and prbably narrowed.")))
+  )
+
+(add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
+
+(defun remove-org-latex-fragments-folder ()
+  (interactive)
+  (delete-directory "ltximg" t t))
+
+
+;; (defun update-org-latex-fragments ()
+;;   (org-toggle-latex-fragment '(16))
+;;   (plist-put org-format-latex-options :scale text-scale-mode-amount)
+;;   (org-toggle-latex-fragment '(16)))
+;; (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
+
 (provide 'org-mode-hacks)
 ;;; org-mode-hacks.el ends here

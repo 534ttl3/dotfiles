@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: bbs
-# key: bbs
+# name: boxed
+# key: boxed
 # --
-\left[ $1 \right]
+\boxed{$1}
