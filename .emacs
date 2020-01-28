@@ -39,7 +39,7 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (pdfgrep undo-tree doom-modeline doom-themes magit counsel swiper framemove rotate which-key guide-key elscreen org-noter multiple-cursors ws-butler use-package transpose-frame tabbar stickyfunc-enhance srefactor shell-pop py-autopep8 projectile origami org-ref org-pdfview org-elisp-help org-download neotree multi-term material-theme linum-relative ialign hide-mode-line helm-gtags golden-ratio ggtags function-args free-keys flycheck flash-region evil-paredit evil-collection evil-cleverparens elpy elisp-slime-nav desktop+ darkroom crux company-c-headers centered-window beacon auctex))))
+    (ob-sagemath sage-shell-mode pdfgrep undo-tree doom-modeline doom-themes magit counsel swiper framemove rotate which-key guide-key elscreen org-noter multiple-cursors ws-butler use-package transpose-frame tabbar stickyfunc-enhance srefactor shell-pop py-autopep8 projectile origami org-ref org-pdfview org-elisp-help org-download neotree multi-term material-theme linum-relative ialign hide-mode-line helm-gtags golden-ratio ggtags function-args free-keys flycheck flash-region evil-paredit evil-collection evil-cleverparens elpy elisp-slime-nav desktop+ darkroom crux company-c-headers centered-window beacon auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -1,78 +1,53 @@
-* Configure Ubuntu
-  :PROPERTIES:
-  :CUSTOM_ID: configure-ubuntu
-  :END:
-
-* install crucial stuff
-  :PROPERTIES:
-  :CUSTOM_ID: install-crucial-stuff
-  :END:
-
+* setting up a fresh ubuntu installation
+* basic installs
+** basics
 #+BEGIN_SOURCE shell
-    sudo apt install git git-annex vim nautilus-dropbox emacs mercurial
+sudo apt install git git-annex vim nautilus-dropbox emacs mercurial
+sudo apt install xclip xdg-utils htop openssh-client curl tmux zsh samba samba-common smbclient build-essential python3-pip chromium-browser tree vlc openvpn pandoc
+#+END_SOURCE
+** sketching and drafting
+#+BEGIN_SOURCE shell
+sudo apt install inkscape dia pinta
 #+END_SOURCE
 
-* install a few assistant tools
-  :PROPERTIES:
-  :CUSTOM_ID: install-a-few-assistant-tools
-  :END:
-
+** latex
 #+BEGIN_SOURCE shell
-    sudo apt install xclip xdg-utils htop openssh-client curl tmux zsh samba samba-common smbclient build-essential python3-pip chromium-browser tree vlc openvpn pandoc
+sudo apt-get install texlive-full biber latexmk zathura
 #+END_SOURCE
 
-* install SSH and add keys to remote repos
-  :PROPERTIES:
-  :CUSTOM_ID: install-ssh-and-add-keys-to-remote-repos
-  :END:
-
+** pdftk
+It has been removed from the official repositories, but you might be able to find it here:
 #+BEGIN_SOURCE shell
-    ssh-keygen
+    sudo add-apt-repository ppa:malteworld/ppa
+    sudo apt update
+    sudo apt install pdftk
 #+END_SOURCE
 
-don't overwrite the existing rsa key pair go to github and add the
-contents of of your public key file
-
+** zsh
+To install zsh, run (at your own risk)
 #+BEGIN_SOURCE shell
-    cat $HOME/.ssh/id_rsa.pub
+    sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 #+END_SOURCE
 
-** add SSH configs and ssh-copy-id in order to connect automatically
-   :PROPERTIES:
-   :CUSTOM_ID: add-ssh-configs-and-ssh-copy-id-in-order-to-connect-automatically
-   :END:
-
-view the .ssh/config file (taken from Dropbox config folder)
+To set zsh as the current users default terminal, do (as a user, not as
+sudo)
 
 #+BEGIN_SOURCE shell
-    cat ~/.ssh/config
+    chsh -s $(which zsh)
 #+END_SOURCE
 
-For each connection you want to add, do a
+then log out and log back in.
 
+** fzf - command line fuzzy finder
+To enable fuzzy search completion in zsh and bash, install [[https://github.com/junegunn/fzf][~fzf~]]
 #+BEGIN_SOURCE shell
-    ssh-copy-id User@HostName
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
 #+END_SOURCE
+and let it modify the ~.zshrc~ and ~.bashrc~ files. 
 
-Now, you can easily connect with the ssh server using
-
-#+BEGIN_SOURCE shell
-    ssh User@HostName
-#+END_SOURCE
-
-or with the shortcut (in .ssh/config)
-
-#+BEGIN_SOURCE shell
-    ssh my_server
-#+END_SOURCE
-
-* install dotfiles repo from github
-  :PROPERTIES:
-  :CUSTOM_ID: install-dotfiles-repo-from-github
-  :END:
-
-you probably have already installed git, so init a git repo in $HOME
-
+* dotfiles
+When git is installed, do this to initialize and pull your dotfiles from Github
 #+BEGIN_SOURCE shell
     cd $HOME
     git init
@@ -86,70 +61,50 @@ you probably have already installed git, so init a git repo in $HOME
     git branch --set-upstream-to=origin/master master
 #+END_SOURCE
 
-this gets you a list of already-existing files, add them to the new
-commit then merge a remote branch (a similar system) into the already
-existing branch (new files) and resolve conflicts
+this gets you a list of already-existing files, add them to the new commit then merge a remote branch (a similar system) into the already existing branch (new files) and resolve conflicts
 
-Install latest python version (anaconda) into =$HOME/opt/=
-
-** install scipy, matplotlib, numba, ...
-   :PROPERTIES:
-   :CUSTOM_ID: install-scipy-matplotlib-numba-...
-   :END:
-
-always install to the right locations (=pip= could be =pip2=, not
-=pip3=)
-
+** python: the whole shebang
+This installs packages for your system python. For specific projects, you may want to setup seperate virtual environments. 
+Always install your packages to the right locations (=pip= could be =pip2=, not =pip3=)
 #+BEGIN_SOURCE shell
     sudo pip3 install scipy matplotlib numba flake8 ipdb sympy
 #+END_SOURCE
 
-matplotlib could use tkinter, so do
-
+Matplotlib could use tkinter, so do
 #+BEGIN_SOURCE shell
     sudo apt install python3-tk
 #+END_SOURCE
 
-* other TODO's for setting up a new system
-  :PROPERTIES:
-  :CUSTOM_ID: other-todos-for-setting-up-a-new-system
-  :END:
+* customizing/post-processing installed software
+** emacs
+Some emacs modules rely on external programs being installed from somewhere else. 
+*** ivy, swiper, counsel
+For these 3 packages (smart autocompletion), you need to install some external programs
+#+BEGIN_SRC shell
+sudo apt install elpa-counsel
+#+END_SRC
 
+*** C++
+install GNU GLOBAL (editor-independent code tagging system, works with many languages including C++ and Python)
+#+BEGIN_SRC shell
+sudo apt install global
+#+END_SRC
+
+*** extra documentation
+Elisp tutorial and manual for emacs
+#+BEGIN_SRC sh
+sudo apt install emacs25-common-non-dfsg
+#+END_SRC
 ** vim
-   :PROPERTIES:
-   :CUSTOM_ID: vim
-   :END:
-
-#+BEGIN_SOURCE shell
-    sudo apt-get install vim
-#+END_SOURCE
-
-and compile vim with =+conceal= and =--prefix=/opt/= (in
-=--with-feature=huge=) (jedi parameter list completion) =+python= and
-=+python3= support and add custom bin path to $PATH in .bashrc on
-=https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source=,
-there is a good tutorial on how to compile vim with certain options.
-
-** vundle plugin manager
-   :PROPERTIES:
-   :CUSTOM_ID: vundle-plugin-manager
-   :END:
-
+Yes, I do use vim in some situations.
+*** install vundle plugin manager
 #+BEGIN_SOURCE shell
     git clone https://github.com/gmarik/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
     vim -c PluginInstall
 #+END_SOURCE
 
-** non-vundle-managed plugins
-   :PROPERTIES:
-   :CUSTOM_ID: non-vundle-managed-plugins
-   :END:
-
-*** Python folding
-    :PROPERTIES:
-    :CUSTOM_ID: python-folding
-    :END:
-
+*** plugins from external sources
+**** python folding
 #+BEGIN_SOURCE shell
     mkdir -p ~/.vim/ftplugin
 #+END_SOURCE
@@ -166,87 +121,83 @@ But this one is also good
     wget -O ~/.vim/ftplugin/python.vim http://www.vim.org/scripts/download_script.php?src_id=5492
 #+END_SOURCE
 
-* install powerline fonts (for vim-airline)
-  :PROPERTIES:
-  :CUSTOM_ID: install-powerline-fonts-for-vim-airline
-  :END:
-
-follow the instructions at
-
-#+BEGIN_SOURCE shell
-    https://powerline.readthedocs.io/en/master/installation/linux.html#installation-on-linux
-#+END_SOURCE
-
-*** plugins dependencies
-    :PROPERTIES:
-    :CUSTOM_ID: plugins-dependencies
-    :END:
-
+*** dependencies for some plugins
 #+BEGIN_SOURCE shell
     pip install jedi
     pip install autopep8
 #+END_SOURCE
+*** installing the packages
+from within vim, run ~:PluginInstall~. 
 
-** latex and pdf viewer
-   :PROPERTIES:
-   :CUSTOM_ID: latex-and-pdf-viewer
-   :END:
+** desktop environment
+*** setup shortcuts
+Go to ~Settings~ -> ~Devices~ -> ~Keyboard~ and put the following keyboard shortcuts: 
 
-#+BEGIN_SOURCE shell
-    sudo apt-get install texlive-full biber latexmk zathura
-#+END_SOURCE
+- move up/down a workspace: ~C~ ~Alt~ ~Up/Down~
+- move a window to the upper/right/lower/left worspace: ~C~ ~S~ ~Alt~ ~Up/Right/Down/Left~
 
-** pdftk
-   :PROPERTIES:
-   :CUSTOM_ID: pdftk
-   :END:
-
-see
-https://askubuntu.com/questions/1028522/how-can-i-install-pdftk-in-ubuntu-18-04-and-later
+*** customize GUI
+Install Unity-Tweak-Tool (for simple gui settings)
 
 #+BEGIN_SOURCE shell
-    sudo add-apt-repository ppa:malteworld/ppa
-    sudo apt update
-    sudo apt install pdftk
+    sudo apt-get install notify-osd overlay-scrollbar unity-tweak-tool
 #+END_SOURCE
 
-** some gui sketching and drafting programs
-   :PROPERTIES:
-   :CUSTOM_ID: some-gui-sketching-and-drafting-programs
-   :END:
-
+Install Compiz Manager (for advanced gui settings)
 #+BEGIN_SOURCE shell
-    sudo apt install inkscape dia pinta
+    sudo apt-get install compizconfig-settings-manager 
+    sudo apt-get install compiz compiz-gnome compiz-plugins-extra 
 #+END_SOURCE
 
-** install ruby development headers (to compile git-media)
-   :PROPERTIES:
-   :CUSTOM_ID: install-ruby-development-headers-to-compile-git-media
-   :END:
-
-On Ubuntu:
-
+* connecting to remote servers via ssh
+Make sure you have a key, but don't override it
 #+BEGIN_SOURCE shell
-    sudo apt-get install ruby-all-dev
+ssh-keygen
 #+END_SOURCE
 
-On Debian:
-
+You might want to share your public ssh key, e.g. with Github.
 #+BEGIN_SOURCE shell
-    sudo apt-get install ruby-dev
+cat $HOME/.ssh/id_rsa.pub
 #+END_SOURCE
+
+** ssh configs settings
+This is the file in which you can setup your ssh connections and give them aliases:
+#+BEGIN_SOURCE shell
+cat ~/.ssh/config
+#+END_SOURCE
+
+For each connection you want to add, run
+#+BEGIN_SOURCE shell
+ssh-copy-id [user]@[hostname]
+#+END_SOURCE
+
+Now, you can easily connect with the ssh server using
+#+BEGIN_SOURCE shell
+ssh [user]@[hostname]
+#+END_SOURCE
+
+* hobby programs
+** audio editing
+You will want to install the Kxstudio repository and apps, because it makes a workflow with Jack + Pulseaudio + Alsa + Midi way more streamlined. See https://kxstudio.linuxaudio.org/Repositories for
+updated installation instructions.
+
+You probably want Jack
+#+BEGIN_SRC shell
+sudo apt-get install jackd qjackctl 
+#+END_SRC
+
+and the additional kxstudio stuff like Cadence, Qsampler, Carla
+
+You in fact probably want all the ~kxstudio-meta~ packages too (plugins, vsts, linux vsts, wine, ...)
+#+BEGIN_SRC shell
+sudo apt install kxstudio-meta-all
+#+END_SRC
 
 ** Panda3d
-   :PROPERTIES:
-   :CUSTOM_ID: panda3d
-   :END:
+Fully-fledged game programming engine based on C++, with Python interface. 
+Detailed information here: =https://github.com/panda3d/panda3d=. 
 
-(for python)
-
-Detailed information here: =https://github.com/panda3d/panda3d=
-
-Usual install process on linux: Most dependencies you need:
-
+some dependencies for p3d on linux are
 #+BEGIN_SOURCE shell
     sudo apt-get install build-essential pkg-config python-dev libpng-dev
     libjpeg-dev libtiff-dev zlib1g-dev libssl-dev libx11-dev libgl1-mesa-dev
@@ -255,132 +206,9 @@ Usual install process on linux: Most dependencies you need:
     nvidia-cg-toolkit libgtk2.0-dev
 #+END_SOURCE
 
-Then (for python2 use =pip= instead of =pip3=),
-
+You may install it directly from their server (for python2 use =pip= instead of =pip3=),
 #+BEGIN_SOURCE shell
     pip3 install --pre --extra-index-url https://archive.panda3d.org/ panda3d
 #+END_SOURCE
+Now you might already be able to run p3d programs.
 
-Now you should be able to run p3d programs.
-
-** Audio Editing/Processing
-   :PROPERTIES:
-   :CUSTOM_ID: audio-editingprocessing
-   :END:
-
-You will want to install the Kxstudio repository and apps, because it
-makes a workflow with Jack + Pulseaudio + Alsa + Midi way more
-streamlined. See https://kxstudio.linuxaudio.org/Repositories for
-updated installation instructions.
-
-You probably want Jack
-#+BEGIN_SRC shell
-sudo apt-get install jackd qjackctl 
-#+END_SRC
-
-and the additional kxstudio stuff like Cadence Qsampler Carla
-
-You probably want all the ~kxstudio-meta~ packages too (plugins, vsts,
-linux vsts, wine, ...)
-#+BEGIN_SRC shell
-sudo apt install kxstudio-meta-all
-#+END_SRC
-
-** Tweaking Unity
-   :PROPERTIES:
-   :CUSTOM_ID: tweaking-unity
-   :END:
-
-Remove the top bar shadow
-
-#+BEGIN_SOURCE shell
-    sudo mv /usr/share/unity/icons/panel_shadow.png /usr/share/unity/icons/panel_shadow_renamed.png
-#+END_SOURCE
-
-Install Unity-Tweak-Tool
-
-#+BEGIN_SOURCE shell
-    sudo apt-get install notify-osd overlay-scrollbar unity-tweak-tool
-#+END_SOURCE
-
-Install Numix GTK Theme
-
-#+BEGIN_SOURCE shell
-    sudo apt install numix-gtk-theme
-#+END_SOURCE
-
-Install Compiz Manager
-
-#+BEGIN_SOURCE shell
-    sudo apt-get install compizconfig-settings-manager 
-    sudo apt-get install compiz compiz-gnome compiz-plugins-extra 
-#+END_SOURCE
-
-** zsh
-   :PROPERTIES:
-   :CUSTOM_ID: zsh
-   :END:
-
-Go to ohmyzsh.sh or just run
-
-#+BEGIN_SOURCE shell
-    sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-#+END_SOURCE
-
-To set zsh as the current users default terminal, do (as a user, not as
-sudo)
-
-#+BEGIN_SOURCE shell
-    chsh -s $(which zsh)
-#+END_SOURCE
-
-then log out and log back in.
-
-#+BEGIN_SOURCE shell
-    chsh -s $(which zsh)
-#+END_SOURCE
-
-** fzf - command line fuzzy finder
-To enable fuzzy search completion in zsh and bash, install [[https://github.com/junegunn/fzf][~fzf~]]
-#+BEGIN_SOURCE shell
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
-#+END_SOURCE
-and let it modify the ~.zshrc~ and ~.bashrc~ files. 
-
-* emacs 
-** C++ ide
-install GNU GLOBAL (editor-independent code tagging system, works with many languages including C++ and Python)
-
-#+BEGIN_SRC shell
-sudo apt install global
-#+END_SRC
-** ivy, swiper, counsel
-For these 3 packages (smart autocompletion), you need to install some external programs
-#+BEGIN_SRC shell
-sudo apt install elpa-counsel
-#+END_SRC
-
-** COMMENT literature research
-to leverage SWORD and diatheke libraries to access different bible texts, create these 3 folders and add .el files in there. 
-
-#+BEGIN_SRC sh
-mkdir ~/.emacs.d/sword-to-org
-mkdir ~/.emacs.d/diatheke
-mkdir ~/.emacs.d/etxt
-#+END_SRC
-
-Download some texts from 
-http://www.crosswire.org/sword/modules/ and
-http://www.crosswire.org/sword/modules/ModDisp.jsp?modType=Bibles
-and extract them in the /usr/share/sword/ folder, e.g.:
-
-#+BEGIN_SRC sh
-sudo wget http://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/KJV.zip -P /usr/share/sword/ && unzip /usr/share/sword/KJV.zip
-#+END_SRC
-
-** Documentation
-Elisp tutorial and manual for emacs
-#+BEGIN_SRC sh
-sudo apt install emacs25-common-non-dfsg
-#+END_SRC

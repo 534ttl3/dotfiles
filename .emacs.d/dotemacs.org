@@ -101,19 +101,21 @@ Disable startup screen when opening a file from command line
 
 Set scrolling behaviour (that is almost like smooth-scrolling)
 #+BEGIN_SRC emacs-lisp
-;; (setq redisplay-dont-pause t
-;;   scroll-margin 5
-;;   scroll-step 1
-;;   scroll-conservative
-;;   scroll-preserve-screen-position 1)
+  ;; (setq redisplay-dont-pause t
+  ;;   scroll-margin 5
+  ;;   scroll-step 1
+  ;;   scroll-conservative
+  ;;   scroll-preserve-screen-position 1)
 
-(setq scroll-step 1)
-(setq scroll-conservatively 10000)
-(setq auto-window-vscroll nil)
-(setq scroll-margin 5)
+  (setq scroll-step 1)
+  (setq scroll-conservatively 10000)
+  (setq auto-window-vscroll nil)
+  (setq scroll-margin 2)
 #+END_SRC
+
 #+RESULTS:
-: 5
+: 0
+
 
 Place auto-save files into seperate directory, away from the original files, to not have them be unintentionally stored in e.g. a git commit#+
 #+BEGIN_SRC emacs-lisp
@@ -2007,18 +2009,47 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 #+RESULTS:
 : t
 
-* literature research packages
-** COMMENT Bible
+** Sage
+*** sage-shell-mode
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "~/.emacs.d/sword-to-org")
-(require 'sword-to-org)
+(use-package sage-shell-mode
+:ensure t
+:config
+;; Run SageMath by M-x run-sage instead of M-x sage-shell:run-sage
+(sage-shell:define-alias)
 
-(add-to-list 'load-path "~/.emacs.d/diatheke.el")
-(require 'diatheke)
-
-(add-to-list 'load-path "~/.emacs.d/etxt")
-(require 'etxt)
+;; Turn on eldoc-mode in Sage terminal and in Sage source files
+(add-hook 'sage-shell-mode-hook #'eldoc-mode)
+(add-hook 'sage-shell:sage-mode-hook #'eldoc-mode))
 #+END_SRC
+
+*** ob-sagemath
+(requires ~sage-shell-mode~)
+#+BEGIN_SRC emacs-lisp
+  (use-package ob-sagemath
+    :ensure t
+    :config
+    ;; Ob-sagemath supports only evaluating with a session.
+  (setq org-babel-default-header-args:sage '((:session . t)
+                                             (:results . "output")))
+
+  ;; C-c c for asynchronous evaluating (only for SageMath code blocks).
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-c c") 'ob-sagemath-execute-async))
+
+  ;; Do not confirm before evaluation
+  (setq org-confirm-babel-evaluate nil)
+
+  ;; Do not evaluate code blocks when exporting.
+  (setq org-export-babel-evaluate nil)
+
+  ;; Show images when opening a file.
+  (setq org-startup-with-inline-images t)
+
+  ;; Show images after evaluating code blocks.
+  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images))
+#+END_SRC
+* literature research packages
 ** pdfgrep
 #+BEGIN_SRC emacs-lisp
   (use-package pdfgrep
@@ -2026,8 +2057,6 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
     :config
     )
 #+END_SRC
-
-#+RESULTS:
 
 * general utility functions
 #+BEGIN_SRC emacs-lisp
