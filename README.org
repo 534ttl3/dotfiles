@@ -1,54 +1,54 @@
 * setting up a fresh ubuntu installation
 * basic installs
 ** basics
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
 sudo apt install git git-annex vim nautilus-dropbox emacs mercurial
 sudo apt install xclip xdg-utils htop openssh-client curl tmux zsh samba samba-common smbclient build-essential python3-pip chromium-browser tree vlc openvpn pandoc
-#+END_SOURCE
+#+END_SRC
 ** sketching and drafting
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
 sudo apt install inkscape dia pinta
-#+END_SOURCE
+#+END_SRC
 
 ** latex
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
 sudo apt-get install texlive-full biber latexmk zathura
-#+END_SOURCE
+#+END_SRC
 
 ** pdftk
 It has been removed from the official repositories, but you might be able to find it here:
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     sudo add-apt-repository ppa:malteworld/ppa
     sudo apt update
     sudo apt install pdftk
-#+END_SOURCE
+#+END_SRC
 
 ** zsh
 To install zsh, run (at your own risk)
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-#+END_SOURCE
+#+END_SRC
 
 To set zsh as the current users default terminal, do (as a user, not as
 sudo)
 
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     chsh -s $(which zsh)
-#+END_SOURCE
+#+END_SRC
 
 then log out and log back in.
 
 ** fzf - command line fuzzy finder
 To enable fuzzy search completion in zsh and bash, install [[https://github.com/junegunn/fzf][~fzf~]]
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
-#+END_SOURCE
+#+END_SRC
 and let it modify the ~.zshrc~ and ~.bashrc~ files. 
 
 * dotfiles
 When git is installed, do this to initialize and pull your dotfiles from Github
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     cd $HOME
     git init
     git remote add origin git@github.com:534ttl3/dotfiles.git
@@ -59,21 +59,21 @@ When git is installed, do this to initialize and pull your dotfiles from Github
     git config --global push.default simple
     git checkout master
     git branch --set-upstream-to=origin/master master
-#+END_SOURCE
+#+END_SRC
 
 this gets you a list of already-existing files, add them to the new commit then merge a remote branch (a similar system) into the already existing branch (new files) and resolve conflicts
 
 ** python: the whole shebang
 This installs packages for your system python. For specific projects, you may want to setup seperate virtual environments. 
 Always install your packages to the right locations (=pip= could be =pip2=, not =pip3=)
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     sudo pip3 install scipy matplotlib numba flake8 ipdb sympy
-#+END_SOURCE
+#+END_SRC
 
 Matplotlib could use tkinter, so do
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     sudo apt install python3-tk
-#+END_SOURCE
+#+END_SRC
 
 * customizing/post-processing installed software
 ** emacs
@@ -98,34 +98,34 @@ sudo apt install emacs25-common-non-dfsg
 ** vim
 Yes, I do use vim in some situations.
 *** install vundle plugin manager
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     git clone https://github.com/gmarik/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
     vim -c PluginInstall
-#+END_SOURCE
+#+END_SRC
 
 *** plugins from external sources
 **** python folding
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     mkdir -p ~/.vim/ftplugin
-#+END_SOURCE
+#+END_SRC
 
 I prefer
 
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     wget -O ~/.vim/ftplugin/python.vim https://www.vim.org/scripts/download_script.php?src_id=10034
-#+END_SOURCE
+#+END_SRC
 
 But this one is also good
 
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     wget -O ~/.vim/ftplugin/python.vim http://www.vim.org/scripts/download_script.php?src_id=5492
-#+END_SOURCE
+#+END_SRC
 
 *** dependencies for some plugins
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     pip install jedi
     pip install autopep8
-#+END_SOURCE
+#+END_SRC
 *** installing the packages
 from within vim, run ~:PluginInstall~. 
 
@@ -139,42 +139,42 @@ Go to ~Settings~ -> ~Devices~ -> ~Keyboard~ and put the following keyboard short
 *** customize GUI
 Install Unity-Tweak-Tool (for simple gui settings)
 
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     sudo apt-get install notify-osd overlay-scrollbar unity-tweak-tool
-#+END_SOURCE
+#+END_SRC
 
 Install Compiz Manager (for advanced gui settings)
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
     sudo apt-get install compizconfig-settings-manager 
     sudo apt-get install compiz compiz-gnome compiz-plugins-extra 
-#+END_SOURCE
+#+END_SRC
 
 * connecting to remote servers via ssh
 Make sure you have a key, but don't override it
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
 ssh-keygen
-#+END_SOURCE
+#+END_SRC
 
 You might want to share your public ssh key, e.g. with Github.
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
 cat $HOME/.ssh/id_rsa.pub
-#+END_SOURCE
+#+END_SRC
 
 ** ssh configs settings
 This is the file in which you can setup your ssh connections and give them aliases:
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
 cat ~/.ssh/config
-#+END_SOURCE
+#+END_SRC
 
 For each connection you want to add, run
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
 ssh-copy-id [user]@[hostname]
-#+END_SOURCE
+#+END_SRC
 
 Now, you can easily connect with the ssh server using
-#+BEGIN_SOURCE shell
+#+BEGIN_SRC shell
 ssh [user]@[hostname]
-#+END_SOURCE
+#+END_SRC
 
 * hobby programs
 ** audio editing
@@ -186,7 +186,7 @@ You probably want Jack
 sudo apt-get install jackd qjackctl 
 #+END_SRC
 
-and the additional kxstudio stuff like Cadence, Qsampler, Carla
+and the additional kxstudio stuff like Cadence, Qsampler, Carla. 
 
 You in fact probably want all the ~kxstudio-meta~ packages too (plugins, vsts, linux vsts, wine, ...)
 #+BEGIN_SRC shell
@@ -198,17 +198,20 @@ Fully-fledged game programming engine based on C++, with Python interface.
 Detailed information here: =https://github.com/panda3d/panda3d=. 
 
 some dependencies for p3d on linux are
-#+BEGIN_SOURCE shell
+
+#+BEGIN_SRC shell
     sudo apt-get install build-essential pkg-config python-dev libpng-dev
     libjpeg-dev libtiff-dev zlib1g-dev libssl-dev libx11-dev libgl1-mesa-dev
     libxrandr-dev libxxf86dga-dev libxcursor-dev bison flex libfreetype6-dev
     libvorbis-dev libeigen3-dev libopenal-dev libode-dev libbullet-dev
     nvidia-cg-toolkit libgtk2.0-dev
-#+END_SOURCE
+#+END_SRC
 
 You may install it directly from their server (for python2 use =pip= instead of =pip3=),
-#+BEGIN_SOURCE shell
+
+#+BEGIN_SRC shell
     pip3 install --pre --extra-index-url https://archive.panda3d.org/ panda3d
-#+END_SOURCE
+#+END_SRC
+
 Now you might already be able to run p3d programs.
 
