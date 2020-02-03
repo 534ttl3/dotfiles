@@ -587,9 +587,27 @@ Provides icons for various themes, also for doom-modeline
 #+RESULTS:
 : t
 
+** quelpa
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package quelpa-use-package
+  ;;   :init (setq quelpa-update-melpa-p nil)
+  ;;   :config (quelpa-use-package-activate-advice))
+
+  ;; (quelpa '(org :url "git://orgmode.org/org-mode.git" :fetcher git
+  ;;             :files ("lisp/*.el" "contrib/lisp/*.el" "doc/dir" "doc/*.texi") :upgrade nil))
+#+END_SRC
+
+#+RESULTS:
+: t
+
 ** org-mode
 #+BEGIN_SRC emacs-lisp
   (use-package org
+    ;; :quelpa (org :url "git://orgmode.org/org-mode.git"
+    ;;              :fetcher git
+    ;;              :files ("lisp/*.el" "contrib/lisp/*.el" "doc/dir"
+    ;;                      "doc/*.texi")
+    ;;              :upgrade nil)
     :config
     ;; hacks
     (require 'org-mode-hacks)
@@ -909,6 +927,9 @@ Provides icons for various themes, also for doom-modeline
     (define-key pdf-view-mode-map (kbd "C-c C-s") 'pdf-view-auto-slice-minor-mode)
     ;; (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
 
+    (define-key pdf-view-mode-map (kbd "<M-left>") 'pdf-history-backward)
+    (define-key pdf-view-mode-map (kbd "<M-right>") 'pdf-history-forward)
+
   ;; --------- pdf-view-mode, make pdf pinch/zoom more chrome-like
   (define-key pdf-view-mode-map (kbd "<S-mouse-5>") 'image-forward-hscroll)
   (define-key pdf-view-mode-map (kbd "<S-mouse-4>") 'image-backward-hscroll)
@@ -969,8 +990,6 @@ Provides icons for various themes, also for doom-modeline
 (use-package org-ref
   :after org)
 #+END_SRC
-
-#+RESULTS:
 
 ** COMMENT centered-window
 #+BEGIN_SRC emacs-lisp
@@ -2213,6 +2232,14 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 #+RESULTS:
 
+*** org-drill
+#+BEGIN_SRC emacs-lisp
+  (require 'my-org-drill)
+#+END_SRC
+
+#+RESULTS:
+: my-org-drill
+
 * COMMENT phased out right now
 #+BEGIN_SRC emacs-lisp
 (defun kill-all-but-shown ()
@@ -2270,6 +2297,8 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 #+RESULTS:
 : klin
+
+
 
 * Tabbing
 ** COMMENT Tabbar
