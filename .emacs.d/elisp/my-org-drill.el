@@ -101,6 +101,11 @@
                                          (interactive)
                                          (org-show-all))
                                        "show drawers")
+                                      ("t"
+                                       (lambda ()
+                                         (interactive)
+                                         (org-toggle-tag "drill"))
+                                       "toggle drill tag")
                                       ("q" nil "cancel"))))))
     (hydra-klin-org-drill/body)
     (fmakunbound 'hydra-klin-org-drill/body)

@@ -614,6 +614,7 @@ Provides icons for various themes, also for doom-modeline
     (require 'ky-org-mode-agenda)
 
     (global-set-key (kbd "C-c a l") 'org-agenda-list)
+    ;; (add-hook 'after-init-hook 'org-agenda-list)
     ;; (global-set-key (kbd "C-x i s") 'my-org-screenshot)
 
     ;; ---- general behaviour of org-mode
