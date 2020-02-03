@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/org-drill-related-files/"))
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/org-drill-related-files/"))
 (require 'org-drill)
 
 (require 'org)
