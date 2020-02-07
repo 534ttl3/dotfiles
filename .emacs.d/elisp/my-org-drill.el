@@ -25,8 +25,8 @@
 ;;; Code:
 
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/org-drill-related-files/"))
-(require 'org-drill)
 
+(require 'org-drill)
 (require 'org)
 (require 'hydra)
 
@@ -111,14 +111,7 @@
     (fmakunbound 'hydra-klin-org-drill/body)
     (setq hydra-klin-org-drill/body nil)))
 
-
 (define-key org-mode-map (kbd "C-M-, d") 'klin-run-org-drill-hydra)
-
-(require 'org-drill)
-(require 'cs-latex-fragments-preview)
-;; (defun org-drill--show-latex-fragments ()
-;;   (render-org-mode-buffer-latex-previews))
-
 
 (provide 'my-org-drill)
 ;;; my-org-drill.el ends here

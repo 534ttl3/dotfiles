@@ -1,4 +1,4 @@
-;;; ky-org-mode-agenda.el --- org-mode agenda helper functions  -*- lexical-binding: t; -*-
+;;; cs-org-agenda.el --- org-mode agenda helper functions  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2019  chris
 
@@ -27,6 +27,8 @@
 (require 'org)
 (require 'org-agenda)
 (require 'hydra)
+
+;; FIXME: writing agenda files to file in the cloud instead locally to .emacs
 
 ;; (setq org-agenda-files-file (expand-file-name "~/Dropbox/org/agendafiles/"))
 
@@ -58,9 +60,10 @@
 ;; (ky-reload-org-agenda-files)
 
 ;; Hydra for org agenda (graciously taken from Spacemacs)
-(defhydra hydra-org-agenda (:pre (setq which-key-inhibit t)
-                                 :post (setq which-key-inhibit nil)
-                                 :hint none)
+(defhydra hydra-org-agenda
+  (:pre (setq which-key-inhibit t)
+        :post (setq which-key-inhibit nil):hint
+        none)
   "
 Org agenda (_q_uit)
 ^^
@@ -95,6 +98,7 @@ _vr_ reset      ^^                       ^^                 ^^
 ^^              ^^                       ^^                 ^^
 "
   ;; lists
+
   ("T" org-todo-list :exit t) ;; see the todo's
   ("W" org-agenda-list :exit t) ;; see the schedule (week)
   ("A" org-agenda :exit t) ;; agenda menu
@@ -102,6 +106,7 @@ _vr_ reset      ^^                       ^^                 ^^
   ("[" org-agenda-file-to-front)
   ("]" org-remove-file)
   ;; Entry
+
   ("hA" org-agenda-archive-default)
   ("hk" org-agenda-kill)
   ("hp" org-agenda-priority)
@@ -109,7 +114,7 @@ _vr_ reset      ^^                       ^^                 ^^
   ("h:" org-agenda-set-tags)
   ("ht" org-agenda-todo)
   ;; Visit entry
-  ("o"   link-hint-open-link :exit t)
+  ("o" link-hint-open-link :exit t)
   ("<tab>" org-agenda-goto :exit t)
   ("TAB" org-agenda-goto :exit t)
   ("SPC" org-agenda-show-and-scroll-up)
@@ -131,7 +136,8 @@ _vr_ reset      ^^                       ^^                 ^^
   ("vr" org-agenda-reset-view)
   ;; Toggle mode
   ("ta" org-agenda-archives-mode)
-  ("tA" (org-agenda-archives-mode 'files))
+  ("tA"
+   (org-agenda-archives-mode 'files))
   ("tr" org-agenda-clockreport-mode)
   ("tf" org-agenda-follow-mode)
   ("tl" org-agenda-log-mode)
@@ -154,8 +160,11 @@ _vr_ reset      ^^                       ^^                 ^^
   ("." org-agenda-goto-today)
   ("gr" org-agenda-redo))
 
-(global-set-key (kbd "C-M-, a") 'hydra-org-agenda/body)
+
+;; ----- binding
+(global-set-key (kbd "C-M-, a")
+                'hydra-org-agenda/body)
 
 
-(provide 'ky-org-mode-agenda)
-;;; ky-org-mode-agenda.el ends here
+(provide 'cs-org-agenda)
+;;; cs-org-agenda.el ends here

@@ -1,8 +1,8 @@
-;;; cs-latex-fragments-preview.el --- toggle on/off automatic toggling of latex preview fragments in org-mode buffers when cursor enters or leaves a latex object  -*- lexical-binding: t; -*-
+;;; cs-org-latex-preview.el --- org latex preview settings  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019  chris
+;; Copyright (C) 2020  chris
 
-;; Author: chris <chris@chris-IdeaPad-U330p>
+;; Author: chris <chris@chris-lenovo>
 ;; Keywords:
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -16,13 +16,62 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;;
 
 ;;; Code:
+
+(require 'org)
+(require 'hydra)
+
+;; fix color handling in org-preview-latex-fragment
+(let ((dvipng--plist (alist-get 'dvipng org-preview-latex-process-alist)))
+  (plist-put dvipng--plist :use-xcolor t)
+  (plist-put dvipng--plist
+             :image-converter '("dvipng -D %D -T tight -o %O %f")))
+
+;; bigger latex fragment
+;; for text-scale-mode-amount 0, take scale 1.5
+(plist-put org-format-latex-options :scale 1.5)
+
+;; color of the fragments
+(plist-put org-format-latex-options :foreground 'default)
+(plist-put org-format-latex-options :background 'default)
+
+
+;; -------- manually trigger rendering of fragments
+(defun update-org-latex-fragments ()
+  ;; (org-toggle-latex-fragment '(16))
+  ;; (plist-put org-format-latex-options :scale text-scale-mode-amount)
+  ;; (org-toggle-latex-fragment '(16))
+
+  ;; readjust latex fragment size parameter based on text zoom size
+  (set-latex-fragment-rendering-size-based-automatically)
+  ;; plainly disable latex fragments
+  (turn-off-latex-toggling-and-render-all-previews)
+  ;; (when (org-remove-latex-fragment-image-overlays ,(point-min)
+  ;;                                                 ,(point-max))
+  ;;   (message "LaTeX fragment images removed from section")
+  ;;   (turn-off-latex-toggling-and-render-all-previews)
+  ;;   (if (not (buffer-narrowed-p))
+  ;;       (org-global-prop-set render-latex-preview-prop-key
+  ;;                            "f")
+  ;;     (user-error "Global property not edited. This buffer just is a clone and prbably narrowed.")))
+  )
+
+(add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
+
+
+;; (defun update-org-latex-fragments ()
+;;   (org-toggle-latex-fragment '(16))
+;;   (plist-put org-format-latex-options :scale text-scale-mode-amount)
+;;   (org-toggle-latex-fragment '(16)))
+;; (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
+
+
 
 (require 'org)
 (require 'cl)
@@ -273,5 +322,71 @@ the rendering of inline latex previews."
             (string-equal result "nil")
             (string-equal result "NIL"))))
 
-(provide 'cs-latex-fragments-preview)
-;;; cs-latex-fragments-preview.el ends here
+;; -------- hydra
+(defun org-run-context-aware-hydra-rendering ()
+  (interactive)
+  (let* ((hydra-body (eval (remove nil
+                                   (let* ((prop-value (org-global-prop-value render-latex-preview-prop-key)) list-of-heads)
+                                     `(defhydra hydra-rendering-from-org
+                                        (:columns 3 :exit t)
+                                        "klin: open from org"
+                                        ("r"
+                                         (lambda ()
+                                           (interactive)
+                                           (turn-on-latex-toggling-and-render-all-previews))
+                                         "(re-)render latex previews")
+                                        ("t"
+                                         (lambda ()
+                                           (interactive)
+                                           (turn-on-latex-toggling-and-render-previews)
+                                           (if (not (buffer-narrowed-p))
+                                               (org-global-prop-set render-latex-preview-prop-key
+                                                                    "t")
+                                             (user-error "Global property not edited. This buffer just is a clone and probably narrowed.")))
+                                         "(re-)render latex previews and set prop. to \"t\"")
+                                        ("f"
+                                         (lambda ()
+                                           (interactive)
+                                           (turn-off-latex-toggling-and-render-all-previews)
+                                           (when (org-remove-latex-fragment-image-overlays ,(point-min)
+                                                                                           ,(point-max))
+                                             (message "LaTeX fragment images removed from section")
+                                             (turn-off-latex-toggling-and-render-all-previews)
+                                             (if (not (buffer-narrowed-p))
+                                                 (org-global-prop-set render-latex-preview-prop-key
+                                                                      "f")
+                                               (user-error "Global property not edited. This buffer just is a clone and prbably narrowed."))
+                                             )
+                                           )
+                                         "remove latex previews, set prop. to \"f\"")
+                                        ("T"
+                                         (lambda ()
+                                           (interactive)
+                                           (toggle-org-dynamic-preview-latex-fragment))
+                                         "Toggle dynamic preview.")
+                                        ("l"
+                                         (lambda ()
+                                           (interactive)
+                                           (org-toggle-link-display))
+                                         "org toggle link display")
+                                        ("i"
+                                         (lambda ()
+                                           (interactive)
+                                           (org-toggle-inline-images))
+                                         "org toggle inline images")
+                                        ("q" nil "cancel")))))))
+  (hydra-rendering-from-org/body)
+  (fmakunbound 'hydra-rendering-from-org/body)
+  (setq hydra-rendering-from-org/body nil)))
+
+(define-key org-mode-map (kbd "C-M-, r") ; r: render
+  'org-run-context-aware-hydra-rendering)
+
+;; -------- utility functions
+(defun remove-org-latex-fragments-folder ()
+  (interactive)
+  (delete-directory "ltximg" t t))
+
+
+(provide 'cs-org-latex-preview)
+;;; cs-org-latex-preview.el ends here
