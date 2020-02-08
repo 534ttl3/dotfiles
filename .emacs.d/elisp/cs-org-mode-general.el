@@ -23,6 +23,8 @@
 ;; (add-hook 'after-init-hook 'org-agenda-list)
 ;; (global-set-key (kbd "C-x i s") 'my-org-screenshot)
 
+(setq org-image-actual-width nil)
+
 (setq org-startup-indented t)
 (setq org-startup-folded nil)
 

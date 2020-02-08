@@ -24,6 +24,47 @@
 
 ;;; Code:
 
+(require 'hydra)
+
+(defun my-org-scale-image (&optional minus)
+  "Scale an image"
+  (interactive)
+  (save-excursion
+    (let* ((org-width-pos (re-search-backward "#\\+attr_org:\s+:width\s+\\([0-9]+\\)"))
+           (beg (match-beginning 1))
+           (end (match-end 1))
+           (num (string-to-number (buffer-substring-no-properties beg end))))
+      (delete-region beg end)
+      (goto-char beg)
+      (if minus
+          (insert (number-to-string (- 10 num)))
+        (insert (number-to-string (+ 10 num))))
+      (org-redisplay-inline-images))))
+
+
+(defun my-run-org-image-scaler-hydra ()
+  (interactive)
+  (let* ((hydra-body (eval (remove nil
+                                   `(defhydra hydra-my-org-image-scaler
+                                      (:columns 1)
+                                      "scale org inline image"
+                                      ("enlarge"
+                                       (lambda ()
+                                         (interactive)
+                                         (my-org-scale-image))
+                                       "+")
+                                      ("shrink"
+                                       (lambda ()
+                                         (interactive)
+                                         (my-org-scale-image 'minus))
+                                       "-")
+                                      ("q" nil "cancel"))))))
+    (hydra-my-org-image-scaler/body)
+    (fmakunbound 'hydra-my-org-image-scaler/body)
+    (setq hydra-my-org-image-scaler/body nil)))
+
+(define-key org-mode-map (kbd "C-c s") 'my-run-org-image-scaler-hydra)
+
 (defun my-org-screenshot ()
   "Take a screenshot into a time stamped unique-named file in the
 same directory as the org-buffer and insert a link to this file."
