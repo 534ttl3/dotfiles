@@ -8,8 +8,6 @@ n#+BEGIN_SRC emacs-lisp
   (setq package-check-signature nil)
 #+END_SRC
 
-#+RESULTS:
-
 ** package-initialize-packages
 #+BEGIN_SRC emacs-lisp
     (custom-set-variables
@@ -101,12 +99,6 @@ Disable startup screen when opening a file from command line
 
 Set scrolling behaviour (that is almost like smooth-scrolling)
 #+BEGIN_SRC emacs-lisp
-  ;; (setq redisplay-dont-pause t
-  ;;   scroll-margin 5
-  ;;   scroll-step 1
-  ;;   scroll-conservative
-  ;;   scroll-preserve-screen-position 1)
-
   (setq scroll-step 1)
   (setq scroll-conservatively 10000)
   (setq auto-window-vscroll nil)
@@ -114,7 +106,25 @@ Set scrolling behaviour (that is almost like smooth-scrolling)
 #+END_SRC
 
 #+RESULTS:
-: 0
+: 2
+
+Pixel scrolling
+#+BEGIN_SRC emacs-lisp
+  ;;; Scrolling.
+  ;; Good speed and allow scrolling through large images (pixel-scroll).
+  ;; Note: Scroll lags when point must be moved but increasing the number
+  ;;       of lines that point moves in pixel-scroll.el ruins large image
+  ;;       scrolling. So unfortunately I think we'll just have to live with
+  ;;       this.
+  ;; (pixel-scroll-mode)
+  ;; (setq pixel-dead-time 0) ; Never go back to the old scrolling behaviour.
+  ;; (setq pixel-resolution-fine-flag t) ; Scroll by number of pixels instead of lines (t = frame-char-height pixels).
+  ;; (setq mouse-wheel-scroll-amount '(1)) ; Distance in pixel-resolution to scroll each mouse wheel event.
+  ;; (setq mouse-wheel-progressive-speed nil) ; Progressive speed is too fast for me.
+
+#+END_SRC
+
+#+RESULTS:
 
 
 Place auto-save files into seperate directory, away from the original files, to not have them be unintentionally stored in e.g. a git commit#+
@@ -908,35 +918,35 @@ Provides icons for various themes, also for doom-modeline
 
 ** COMMENT smooth-scrolling
 #+BEGIN_SRC emacs-lisp
-(use-package smooth-scrolling
-:ensure t
-:config
-;; I tried to figure out how to call do-smooth-scroll after 
-;; the cursor moved into the margin, but so far couldn't figure out how
-;; (enable-smooth-scroll-for-function evil-scroll-up)
-;; (enable-smooth-scroll-for-function evil-scroll-down)
-;; 
-;; (enable-smooth-scroll-for-function scroll-down)
-;; (enable-smooth-scroll-for-function scroll-up)
+  ;; (use-package smooth-scrolling
+  ;; :ensure t
+  ;; :config
+  ;; ;; I tried to figure out how to call do-smooth-scroll after 
+  ;; ;; the cursor moved into the margin, but so far couldn't figure out how
+  ;; ;; (enable-smooth-scroll-for-function evil-scroll-up)
+  ;; ;; (enable-smooth-scroll-for-function evil-scroll-down)
+  ;; ;; 
+  ;; ;; (enable-smooth-scroll-for-function scroll-down)
+  ;; ;; (enable-smooth-scroll-for-function scroll-up)
 
-;; (defun his-tracing-function (orig-fun &rest args)
-;;        (message "orig-fun called with args %S" args)
-;;        ;; (let ((res (apply orig-fun args)))
-;;        ;;   (message "orig-fun returned %S" res)
-;;        ;;   res)
-;;        (apply orig-fun)
-;;        (do-smooth-scroll)
-;; )
+  ;; ;; (defun his-tracing-function (orig-fun &rest args)
+  ;; ;;        (message "orig-fun called with args %S" args)
+  ;; ;;        ;; (let ((res (apply orig-fun args)))
+  ;; ;;        ;;   (message "orig-fun returned %S" res)
+  ;; ;;        ;;   res)
+  ;; ;;        (apply orig-fun)
+  ;; ;;        (do-smooth-scroll)
+  ;; ;; )
 
-(add-hook 'python-mode-hook 'smooth-scrolling-mode)
-)
+  ;; (add-hook 'python-mode-hook 'smooth-scrolling-mode)
+  ;; )
 
 #+END_SRC
 
 #+RESULTS:
 : t
 
-** beacon
+** COMMENT beacon
 #+BEGIN_SRC emacs-lisp
   (use-package beacon
     :ensure t

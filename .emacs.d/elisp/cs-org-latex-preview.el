@@ -88,6 +88,20 @@ Else return false."
     (and (or (eq 'latex-fragment el-type) (eq 'latex-environment el-type))
          (org-element-property :begin el))))
 
+
+(defun my-kk/get-current-latex-overlay ()
+  "Get current overlay."
+  ;; (ov (loop for ov in (org--list-latex-overlays)
+                   ;;           if
+                   ;;           (and
+                   ;;            (<= (overlay-start ov) (point))
+                   ;;            (>= (overlay-end ov) (point)))
+                   ;;           return ov))
+  (cl-some (lambda (o)
+             (and (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay)
+                  o))
+           (overlays-at (point))))
+
 (defun kk/org-latex-fragment-toggle ()
   "Toggle a latex fragment image."
   (set-latex-fragment-rendering-size-based-automatically)
@@ -114,12 +128,7 @@ Else return false."
 
              ;; now remove current image
              (goto-char begin)
-             (let ((ov (loop for ov in (org--list-latex-overlays)
-                             if
-                             (and
-                              (<= (overlay-start ov) (point))
-                              (>= (overlay-end ov) (point)))
-                             return ov)))
+             (let ((ov (my-kk/get-current-latex-overlay)))
                (when ov
                  (delete-overlay ov)))
              ;; and save new fragment
@@ -148,12 +157,7 @@ Else return false."
            ;; remove imagex
            (save-excursion
              (goto-char begin)
-             (let ((ov (loop for ov in (org--list-latex-overlays)
-                             if
-                             (and
-                              (<= (overlay-start ov) (point))
-                              (>= (overlay-end ov) (point)))
-                             return ov)))
+             (let ((ov (my-kk/get-current-latex-overlay)))
                (when ov
                  (delete-overlay ov))))
            (setq kk/org-latex-fragment-last begin))))))

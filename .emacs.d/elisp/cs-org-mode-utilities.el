@@ -27,7 +27,7 @@
 (require 'hydra)
 
 (defun my-org-scale-image (&optional minus)
-  "Scale an image"
+  "Scale an image."
   (interactive)
   (save-excursion
     (let* ((org-width-pos (re-search-backward "#\\+attr_org:\s+:width\s+\\([0-9]+\\)"))
@@ -37,7 +37,7 @@
       (delete-region beg end)
       (goto-char beg)
       (if minus
-          (insert (number-to-string (- 10 num)))
+          (insert (number-to-string (- num 10)))
         (insert (number-to-string (+ 10 num))))
       (org-redisplay-inline-images))))
 
@@ -48,22 +48,25 @@
                                    `(defhydra hydra-my-org-image-scaler
                                       (:columns 1)
                                       "scale org inline image"
-                                      ("enlarge"
+                                      ("+"
                                        (lambda ()
                                          (interactive)
                                          (my-org-scale-image))
-                                       "+")
-                                      ("shrink"
+                                       "enlarge")
+                                      ("-"
                                        (lambda ()
                                          (interactive)
                                          (my-org-scale-image 'minus))
-                                       "-")
+                                       "shrink")
                                       ("q" nil "cancel"))))))
     (hydra-my-org-image-scaler/body)
     (fmakunbound 'hydra-my-org-image-scaler/body)
     (setq hydra-my-org-image-scaler/body nil)))
 
 (define-key org-mode-map (kbd "C-c s") 'my-run-org-image-scaler-hydra)
+(define-key org-mode-map (kbd "C-c C-+") 'my-org-scale-image)
+(define-key org-mode-map (kbd "C-c C--") (lambda ()
+                                           (interactive) (my-org-scale-image 'minus)))
 
 (defun my-org-screenshot ()
   "Take a screenshot into a time stamped unique-named file in the

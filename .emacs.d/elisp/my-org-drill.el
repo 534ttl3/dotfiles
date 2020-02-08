@@ -69,6 +69,19 @@
 
 ;; (org-cycle-hide-drawers 'all)
 
+
+(defun my-new-org-drill-flashcard ()
+  (interactive)
+  (progn
+    (org-insert-heading-respect-content)
+    (save-excursion
+      (insert " :drill:")
+      ;; (insert "\n")
+      (org-insert-subheading t)
+      ;; (org-insert-heading-respect-content)
+      ;; (org-metaright)
+      (insert "Answer\n"))))
+
 (defun klin-run-org-drill-hydra ()
   (interactive)
   (let* ((hydra-body (eval (remove nil
@@ -80,6 +93,16 @@
                                          (interactive)
                                          (org-drill))
                                        "drill")
+                                      ("D"
+                                       (lambda ()
+                                         (interactive)
+                                         (org-drill-entry))
+                                       "drill item at point")
+                                      ("n"
+                                       (lambda ()
+                                         (interactive)
+                                         (my-new-org-drill-flashcard))
+                                       "new flashcard")
                                       ("c"
                                        (lambda ()
                                          (interactive)
