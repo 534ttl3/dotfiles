@@ -1272,7 +1272,7 @@ guide-key even says in it's github that you should probably use which-key
 #+BEGIN_SRC emacs-lisp
 (defun printbreakpoint ()
   (interactive)
-  (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT<C-c>"))
+  (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT"))
 
 (add-hook 'python-mode-hook 
           (lambda () 
@@ -1280,7 +1280,7 @@ guide-key even says in it's github that you should probably use which-key
 #+END_SRC
 
 #+RESULTS:
-| (lambda nil (define-key python-mode-map (kbd C-, b) (quote printbreakpoint))) | beacon-mode |
+| doom-modeline-env-setup-python | (lambda nil (global-set-key (kbd C-, d) (quote goto-def-or-rgrep))) | elpy-mode | evil-collection-python-set-evil-shift-width | origami-mode | (lambda nil (define-key python-mode-map (kbd C-, b) (quote printbreakpoint))) |
 
 ** latex
 #+BEGIN_SRC emacs-lisp
@@ -1549,6 +1549,17 @@ implements folding for many modes
 #+RESULTS:
 : t
 
+*** shell-pop
+#+BEGIN_SRC emacs-lisp
+(use-package shell-pop
+  :config
+  (setq shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
+  (setq shell-pop-term-shell "/bin/zsh")
+  ;; need to do this manually or not picked up by `shell-pop'
+  (shell-pop--set-shell-type 'shell-pop-shell-type shell-pop-shell-type)
+  (global-set-key (kbd "C-, t") 'shell-pop)
+)
+#+END_SRC
 ** latex
 *** auctex
 #+BEGIN_SRC emacs-lisp
@@ -1577,7 +1588,9 @@ implements folding for many modes
 
 #+RESULTS:
 
-*** elpy
+*** [[https://github.com/jorgenschaefer/elpy][elpy]]
+This package manages a lot of things all around python development with emacs. It relies on python packages itself to function, thus it creates it's own python virtual environment to run it's functionality. It can be a pain to set up. It may be slow if not properly set up.
+
 #+BEGIN_SRC emacs-lisp
   (use-package elpy
     :ensure t
@@ -1606,65 +1619,33 @@ implements folding for many modes
     (defun goto-def-or-rgrep ()
       "Go to definition of thing at point or do an rgrep in project if that fails"
       (interactive)
-      (condition-case nil (elpy-goto-definition)
+      (condition-case nil
+          (elpy-goto-definition)
         (error (elpy-rgrep-symbol (thing-at-point 'symbol)))))
 
-    ;; (add-hook 'python-mode-hook
-    ;;       '(lambda() (global-set-key (kbd "C-, d") 'elpy-goto-definition)))
-
     (add-hook 'python-mode-hook
-          '(lambda() (global-set-key (kbd "C-, d") 'goto-def-or-rgrep)))
-  )
+          '(lambda() (global-set-key (kbd "C-, d") 'goto-def-or-rgrep))))
 #+END_SRC
 
-#+RESULTS:
-: t
+**** setup
+After having installed it in emacs, run ~M-x elpy-config~ to access a GUI (yes, manual setup) which provides a point and click interface to install the packages elpy relies on. Additionally, it shows you information about the underlying RPC process and which python version it uses. 
 
-*** pyvenv
+*** [[https://github.com/jorgenschaefer/pyvenv][pyvenv]]
+This provides virtual environment support for python. If you want to activate a specific virtual environment
 #+BEGIN_SRC emacs-lisp
 (use-package pyvenv
   :ensure t
   :init
-  (setenv "WORKON_HOME" "~/venvs")
+  (setenv "WORKON_HOME" "~/venvs")  ;; convention
   (pyvenv-mode 1)
   (pyvenv-tracking-mode 1))
-
 #+END_SRC
 
-#+RESULTS:
-
-*** shell-pop
+**** COMMENT setup for specific projects
+In a specific project, create the file ~.dir-locals.el~ and inside set the command
 #+BEGIN_SRC emacs-lisp
-(use-package shell-pop
-  :config
-  (setq shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
-  (setq shell-pop-term-shell "/bin/zsh")
-  ;; need to do this manually or not picked up by `shell-pop'
-  (shell-pop--set-shell-type 'shell-pop-shell-type shell-pop-shell-type)
-  (global-set-key (kbd "C-, t") 'shell-pop)
-)
+((nil . ((pyvenv-workon . "my-venv"))))
 #+END_SRC
-
-#+RESULTS:
-: t
-*** elisp-slime-nav
-#+BEGIN_SRC emacs-lisp
-(use-package elisp-slime-nav
- :ensure t
- :config 
-
-  (defun elisp-slime-nav-register-jump-to-definition () 
-    (interactive)
-    (global-set-key (kbd "C-, d") (lambda () (interactive) (call-interactively 'elisp-slime-nav-find-elisp-thing-at-point))))
-
-  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
-    (add-hook hook 'elisp-slime-nav-mode)
-    (add-hook hook 'elisp-slime-nav-register-jump-to-definition))
-)
-#+END_SRC
-
-#+RESULTS:
-: t
 
 ** c/c++
 *** flycheck
@@ -1824,7 +1805,7 @@ implements folding for many modes
 
 #+RESULTS:
 : python-execute-main-in-terminal
-** Emacs-Lisp
+** elisp
 *** flycheck
 Complains about unconventional style when writing emacs-lisp packages. 
 #+BEGIN_SRC emacs-lisp
@@ -1854,7 +1835,26 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 #+RESULTS:
 : t
 
-** Sage
+*** elisp-slime-nav
+#+BEGIN_SRC emacs-lisp
+(use-package elisp-slime-nav
+ :ensure t
+ :config 
+
+  (defun elisp-slime-nav-register-jump-to-definition () 
+    (interactive)
+    (global-set-key (kbd "C-, d") (lambda () (interactive) (call-interactively 'elisp-slime-nav-find-elisp-thing-at-point))))
+
+  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+    (add-hook hook 'elisp-slime-nav-mode)
+    (add-hook hook 'elisp-slime-nav-register-jump-to-definition))
+)
+#+END_SRC
+
+#+RESULTS:
+: t
+
+** sage
 *** sage-shell-mode
 #+BEGIN_SRC emacs-lisp
 (use-package sage-shell-mode

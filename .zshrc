@@ -99,3 +99,10 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+
+# if [ -n "$VIRTUAL_ENV" ]; then
+#     . "$VIRTUAL_ENV/bin/activate"
+# else
+#     workon default
+# fi

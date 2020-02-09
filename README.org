@@ -63,17 +63,30 @@ When git is installed, do this to initialize and pull your dotfiles from Github
 
 this gets you a list of already-existing files, add them to the new commit then merge a remote branch (a similar system) into the already existing branch (new files) and resolve conflicts
 
-** python: the whole shebang
-This installs packages for your system python. For specific projects, you may want to setup seperate virtual environments. 
-Always install your packages to the right locations (=pip= could be =pip2=, not =pip3=)
+** Python
+*** System python
+Always install your packages to the right locations (=pip= could be =pip2=, not =pip3=). 
 #+BEGIN_SRC shell
-    sudo pip3 install scipy matplotlib numba flake8 ipdb sympy
+    sudo pip3 install scipy numpy matplotlib sympy numba ipdb flake8 python3-tk
 #+END_SRC
 
-Matplotlib could use tkinter, so do
+*** Virtual environments
+From your system python, install a few helper programs
 #+BEGIN_SRC shell
-    sudo apt install python3-tk
+    sudo pip3 install virtualenv virtualenvwrapper
 #+END_SRC
+
+My default directory for python virtual environments: 
+#+BEGIN_SRC shell
+    mkdir ~/venvs
+#+END_SRC
+
+To create a virtual environment: 
+#+BEGIN_SRC shell
+  python3 -m venv ~/venvs/example-venv
+#+END_SRC
+
+Then, every python IDE or editor handles code navigation, running, everything differently. 
 
 * customizing/post-processing installed software
 ** emacs
@@ -95,6 +108,7 @@ Elisp tutorial and manual for emacs
 #+BEGIN_SRC sh
 sudo apt install emacs25-common-non-dfsg
 #+END_SRC
+
 ** vim
 Yes, I do use vim in some situations.
 *** install vundle plugin manager
