@@ -69,14 +69,13 @@
 
 ;; (org-cycle-hide-drawers 'all)
 
-
 (defun my-new-org-drill-flashcard ()
   (interactive)
   (progn
     (org-insert-heading-respect-content)
     (save-excursion
       (insert " :drill:")
-      ;; (insert "\n")
+      (insert "\n-")
       (org-insert-subheading t)
       ;; (org-insert-heading-respect-content)
       ;; (org-metaright)

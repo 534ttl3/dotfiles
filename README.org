@@ -88,6 +88,24 @@ To create a virtual environment:
 
 Then, every python IDE or editor handles code navigation, running, everything differently. 
 
+You may want to install [[https://docs.anaconda.com/anaconda/install/linux/][anaconda python]]. Installing this package takes some manual work. 
+
+** [[https://docs.conda.io/en/latest/][Conda]]
+Conda is a package- and virtual environment manager tying together many languages of the scientific computing stack, not just python. 
+
+It is generally a good idea to install this. Then at least you can keep track of what custom version of python you have installed that /is not your system python/. Accidentally uninstalling a system python through ~apt~ could break your operating system. 
+
+*** Anaconda Python
+This ships conda with it. 
+
+The ubuntu operating system ships already with some python versions (2 and 3 at the time I'm writing this). Anaconda python may be more up-to-date. 
+
+When setting it up, make sure to often use ~which python~ in order to check if you are using the right python. 
+
+**** pip from within anaconda
+Once a conda virtual environment is created and activated (on linux: ~source activate [VENV NAME]~), one can use pip from within it (like normal) and install programs /into/ this conda virtual environment. Be sure to use ~pip~, not ~sudo pip~ or ~pip3~, since ~pip~ will use the virtual environment's correct python version. 
+
+
 * customizing/post-processing installed software
 ** emacs
 Some emacs modules rely on external programs being installed from somewhere else. 
@@ -229,3 +247,30 @@ You may install it directly from their server (for python2 use =pip= instead of 
 
 Now you might already be able to run p3d programs.
 
+* presentations
+#+BEGIN_SRC shell
+sudo apt install libreoffice 
+sudo snap install mathpix-snipping-tool
+#+END_SRC
+
+** LibreOffice
+Install this extension of rendering latex formulas. 
+https://extensions.libreoffice.org/extensions/texmaths-1
+
+* Lab
+** Nextcloud
+#+BEGIN_SRC shell
+sudo add-apt-repository ppa:nextcloud-devs/client
+sudo apt-get update
+sudo apt install nextcloud-client
+#+END_SRC
+
+** WebDAV
+#+BEGIN_SRC shell
+sudo apt-get install davfs2
+#+END_SRC
+
+** QtiPlot
+#+BEGIN_SRC shell
+sudo apt install qtiplot
+#+END_SRC
