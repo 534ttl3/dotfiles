@@ -36,6 +36,7 @@
             (show-paren-mode 1)))
 
 (setq org-todo-keywords '((sequence "TODO" "MAYBE" "NEXT" "STARTED"
+                                    "STUCK"
                                     "TOASK" "WAITING" "DELEGATED" "|" "DONE" "DEFERRED"
                                     "CANCELLED" "TOREVIEW")))
 
@@ -51,6 +52,10 @@
                                 :weight bold
                                 :box (:line-width 2 :style released-button))
                                ("TODO" :background "red1"
+                                :foreground "black"
+                                :weight bold
+                                :box (:line-width 2 :style released-button))
+                               ("STUCK" :background "orange"
                                 :foreground "black"
                                 :weight bold
                                 :box (:line-width 2 :style released-button))
