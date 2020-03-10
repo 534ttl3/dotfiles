@@ -165,6 +165,9 @@ _vr_ reset      ^^                       ^^                 ^^
 (global-set-key (kbd "C-M-, a")
                 'hydra-org-agenda/body)
 
+;; unset
+(define-key org-mode-map (kbd "C-,") nil)
+
 
 (provide 'cs-org-agenda)
 ;;; cs-org-agenda.el ends here

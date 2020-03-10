@@ -1,6 +1,6 @@
-* Package-Initialize and repos
+* Package-Initialize, repos, path
 ** COMMENT melpa and org repos
-n#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp 
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
   (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
@@ -32,8 +32,6 @@ n#+BEGIN_SRC emacs-lisp
      )
 #+END_SRC
 
-#+RESULTS:
-
 * Package-Management
 ** use-package
 #+BEGIN_SRC emacs-lisp
@@ -59,6 +57,18 @@ Manual download of packages from e.g. the EmacsWiki, interfaces with use-package
     "Here, custom packages or packages from e.g. EmacsWiki that I update manually are stored.")
   (add-to-list 'load-path cs/manual-install-packages-load-path)
 #+END_SRC
+
+* Path
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :config
+    (when (memq window-system '(mac ns x))
+      (exec-path-from-shell-initialize)))
+#+END_SRC
+
+#+RESULTS:
+: t
 
 * general emacs behaviour
 start the emacs server at startup of an emacs instance
@@ -1234,7 +1244,7 @@ guide-key even says in it's github that you should probably use which-key
 
 ** list-processes+
 #+BEGIN_SRC emacs-lisp
-(require 'list-processes+)
+  (require 'list-processes+)
 #+END_SRC
 * Programming general behaviour
 #+BEGIN_SRC emacs-lisp
@@ -1894,6 +1904,16 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   ;; Show images after evaluating code blocks.
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images))
 #+END_SRC
+** COMMENT scimax
+#+BEGIN_SRC emacs-lisp
+(use-package scimax
+:ensure t
+:config)
+#+END_SRC
+
+#+RESULTS:
+: t
+
 * literature research packages
 ** pdfgrep
 #+BEGIN_SRC emacs-lisp
