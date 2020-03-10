@@ -171,6 +171,7 @@ Quick up and down navigation
 #+END_SRC
 
 ** startup size and position
+
 #+BEGIN_SRC emacs-lisp
   ;; (menu-bar-mode -1)
   (when (display-graphic-p)
@@ -635,11 +636,10 @@ Provides icons for various themes, also for doom-modeline
     (require 'cs-org-agenda)
     (require 'cs-org-latex-preview)
     (require 'cs-org-latex-export)
-    (require 'cs-org-babel))
-#+END_SRC
 
-#+RESULTS:
-: t
+    (require 'cs-org-babel)
+    (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block))
+#+END_SRC
 
 ** evil-mode
 #+BEGIN_SRC emacs-lisp
