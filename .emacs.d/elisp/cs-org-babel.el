@@ -12,7 +12,7 @@
 
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; MERCHANTABILITY or FITNESSnn FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
@@ -32,7 +32,8 @@
  '((emacs-lisp . t)
    (python . t)
    (shell . t)
-   (haskell . t)))
+   (haskell . t)
+   (ein . t)))
 
 (setq org-confirm-babel-evaluate nil)
 

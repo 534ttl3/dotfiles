@@ -31,6 +31,7 @@
 (add-hook 'org-mode-hook
           (lambda ()
             (visual-line-mode 1)))
+
 (add-hook 'org-mode-hook
           (lambda ()
             (show-paren-mode 1)))
@@ -40,12 +41,12 @@
                                     "TOASK" "WAITING" "DELEGATED" "|" "DONE" "DEFERRED"
                                     "CANCELLED" "TOREVIEW")))
 
-(custom-set-faces '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
-                  '(org-level-2 ((t (:inherit outline-2 :height 1.1))))
-                  ;; '(org-level-3 ((t (:inherit outline-3 :height 1.0))))
-                  ;; '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
-                  ;; '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
-                  )
+;; (custom-set-faces '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
+;;                   '(org-level-2 ((t (:inherit outline-2 :height 1.1))))
+;;                   ;; '(org-level-3 ((t (:inherit outline-3 :height 1.0))))
+;;                   ;; '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+;;                   ;; '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+;;                   )
 
 (setq org-todo-keyword-faces '(("PROJ" :background "blue"
                                 :foreground "black"
@@ -102,7 +103,6 @@
                                 :foreground "black"
                                 :weight bold
                                 :box (:line-width 2 :style released-button))))
-
 
 (provide 'cs-org-mode-general)
 ;;; cs-org-mode-general.el ends here
