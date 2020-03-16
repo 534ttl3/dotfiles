@@ -35,15 +35,15 @@
 * Package-Management
 ** use-package
 #+BEGIN_SRC emacs-lisp
-;; ---- use-package initialization, make sure use-package.el is cloned into ~/.emacs.d
-;; This is only needed once, near the top of the file
-(eval-when-compile
-  ;; Following line is not needed if use-package.el is in ~/.emacs.d
-  ;; (add-to-list 'load-path "<path where use-package is installed>")
-  (require 'use-package))
+  ;; ---- use-package initialization, make sure use-package.el is cloned into ~/.emacs.d
+  ;; This is only needed once, near the top of the file
+  (eval-when-compile
+    ;; Following line is not needed if use-package.el is in ~/.emacs.d
+    ;; (add-to-list 'load-path "<path where use-package is installed>")
+    (require 'use-package))
 
-;; use-package
-(setq use-package-always-ensure t)
+  ;; use-package
+  (setq use-package-always-ensure t)
 #+END_SRC
 
 #+RESULTS:
@@ -71,7 +71,7 @@ Manual download of packages from e.g. the EmacsWiki, interfaces with use-package
 : t
 
 * general emacs behaviour
-start the emacs server at startup of an emacs instance
+start the emacs serve at startup of an emacs instance
 #+BEGIN_SRC emacs-lisp
 (server-start)
 #+END_SRC
@@ -236,6 +236,7 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 Can be used instead of helm, if it suits your taste.
 Can be used in combination counsel (a lot of smart autocompletion) and swiper (isearch enhancement/replacement), which are both external
 packages, not installable through use-package, but through
+
 #+BEGIN_SRC shell
 sudo apt install elpa-counsel
 #+END_SRC
@@ -602,6 +603,29 @@ Provides icons for various themes, also for doom-modeline
     (require 'cs-org-babel)
     (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block))
 #+END_SRC
+
+
+#+BEGIN_SRC python :results output
+import sys
+print("Python version")
+print (sys.version)
+print("Version info.")
+print (sys.version_info)
+#+END_SRC
+
+#+RESULTS:
+: Python version
+: 3.7.4 (default, Aug 13 2019, 20:35:49) 
+: [GCC 7.3.0]
+: Version info.
+: sys.version_info(major=3, minor=7, micro=4, releaselevel='final', serial=0)
+
+#+BEGIN_SRC shell
+fzf
+#+END_SRC
+
+#+RESULTS:
+
 
 * Keys that take global precendence
 Make a minor mode with keys that override all other keys and always take precendence.
@@ -1835,7 +1859,7 @@ Complains about unconventional style when writing emacs-lisp packages.
 #+RESULTS:
 : indent-sexp
 
-*** COMMENT semantic-refactor for lisp 
+*** semantic-refactor for lisp 
 This tool is based on semantic. It doesn't really refactor, but it can e.g. reformat a whole emacs-lisp buffer. This is potentially also useful for C/C++.
 #+BEGIN_SRC emacs-lisp
   (use-package srefactor
@@ -2164,6 +2188,23 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
   (add-to-list 'load-path (expand-file-name "~/Dropbox/stuff/klin/")) ;
   (require 'klin)
+#+END_SRC
+
+* org mode custom html export backend 
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
+
+(defvar jekyll-posts-directory "~/myblog/_posts/")
+(require 'cs-org-blog-html-backend)
+#+END_SRC
+
+#+RESULTS:
+: cs-org-blog-html-backend
+
+* org publish
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
+  (require 'cs-org-publish)
 #+END_SRC
 
 * org mode latex

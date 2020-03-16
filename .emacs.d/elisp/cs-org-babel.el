@@ -33,12 +33,15 @@
    (python . t)
    (shell . t)
    (haskell . t)
-   (ein . t)))
+   ;; (ein . t)
+   ))
 
 (setq org-confirm-babel-evaluate nil)
+(setq org-export-use-babel t)
+
+(setq org-src-tab-acts-natively t)
 
 
-;; go to definition from org block
 (defun cs-jump-to-def-from-inside-org-code-block ()
   "From an `org-mode` buffer's code block, jump to definition."
   (interactive)

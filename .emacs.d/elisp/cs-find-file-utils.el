@@ -30,10 +30,10 @@
                                (yank)
                                (buffer-string))))
     (if (file-exists-p clipboard-contents)
-        (counsel-find-file clipboard-contents)
-      (user-error "Clipbord does not contain file name that exists."))))
+        (find-file-existing clipboard-contents)
+      (user-error (concat "Clipbord does not contain file name that exists! Clipboard content: " clipboard-contents)))))
 
-(global-set-key (kbd "C-M-, f") 'cs-find-file-from-clipboard)
+(global-set-key (kbd "C-M-, u F") 'cs-find-file-from-clipboard)
 
 (provide 'cs-find-file-utils)
 ;;; cs-find-file-utils.el ends here
