@@ -98,8 +98,9 @@
 ;;     (org-export-to-file 'my-html file
 ;;       async subtreep visible-only body-only ext-plist)))
 
-(defvar my-html-preamble-str
-  "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+(setq my-html-preamble-str
+  (concat
+   "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"
 \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">
 <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">
@@ -139,6 +140,11 @@
         margin: auto;
         width: 800px;
 	}
+
+    .slidingtopbar {
+        margin: auto;
+        width: 800px;
+	}
 }
 
 .equation-container {
@@ -153,12 +159,55 @@
     vertical-align: middle;
 }
 .org-svg { width: auto; }
-</style>
+
+.topbar {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #f1f1f1;
+  overflow: auto;
+  position: relative;
+}
+
+.topbar a {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+  float: left;
+}
+
+.topbar a:hover:not(.active){
+  background-color: #555;
+  color: white;
+}
+
+@media screen and (max-width: 1000px) {
+  .topbar a {float: left;}
+  div#content {margin-left: 0;}
+}
+
+@media screen and (max-width: 400px) {
+  .topbar a {
+    text-align: center;
+    float: none;
+  }
+}
+"
+   "</style>
 </head>
-<body>")
+<body>
+<div class=\"topbar\">
+  <div class=\"slidingtopbar\">
+    <a href=\"https://github.com/534ttl3/534ttl3.github.io\">Repository</a>
+    <a href=\"sitemap.html\">Sitemap</a>
+    <a href=\"#home\">Edit this page on GitHub</a>
+  </div>
+</div>"))
 
-
-(defvar my-html-postamble-str "</body></html>")
+(setq my-html-postamble-str
+      (concat
+       "</body></html>"))
 
 (defun my-org-html-template (contents info)
   "Return complete document string after HTML conversion.
@@ -166,14 +215,15 @@ CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
   (interactive)
   (concat
-   ;; (let ((link-up (org-trim (plist-get info :html-link-up)))
-   ;;   (link-home (org-trim (plist-get info :html-link-home))))
-   ;;   (unless (and (string= link-up "") (string= link-home ""))
-   ;;     (format (plist-get info :html-home/up-format)
-   ;;         (or link-up link-home)
-   ;;         (or link-home link-up))))
+   (let ((link-up (org-trim (plist-get info :html-link-up)))
+     (link-home (org-trim (plist-get info :html-link-home))))
+     (unless (and (string= link-up "") (string= link-home ""))
+       (format (plist-get info :html-home/up-format)
+           (or link-up link-home)
+           (or link-home link-up))))
    ;; Preamble.
-   ;; (org-html--build-pre/postamble 'preamble info)
+   (org-html--build-pre/postamble 'preamble info)
+
     my-html-preamble-str
    "\n<div id=\"content\">\n"
    contents

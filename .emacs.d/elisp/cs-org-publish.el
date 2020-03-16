@@ -26,7 +26,8 @@
 
 
 (require 'ox)
-(require 'org-publish)
+(require 'ox-html)
+(require 'ox-publish)
 
 (defun my-org-html-publish-to-my-html (plist filename pub-dir)
   "Publish an org file to HTML.
@@ -56,7 +57,9 @@ Return output file name."
                                                                    :base-extension "org"
                                                                    :publishing-directory ,project-publish-dir
                                                                    :recursive t
-                                                                   :publishing-function my-org-html-publish-to-my-html)
+                                                                   :publishing-function my-org-html-publish-to-my-html
+                                                                   :auto-sitemap t
+                                                                   )
                                       (,project-component-other-name :base-directory ,project-base-dir
                                                                      :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|svg"
                                                                      :publishing-directory ,project-publish-dir
@@ -64,7 +67,7 @@ Return output file name."
                                                                      :publishing-function org-publish-attachment)
                                       (,project-component-all
                                        :components (,project-component-doc-name ,project-component-other-name))))
-    (org-publish project-component-all)))
+    (org-publish project-component-all t)))
 
 (provide 'cs-org-publish)
 ;;; cs-org-publish.el ends here
