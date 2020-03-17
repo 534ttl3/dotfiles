@@ -57,11 +57,11 @@ Return output file name."
          (project-base-dir (helm-read-file-name "Publish: Select base dir:"
                                                 :initial-input (expand-file-name (expand-file-name (file-name-directory (if (buffer-file-name)
                                                                                                                             (buffer-file-name)
-                                                                                                                          (file-name-directory current-directory)))))))
+                                                                                                                          (concat (file-name-directory current-directory) "org/")))))))
          (project-publish-dir (helm-read-file-name "Select publishing dir:"
                                                    :initial-input (expand-file-name (expand-file-name (file-name-directory (if (buffer-file-name)
                                                                                                                                (buffer-file-name)
-                                                                                                                             (file-name-directory current-directory)))))))
+                                                                                                                             (concat (file-name-directory current-directory) "public/")))))))
          ;; (project-publish-dir (expand-file-name (concat "~/projects/" project-name "/" "public/")))
          ;; (project-base-dir (expand-file-name (concat "~/projects/" project-name "/" "org/")))
          )

@@ -77,20 +77,25 @@
     font-style: italic, oblique;
   }
 
+
   body {
-    font-family: \"Computer Modern\", sans-serif;
+      font-family: \"Computer Modern\", sans-serif;
+      margin: 0px;
+  }
+
+  #content {
+      padding: 5px;
   }
 
 /* 2: min-width */
 @media screen and (min-width: 800px) {
 	#content {
         margin: auto;
-        width: 800px;
+        width: 775px;
 	}
 
     .slidingtopbar {
         margin: auto;
-        width: 800px;
 	}
 }
 
@@ -105,6 +110,7 @@
     text-align: right;
     vertical-align: middle;
 }
+
 .org-svg { width: auto; }
 
 .topbar {
@@ -129,11 +135,6 @@
   color: white;
 }
 
-@media screen and (max-width: 1000px) {
-  .topbar a {float: left;}
-  div#content {margin-left: 0;}
-}
-
 @media screen and (max-width: 400px) {
   .topbar a {
     text-align: center;
@@ -146,9 +147,9 @@
 <body>
 <div class=\"topbar\">
   <div class=\"slidingtopbar\">
-    <a href=\"https://534ttl3.github.io/index.html>Home</a>
-    <a href=\"sitemap.html\">Sitemap</a>
-    <a href=\"#home\">Edit this page on GitHub</a>
+    <a href=\"https://534ttl3.github.io/index.html\">Home</a>
+    <a href=\"./sitemap.html\">Sitemap</a>
+    <a href=\"javascript:window.location.href = 'https://github.com/534ttl3/' + document.URL.split('/').slice(0,-1).slice(-1)[0] + '/edit/master/org/' + document.URL.split('/').slice(-1)[0].split('.').slice(0, -1)[0] + '.org'\">Edit this page on GitHub</a>
   </div>
 </div>"))
 

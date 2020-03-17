@@ -2189,9 +2189,12 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   ;; (use-package klin  ; not in melpa, must be manually put in the load path
   ;; :load-path (expand-file-name "~/Dropbox/stuff/klin"))
 
-  (add-to-list 'load-path (expand-file-name "~/Dropbox/stuff/klin/")) ;
+  (add-to-list 'load-path (expand-file-name "~/Dropbox/1Projects/2Programming/klin/")) ;
   (require 'klin)
 #+END_SRC
+
+#+RESULTS:
+: klin
 
 * org mode custom html export backend 
 #+BEGIN_SRC emacs-lisp
