@@ -93,9 +93,12 @@ customize annoyng defaults
 (setq show-paren-delay 0)
 
 (blink-cursor-mode 0)
+
+(setq delete-by-moving-to-trash t)
 #+END_SRC
 
 #+RESULTS:
+: t
 
 Disable startup screen when opening a file from command line
 #+BEGIN_SRC emacs-lisp

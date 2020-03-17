@@ -44,15 +44,27 @@ Return output file name."
 		      plist pub-dir))
 
 
-(defun publish-my-project ()
+(defun publish-my-project (&optional current-directory)
   "Always publish the whole project."
   (interactive)
-  (let* ((project-name "blog")
+  (if (not current-directory)
+      (setq current-directory (expand-file-name "~")))
+
+  (let* ((project-name "site")
          (project-component-doc-name (concat project-name "org"))
          (project-component-other-name (concat project-name "other"))
          (project-component-all (concat project-name "all"))
-         (project-base-dir (expand-file-name (concat "~/projects/" project-name "/" "org/")))
-         (project-publish-dir (expand-file-name (concat "~/projects/" project-name "/" "public/"))))
+         (project-base-dir (helm-read-file-name "Publish: Select base dir:"
+                                                :initial-input (expand-file-name (expand-file-name (file-name-directory (if (buffer-file-name)
+                                                                                                                            (buffer-file-name)
+                                                                                                                          (file-name-directory current-directory)))))))
+         (project-publish-dir (helm-read-file-name "Select publishing dir:"
+                                                   :initial-input (expand-file-name (expand-file-name (file-name-directory (if (buffer-file-name)
+                                                                                                                               (buffer-file-name)
+                                                                                                                             (file-name-directory current-directory)))))))
+         ;; (project-publish-dir (expand-file-name (concat "~/projects/" project-name "/" "public/")))
+         ;; (project-base-dir (expand-file-name (concat "~/projects/" project-name "/" "org/")))
+         )
     (setq org-publish-project-alist `((,project-component-doc-name :base-directory ,project-base-dir
                                                                    :base-extension "org"
                                                                    :publishing-directory ,project-publish-dir
