@@ -331,24 +331,15 @@ the rendering of inline latex previews."
   (interactive)
   (let* ((hydra-body (eval (remove nil
                                    (let* ((prop-value (org-global-prop-value render-latex-preview-prop-key)) list-of-heads)
-                                     `(defhydra hydra-rendering-from-org
-                                        (:columns 3 :exit t)
+                                     `(defhydra hydra-rendering-from-org (:columns 1)
                                         "klin: open from org"
                                         ("r"
                                          (lambda ()
                                            (interactive)
-                                           (turn-on-latex-toggling-and-render-all-previews))
+                                           (turn-on-latex-toggling-and-render-all-previews)
+                                           (keyboard-escape-quit))
                                          "(re-)render latex previews")
-                                        ("t"
-                                         (lambda ()
-                                           (interactive)
-                                           (turn-on-latex-toggling-and-render-previews)
-                                           (if (not (buffer-narrowed-p))
-                                               (org-global-prop-set render-latex-preview-prop-key
-                                                                    "t")
-                                             (user-error "Global property not edited. This buffer just is a clone and probably narrowed.")))
-                                         "(re-)render latex previews and set prop. to \"t\"")
-                                        ("f"
+                                        ("n r"
                                          (lambda ()
                                            (interactive)
                                            (turn-off-latex-toggling-and-render-all-previews)
@@ -359,29 +350,59 @@ the rendering of inline latex previews."
                                              (if (not (buffer-narrowed-p))
                                                  (org-global-prop-set render-latex-preview-prop-key
                                                                       "f")
-                                               (user-error "Global property not edited. This buffer just is a clone and prbably narrowed."))
-                                             )
-                                           )
+                                               (user-error "Global property not edited. This buffer just is a clone and prbably narrowed.")))
+                                           (hydra--body-exit))
                                          "remove latex previews, set prop. to \"f\"")
+                                        ("t"
+                                         (lambda ()
+                                           (interactive)
+                                           (turn-on-latex-toggling-and-render-previews)
+                                           (if (not (buffer-narrowed-p))
+                                               (org-global-prop-set render-latex-preview-prop-key
+                                                                    "t")
+                                             (user-error "Global property not edited. This buffer just is a clone and probably narrowed."))
+                                           (hydra--body-exit))
+                                         "(re-)render latex previews and set prop. to \"t\"")
                                         ("T"
                                          (lambda ()
                                            (interactive)
-                                           (toggle-org-dynamic-preview-latex-fragment))
+                                           (toggle-org-dynamic-preview-latex-fragment)
+                                           )
                                          "Toggle dynamic preview.")
-                                        ("l"
+
+
+                                        ("L"
                                          (lambda ()
                                            (interactive)
-                                           (org-toggle-link-display))
+                                           (org-toggle-link-display)
+                                           )
                                          "org toggle link display")
+                                        ("I"
+                                         (lambda ()
+                                           (interactive)
+                                           (org-toggle-inline-images)
+                                           )
+                                         "org toggle inline images")
                                         ("i"
                                          (lambda ()
                                            (interactive)
-                                           (org-toggle-inline-images))
-                                         "org toggle inline images")
+                                           (org-display-inline-images)
+                                           (org-redisplay-inline-images))
+                                         "org (re-)display inline images")
+                                        ("+"
+                                         (lambda ()
+                                           (interactive)
+                                           (my-org-scale-image))
+                                         "zoom in image")
+                                        ("-"
+                                         (lambda ()
+                                           (interactive)
+                                           (my-org-scale-image 'minus))
+                                         "zoom out image")
                                         ("q" nil "cancel")))))))
-  (hydra-rendering-from-org/body)
-  (fmakunbound 'hydra-rendering-from-org/body)
-  (setq hydra-rendering-from-org/body nil)))
+    (hydra-rendering-from-org/body)
+    (fmakunbound 'hydra-rendering-from-org/body)
+    (setq hydra-rendering-from-org/body nil)))
 
 (define-key org-mode-map (kbd "C-M-, r") ; r: render
   'org-run-context-aware-hydra-rendering)

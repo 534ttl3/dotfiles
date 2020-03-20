@@ -45,7 +45,17 @@ Return output file name."
 
 
 (defun publish-my-project (&optional current-directory)
-  "Always publish the whole project."
+  "Always publish the whole project.
+   TODO: - check that only those files that are linked from org documents
+           (and are in the org subfolder or the assets subfolder) are published as attachments
+           use/modify the publishing function for that
+         - check what happens to latex export blocks when exporting to html (or if they are just omitted?)
+           if you want them to be exported to html as they would be to latex
+           Interesting links:
+           https://emacs.stackexchange.com/questions/45751/org-export-to-different-directory
+           - check if there is some way of running latex blocks and exporting their output to html
+             and exporing them to latex as-is
+           "
   (interactive)
   (if (not current-directory)
       (setq current-directory (expand-file-name "~")))
@@ -79,6 +89,8 @@ Return output file name."
                                                                      :publishing-function org-publish-attachment)
                                       (,project-component-all
                                        :components (,project-component-doc-name ,project-component-other-name))))
+    (org-publish-reset-cache)
+    (org-publish-remove-all-timestamps)
     (org-publish project-component-all t)))
 
 (provide 'cs-org-publish)

@@ -26,20 +26,97 @@
 
 (require 'hydra)
 
+(defun count-occurences (regex string)
+  (recursive-count regex string 0))
+
+(defun recursive-count (regex string start)
+  (if (string-match regex string start)
+      (+ 1 (recursive-count regex string (match-end 0)))
+    0))
+
+(defun my-get-image-width-by-attr-str ()
+  (interactive)
+  )
+
+(defun current-line-empty-p ()
+  (save-excursion
+    (beginning-of-line)
+    (looking-at "[[:space:]]*$")))
+
 (defun my-org-scale-image (&optional minus)
   "Scale an image."
   (interactive)
-  (save-excursion
-    (let* ((org-width-pos (re-search-backward "#\\+attr_org:\s+:width\s+\\([0-9]+\\)"))
+  (let* (goto-this-char-later)
+    ;; (end-of-visual-line)
+    (setq org-image-actual-width nil)
+
+    (let* ((orig-point (point))
+           (org-width-pos (re-search-backward "#\\+attr_org:\s+:width\s+\\([0-9]+\\)"))
            (beg (match-beginning 1))
            (end (match-end 1))
-           (num (string-to-number (buffer-substring-no-properties beg end))))
-      (delete-region beg end)
-      (goto-char beg)
-      (if minus
-          (insert (number-to-string (- num 10)))
-        (insert (number-to-string (+ 10 num))))
+           (found-point (point))
+           (substr-between-points (buffer-substring-no-properties found-point
+                                                                  orig-point))
+           (num-of-linebreaks (count-occurences "\n" substr-between-points))
+           (num (string-to-number (buffer-substring-no-properties beg end)))
+           (org-zoom-num 20)
+           point-before-insertion
+           )
+
+      (goto-char orig-point)
+      (if (my-is-org-point-on-plain-image)
+          (if (<= num-of-linebreaks 2)
+              (progn
+                (delete-region beg end)
+                (goto-char beg)
+                (if minus
+                    (insert (number-to-string (- num org-zoom-num)))
+                  (insert (number-to-string (+ org-zoom-num num))))
+                (org-redisplay-inline-images))
+            (progn
+              ;; in this case there is no org_attr width attribute
+              ;; and you need to add one
+              (goto-char (org-element-property :begin (org-element-context)))
+              (setq point-before-insertion (point))
+              (insert "\n")
+              (previous-line)
+              (end-of-line)
+              (when (not (current-line-empty-p))
+                (insert "\n"))
+              (next-line)
+              (beginning-of-line)
+              (insert (concat "#+attr_org: :width " (number-to-string (round (* 0.5 (window-pixel-width))))))
+              (org-redisplay-inline-images)
+              (org-next-link)
+              ;; (user-error "Please move to an image to zoom!")
+              (setq goto-this-char-later (point))
+               )))
+      (if goto-this-char-later
+          (goto-char goto-this-char-later)
+        (goto-char orig-point))
       (org-redisplay-inline-images))))
+
+
+(defun my-is-org-point-on-plain-image ()
+  (interactive)
+  (let* ((link-path (org-element-property :raw-link (org-element-context)))
+         (link-extension
+          (when (org-element-property :raw-link (org-element-context))
+              (file-name-extension (org-element-property :raw-link (org-element-context))))))
+    (when link-extension
+        (if (member link-extension (list "jpeg" "jpg" "bmp" "svg" "png" "tif"
+                                         "tiff" "gif"))
+            t
+          nil))))
+
+(defun my-add-attr-org-width-if-not-there ()
+  (interactive)
+  (setq org-image-actual-width nil)
+  (if (my-is-org-point-on-plain-image)
+      ))
+
+
+
 
 
 (defun my-run-org-image-scaler-hydra ()
