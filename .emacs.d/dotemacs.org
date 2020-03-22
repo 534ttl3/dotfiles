@@ -6,7 +6,7 @@
   (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
   (package-initialize)
   (setq package-check-signature nil)
-#+END_SRC
+#+END_SRC 
 
 ** package-initialize-packages
 #+BEGIN_SRC emacs-lisp
