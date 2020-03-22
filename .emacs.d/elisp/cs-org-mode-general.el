@@ -104,5 +104,37 @@
                                 :weight bold
                                 :box (:line-width 2 :style released-button))))
 
+
+
+;; additional fontification, for inline keywords
+
+(defface cs-org-face-toreport '((t :foreground "#019192"
+                                   :weight bold))
+  "custom face for org TOREPORT keyword"
+  :group 'cs-org-faces)
+
+(defface cs-org-face-toask '((t :foreground "orange"
+                                :weight bold))
+  "custom face for inline toask keyword"
+  :group 'cs-org-faces)
+
+(defface cs-org-face-response '((t
+                                :weight bold))
+  "custom face for inline response keyword"
+  :group 'cs-org-faces)
+
+(font-lock-add-keywords 'org-mode
+                        '(("\\<\\(FIXME\\):" 1 'font-lock-warning-face
+                           prepend)
+                          ("\\<\\(TOTRY\\):" 1 'font-lock-warning-face
+                           prepend)
+                          ("\\<\\(TOREPORT\\):" 1 'cs-org-face-toreport
+                           prepend)
+                          ("\\<\\(TOASK\\):" 1 'cs-org-face-toask
+                           prepend)
+                          ("\\<\\(RESPONSE\\):" 1 'cs-org-face-response
+                           prepend))
+                        t)
+
 (provide 'cs-org-mode-general)
 ;;; cs-org-mode-general.el ends here

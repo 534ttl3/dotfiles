@@ -49,8 +49,15 @@ Return output file name."
    TODO: - check that only those files that are linked from org documents
            (and are in the org subfolder or the assets subfolder) are published as attachments
            use/modify the publishing function for that
-         - check what happens to latex export blocks when exporting to html (or if they are just omitted?)
+         - operate on latex export blocks (which have a special tag),
+           run latex on them, convert them to svg (if they aren't more than 1 page in total)
+           and embed them into the html with a set width.
            if you want them to be exported to html as they would be to latex
+           - to do this, you could use sth similar to
+             #+ATTR_BEAMER: :options [Lagrange]
+             but invent your own ATTR, e.g.:
+             #+ATTR_KLIN: :options try_convert_svg_html_export width:300px
+
            Interesting links:
            https://emacs.stackexchange.com/questions/45751/org-export-to-different-directory
            - check if there is some way of running latex blocks and exporting their output to html
@@ -69,9 +76,11 @@ Return output file name."
                                                                                                                             (buffer-file-name)
                                                                                                                           (concat (file-name-directory current-directory) "org/")))))))
          (project-publish-dir (helm-read-file-name "Select publishing dir:"
-                                                   :initial-input (expand-file-name (expand-file-name (file-name-directory (if (buffer-file-name)
-                                                                                                                               (buffer-file-name)
-                                                                                                                             (concat (file-name-directory current-directory) "public/")))))))
+                                                   :initial-input (expand-file-name ;; (file-name-directory (if (buffer-file-name)
+                                                                                    ;;                          (buffer-file-name)
+                                                                   ;;                        (concat (file-name-directory current-directory) "public/")))
+                                                                   (concat project-base-dir "../public/")
+                                                                                    )))
          ;; (project-publish-dir (expand-file-name (concat "~/projects/" project-name "/" "public/")))
          ;; (project-base-dir (expand-file-name (concat "~/projects/" project-name "/" "org/")))
          )
@@ -91,7 +100,8 @@ Return output file name."
                                        :components (,project-component-doc-name ,project-component-other-name))))
     (org-publish-reset-cache)
     (org-publish-remove-all-timestamps)
-    (org-publish project-component-all t)))
+    (let* ()
+      (org-publish project-component-all t t))))
 
 (provide 'cs-org-publish)
 ;;; cs-org-publish.el ends here

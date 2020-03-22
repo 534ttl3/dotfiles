@@ -212,6 +212,16 @@ Quick up and down navigation
               'my-set-line-spacing))
 #+END_SRC
 
+** line truncation
+#+BEGIN_SRC emacs-lisp
+  ;; in .txt files, by default truncate the lines (e.g. if viewing a table of data with many columns)
+  (add-hook 'text-mode-hook (lambda ()
+                              (toggle-truncate-lines 1)))
+#+END_SRC
+
+#+RESULTS:
+| (lambda nil (toggle-truncate-lines 1)) | text-mode-hook-identify |
+
 * general packages
 ** undo-tree
 Version 0.6.5 produces errors when creating new frames. 0.6.6 fixes this (ostensibly).
@@ -611,8 +621,15 @@ Provides icons for various themes, also for doom-modeline
     (require 'cs-org-latex-export)
 
     (require 'cs-org-babel)
-    (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block))
+    (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block)
+
+
+    ;; fontification
+    )
 #+END_SRC
+
+#+RESULTS:
+: t
 
 
 #+BEGIN_SRC python :results output
@@ -670,7 +687,6 @@ Make a minor mode with keys that override all other keys and always take precend
 
   (defun my-keys-have-priority (_file)
     "Try to ensure that my keybindings retain priority over other minor modes.
-
   Called via the `after-load-functions' special hook."
     (unless (eq (caar minor-mode-map-alist) 'my-keys-minor-mode)
       (let ((mykeys (assq 'my-keys-minor-mode minor-mode-map-alist)))
@@ -689,7 +705,7 @@ Make a minor mode with keys that override all other keys and always take precend
     (setq evil-want-integration t)
     (setq evil-want-keybinding nil)
     ;; should be called before the package is loaded to take effect
-    (setq evil-toggle-key "<C-S-dead-grave>")
+    (setq evil-toggle-key "<C-dead-grave>")
 
     :config
     ;; enable evil mode by default (but heavily, heavily restrict it afterwards)
@@ -713,7 +729,6 @@ Make a minor mode with keys that override all other keys and always take precend
     (add-to-list 'evil-emacs-state-modes 'nav-mode)
     (add-to-list 'evil-emacs-state-modes 'pdf-occur-buffer-mode)
     (add-to-list 'evil-emacs-state-modes 'emacs-lisp-mode)
-    (add-to-list 'evil-emacs-state-modes 'help-mode)
     (add-to-list 'evil-emacs-state-modes 'prog-mode)
     (add-to-list 'evil-emacs-state-modes 'grep-mode)
     (add-to-list 'evil-emacs-state-modes 'bibtex-mode)
@@ -725,10 +740,13 @@ Make a minor mode with keys that override all other keys and always take precend
     (add-to-list 'evil-emacs-state-modes 'minibuffer-inactive-mode)
     (add-to-list 'evil-emacs-state-modes 'latex-mode)
     (add-to-list 'evil-emacs-state-modes 'eshell-mode)
-    (add-to-list 'evil-emacs-state-modes 'term-mode)
+    ;; (add-to-list 'evil-emacs-state-modes 'term-mode)  ;; this didn't work
     (add-to-list 'evil-emacs-state-modes 'process-menu-mode)
     (add-to-list 'evil-emacs-state-modes 'tabulated-list-mode)
 
+    (evil-set-initial-state 'help-mode 'emacs)
+    ;; (evil-set-initial-state 'term-mode 'emacs)  ;; this didn't work as well
+    (add-hook 'term-mode-hook (lambda () (evil-mode -1)))  ;; this finally worked
 
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
@@ -763,7 +781,6 @@ Make a minor mode with keys that override all other keys and always take precend
 : t
 
 ** evil-collection
-
 #+BEGIN_SRC emacs-lisp
   (use-package evil-collection
     :after evil
@@ -1888,7 +1905,7 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 #+RESULTS:
 : t
 
-*** erefactor 
+*** COMMENT erefactor 
 #+BEGIN_SRC emacs-lisp
   (use-package erefactor
     :ensure t

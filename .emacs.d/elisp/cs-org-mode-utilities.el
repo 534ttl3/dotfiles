@@ -44,29 +44,41 @@
     (looking-at "[[:space:]]*$")))
 
 (defun my-org-scale-image (&optional minus)
-  "Scale an image."
+  "Scale an image, i.e. adjust ATTR_ORG py key-press.
+Set MINUS to a non-nil value if it should be scaled down instead of up (default)."
   (interactive)
   (let* (goto-this-char-later)
     ;; (end-of-visual-line)
+
+    ;; if org-image-actual-width is set, it takes precendence before any attr_org
+    ;; setting. Thus, we set it to nil.
     (setq org-image-actual-width nil)
-
-    (let* ((orig-point (point))
-           (org-width-pos (re-search-backward "#\\+attr_org:\s+:width\s+\\([0-9]+\\)"))
-           (beg (match-beginning 1))
-           (end (match-end 1))
-           (found-point (point))
-           (substr-between-points (buffer-substring-no-properties found-point
-                                                                  orig-point))
-           (num-of-linebreaks (count-occurences "\n" substr-between-points))
-           (num (string-to-number (buffer-substring-no-properties beg end)))
-           (org-zoom-num 20)
-           point-before-insertion
-           )
-
+    (let* ((orig-point (point)) org-width-pos
+           beg
+           end
+           found-point
+           substr-between-points
+           num-of-linebreaks
+           num
+           org-zoom-num
+           point-before-insertion)
+      (setq org-width-pos (re-search-backward "#\\+ATTR_ORG:\s+:width\s+\\([0-9]+\\)"
+                                              nil t))
+      (when org-width-pos
+        (setq beg (match-beginning 1))
+        (setq end (match-end 1))
+        (setq found-point (point))
+        (setq substr-between-points (buffer-substring-no-properties found-point
+                                                                    orig-point))
+        (setq num-of-linebreaks (count-occurences "\n" substr-between-points))
+        (setq num (string-to-number (buffer-substring-no-properties beg end)))
+        (setq org-zoom-num 20))
       (goto-char orig-point)
       (if (my-is-org-point-on-plain-image)
-          (if (<= num-of-linebreaks 2)
+          (if (and org-width-pos
+                   (<= num-of-linebreaks 2))
               (progn
+                ;; in this case, there is already an org-width above
                 (delete-region beg end)
                 (goto-char beg)
                 (if minus
@@ -79,18 +91,19 @@
               (goto-char (org-element-property :begin (org-element-context)))
               (setq point-before-insertion (point))
               (insert "\n")
-              (previous-line)
+              (forward-line -1)
               (end-of-line)
               (when (not (current-line-empty-p))
                 (insert "\n"))
-              (next-line)
+              (forward-line 1)
               (beginning-of-line)
-              (insert (concat "#+attr_org: :width " (number-to-string (round (* 0.5 (window-pixel-width))))))
+              (insert (concat "#+ATTR_ORG: :width "
+                              (number-to-string (round (* 0.5
+                                                          (window-pixel-width))))))
               (org-redisplay-inline-images)
               (org-next-link)
               ;; (user-error "Please move to an image to zoom!")
-              (setq goto-this-char-later (point))
-               )))
+              (setq goto-this-char-later (point)))))
       (if goto-this-char-later
           (goto-char goto-this-char-later)
         (goto-char orig-point))
