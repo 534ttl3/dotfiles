@@ -705,7 +705,7 @@ Make a minor mode with keys that override all other keys and always take precend
     (setq evil-want-integration t)
     (setq evil-want-keybinding nil)
     ;; should be called before the package is loaded to take effect
-    (setq evil-toggle-key "<C-dead-grave>")
+    (setq evil-toggle-key "<C-S-dead-grave>")
 
     :config
     ;; enable evil mode by default (but heavily, heavily restrict it afterwards)
@@ -735,7 +735,7 @@ Make a minor mode with keys that override all other keys and always take precend
     (add-to-list 'evil-emacs-state-modes 'dired-mode)
     (add-to-list 'evil-emacs-state-modes 'debugger-mode)
     (add-to-list 'evil-emacs-state-modes 'package-menu-mode)
-    (add-to-list 'evil-emacs-state-modes 'pdf-view-mode)
+    ;; (add-to-list 'evil-emacs-state-modes 'pdf-view-mode)
     (add-to-list 'evil-emacs-state-modes 'ediff-mode)
     (add-to-list 'evil-emacs-state-modes 'minibuffer-inactive-mode)
     (add-to-list 'evil-emacs-state-modes 'latex-mode)
@@ -2222,7 +2222,7 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   ;; (use-package klin  ; not in melpa, must be manually put in the load path
   ;; :load-path (expand-file-name "~/Dropbox/stuff/klin"))
 
-  (add-to-list 'load-path (expand-file-name "~/Dropbox/1Projects/2Programming/klin/")) ;
+  (add-to-list 'load-path (expand-file-name "~/Dropbox/1Projects/programming/klin/")) ;
   (require 'klin)
 #+END_SRC
 
@@ -2231,10 +2231,8 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 * org mode custom html export backend 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
-
-(defvar jekyll-posts-directory "~/myblog/_posts/")
-(require 'cs-org-blog-html-backend)
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
+  (require 'cs-org-blog-html-backend)
 #+END_SRC
 
 #+RESULTS:
@@ -2262,8 +2260,7 @@ Tabbar for simple pdf switching
 #+BEGIN_SRC emacs-lisp
   (use-package tabbar
     :ensure t
-    :config
-    )
+    :config)
 #+END_SRC
 
 #+RESULTS:

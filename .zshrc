@@ -124,3 +124,6 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+
+source ~/.my_aliases.sh
+

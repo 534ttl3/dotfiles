@@ -1,4 +1,4 @@
-;;; cs-org-blog-html-backend.el --- custom html backend to export to jekyll blog  -*- lexical-binding: t; -*-
+;;; cs-org-blog-html-backend.el --- custom html backend to export to blog  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  chris
 
