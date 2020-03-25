@@ -30,6 +30,22 @@
 (require 'ox-publish)
 (require 'ox-html)
 
+(require 'cs-org-publish)
+
+(progn
+  (defun imalison:org-inline-css-hook (exporter)
+    "Insert custom inline css to automatically set the
+background of code to whatever theme I'm using's background"
+    (when (eq exporter 'my-html)
+      (let* ((my-pre-bg (face-background 'default))
+             (my-pre-fg (face-foreground 'default)))
+        (setq org-html-head-extra (concat org-html-head-extra
+                                          (format "<style type=\"text/css\">\n pre.src {background-color: %s; color: %s;}</style>\n"
+                                                  my-pre-bg my-pre-fg))))))
+  (add-hook 'org-export-before-processing-hook
+            'imalison:org-inline-css-hook))
+
+
 (org-export-define-derived-backend 'my-html 'html
   :translate-alist '((template . my-org-html-template)
                      ;; (latex-environment . my-org-html-latex-environment)
@@ -38,14 +54,14 @@
   :menu-entry
   '(?y "Export to blog using my-html"
        (;; (?H "As HTML buffer" org-html-export-as-html)
-	(?h "As HTML file" my-org-html-export-to-html)
+	(?h "As HTML file" my-org-html-publish-to-my-html)
 	;; (?o "As HTML file and open"
 	;;     (lambda (a s v b)
 	;;       (if a (org-html-export-to-html t s v b)
 	;; 	(org-open-file (org-html-export-to-html nil s v b)))))
     )))
 
-(setq my-html-preamble-str
+(defun get-my-html-preamble-str (info)
   (concat
    "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"
@@ -53,38 +69,27 @@
 <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">
 <head>
 <meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />
-<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />"
+   "<head>\n"
+   (org-html--build-meta-info info)
+   (org-html--build-head info)
+   (org-html--build-mathjax-config info)
+   "</head>\n"
+   "
 <title></title>
 <style type=\"text/css\">
-  @font-face {
-    font-family: \"Computer Modern\";
-    src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunss.otf');
-  }
-  @font-face {
-    font-family: \"Computer Modern\";
-    src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunsx.otf');
-    font-weight: bold;
-  }
-  @font-face {
-    font-family: \"Computer Modern\";
-    src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunsi.otf');
-    font-style: italic, oblique;
-  }
-  @font-face {
-    font-family: \"Computer Modern\";
-    src: url('http://mirrors.ctan.org/fonts/cm-unicode/fonts/otf/cmunbxo.otf');
-    font-weight: bold;
-    font-style: italic, oblique;
-  }
-
-
   body {
-      font-family: \"Computer Modern\", sans-serif;
+      font-family: 'Helvetica', 'Arial', sans-serif;
       margin: 0px;
   }
 
   #content {
       padding: 5px;
+  }
+
+  .slidingtopbar {
+      overflow: hidden;
+      width: 800px;
   }
 
 /* 2: min-width */
@@ -140,6 +145,19 @@
     text-align: center;
     float: none;
   }
+
+  .slidingtopbar {
+      overflow: auto;
+      width: auto;
+  }
+}
+
+
+.posted, .lastedited{
+color: #646769;
+font-family: -apple-system,BlinkMacSystemFont,\"Roboto\",\"Segoe UI\",\"Helvetica Neue\",\"Lucida Grande\",Arial,sans-serif;
+font-size: .75em;
+margin-right: 1em;
 }
 "
    "</style>
@@ -153,9 +171,8 @@
   </div>
 </div>"))
 
-(setq my-html-postamble-str
-      (concat
-       "</body></html>"))
+(defun get-my-html-postamble-str ()
+  (concat "</body></html>"))
 
 (defun my-org-html-template (contents info)
   "Return complete document string after HTML conversion.
@@ -172,12 +189,57 @@ holding export options."
    ;; Preamble.
    (org-html--build-pre/postamble 'preamble info)
 
-    my-html-preamble-str
+   (get-my-html-preamble-str info)
+
    "\n<div id=\"content\">\n"
+   ;; Print the title (if it's there)
+   (when (plist-get info :with-title)
+     (let ((title (and (plist-get info :with-title)
+		       (plist-get info :title)))
+	   (subtitle (plist-get info :subtitle))
+	   (html5-fancy (org-html--html5-fancy-p info)))
+       (when title
+	 (format
+	  (if html5-fancy
+	      "<header>\n<h1 class=\"title\">%s</h1>\n%s</header>"
+	    "<h1 class=\"title\">%s%s</h1>\n")
+	  (org-export-data title info)
+	  (if subtitle
+	      (format
+	       (if html5-fancy
+		   "<p class=\"subtitle\">%s</p>\n"
+		 (concat "\n" (org-html-close-tag "br" nil info) "\n"
+			 "<span class=\"subtitle\">%s</span>\n"))
+	       (org-export-data subtitle info))
+	    "")))))
+
+   ;; Print the date (if it's there)
+   (let* ((spec (org-html-format-spec info))
+          (date (cdr (assq ?d spec))))
+     (concat
+      (and (plist-get info :with-date)
+           (org-string-nw-p date)
+           (format "<span class=\"posted\">%s: %s</span>\n"
+                   (org-html--translate "posted" info)
+                   date))
+      (and (plist-get info :time-stamp-file)
+           (format
+            "<span class=\"lastedited\">%s: %s</span>\n"
+            (org-html--translate "last edited" info)
+            (format-time-string
+             (plist-get info :html-metadata-timestamp-format))))))
+
    contents
    "\n</div>"
-   my-html-postamble-str
-   ))
+   ;; (org-html--build-pre/postamble 'postamble info)
+   ;; Possibly use the Klipse library live code blocks.
+   (when (plist-get info :html-klipsify-src)
+     (concat "<script>" (plist-get info :html-klipse-selection-script)
+	     "</script><script src=\""
+	     org-html-klipse-js
+	     "\"></script><link rel=\"stylesheet\" type=\"text/css\" href=\""
+	     org-html-klipse-css "\"/>"))
+   (get-my-html-postamble-str)))
 
 (provide 'cs-org-blog-html-backend)
 ;;; cs-org-blog-html-backend.el ends here

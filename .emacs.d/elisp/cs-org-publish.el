@@ -44,7 +44,7 @@ Return output file name."
 		      plist pub-dir))
 
 
-(defun publish-my-project (&optional current-directory)
+(defun publish-project (&optional current-directory)
   "Always publish the whole project.
    TODO: - check that only those files that are linked from org documents
            (and are in the org subfolder or the assets subfolder) are published as attachments
@@ -102,6 +102,43 @@ Return output file name."
     (org-publish-remove-all-timestamps)
     (let* ()
       (org-publish project-component-all t t))))
+
+
+
+(defun publish-file (&optional filepath)
+  (interactive)
+
+  (setq filepath "/home/chris/Dropbox/org/notes/software/site.org")
+
+  ;; (if (and (not filepath) (string-equal (file-name-extension (buffer-file-name)) "org"))
+  ;;     (setq filepath (buffer-file-name))
+  ;;   (setq filepath (helm-read-file-name "Publish this file: ")))
+
+  (let* (project-base-dir
+         project-publish-dir
+         project-component-doc-name
+         project-component-other-name)
+    (setq org-publish-project-alist `(("project"
+                                       :base-directory ,(setq project-base-dir (helm-read-file-name (concat "Select base directory for publishing " filepath ": ")
+                                                                                                    :initial-input (file-name-directory filepath)))
+                                       :publishing-function my-org-html-publish-to-my-html
+                                       :publishing-directory ,(setq project-publish-dir (helm-read-file-name (concat "Select publishing directory for publishing "
+                                                                                                                     filepath ": ")
+                                                                                                             :initial-input (expand-file-name (file-name-directory "~/Desktop/test-publish-target-dir/"))))
+                                       :exclude ".*"
+                                       :include [,filepath])
+                                      ("project-attachments"
+                                       :base-directory ,project-base-dir
+                                       :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|svg"
+                                       :publishing-directory ,project-publish-dir
+                                       :recursive t
+                                       :publishing-function org-publish-attachment)
+                                      (,"project-all"
+                                       :components ("project" "project-attachments")))))
+  (org-publish-reset-cache)
+  (org-publish-remove-all-timestamps)
+  (let* ()
+    (org-publish "project-all" t t)))
 
 (provide 'cs-org-publish)
 ;;; cs-org-publish.el ends here
