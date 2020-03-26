@@ -108,27 +108,36 @@ Return output file name."
 (defun publish-file (&optional filepath)
   (interactive)
 
-  (setq filepath "/home/chris/Dropbox/org/notes/software/site.org")
+  (unless filepath
+    (setq filepath (helm-read-file-name "Select org file to publish: " :initial-input (buffer-file-name))))
 
   ;; (if (and (not filepath) (string-equal (file-name-extension (buffer-file-name)) "org"))
   ;;     (setq filepath (buffer-file-name))
   ;;   (setq filepath (helm-read-file-name "Publish this file: ")))
 
-  (let* (project-base-dir
-         project-publish-dir
-         project-component-doc-name
-         project-component-other-name)
-    (setq org-publish-project-alist `(("project"
-                                       :base-directory ,(setq project-base-dir (helm-read-file-name (concat "Select base directory for publishing " filepath ": ")
-                                                                                                    :initial-input (file-name-directory filepath)))
-                                       :publishing-function my-org-html-publish-to-my-html
-                                       :publishing-directory ,(setq project-publish-dir (helm-read-file-name (concat "Select publishing directory for publishing "
-                                                                                                                     filepath ": ")
-                                                                                                             :initial-input (expand-file-name (file-name-directory "~/Desktop/test-publish-target-dir/"))))
+  (let* ((project-base-dir (helm-read-file-name (concat "Select base directory for publishing "
+                                                        filepath ": ")
+                                                :initial-input (file-name-directory filepath)))
+         (project-publish-dir
+          (helm-read-file-name (concat "Select publishing directory for publishing "
+                                       filepath " to html: ")
+                               :initial-input
+                               ;; (expand-file-name (file-name-directory "~/Desktop/test-publish-target-dir/"))
+                               (concat (get-base-dir-as-eg-next-git-root) "www-buf")))
+                          project-component-doc-name
+                          project-component-other-name)
+
+    (when (not (file-exists-p project-publish-dir))
+      (make-directory project-publish-dir t))
+
+    (setq org-publish-project-alist `(("project" :base-directory ,project-base-dir
+                                       :publishing-function (lambda ()
+                                                              (my-org-html-publish-to-my-html)
+                                                              (get-home-as-org-file))
+                                       :publishing-directory,project-publish-dir
                                        :exclude ".*"
                                        :include [,filepath])
-                                      ("project-attachments"
-                                       :base-directory ,project-base-dir
+                                      ("project-attachments" :base-directory ,project-base-dir
                                        :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|svg"
                                        :publishing-directory ,project-publish-dir
                                        :recursive t
@@ -139,6 +148,169 @@ Return output file name."
   (org-publish-remove-all-timestamps)
   (let* ()
     (org-publish "project-all" t t)))
+
+
+
+
+
+(cl-defstruct post-metadata title date last-modified-date file-name-base relative-dir-path)
+
+(defun my-sort-for-what (mylist sort-for-what)
+  (let* (;; (foo (make-post-metadata :title "dis foo title"))
+         ;; (bar (make-post-metadata :title "dis bar title"))
+         ;; (mylist (list foo bar))
+         )
+    (sort mylist `(lambda (elem1 elem2) (string-lessp (,sort-for-what elem1) (,sort-for-what elem2))))))
+
+
+(defun get-all-post-metadatas (base-dir &optional forbidden-file-names)
+  (interactive)
+  (setq forbidden-file-names (list "sitemap.org" "home.org" "index.org"))
+  ;; (setq base-dir (expand-file-name "/home/chris/Dropbox/1Projects/programming/derivations-site"))
+  (let* ((file-path-list (remove nil
+                                 (mapcar (lambda (file-path)
+                                           (when (not (member (file-name-nondirectory file-path) forbidden-file-names))
+                                             file-path))
+                                         (remove nil
+                                                 (mapcar (lambda (file-path)
+                                                           (when (and (not (string-equal file-path ""))
+                                                                      (file-exists-p file-path))
+                                                             file-path))
+                                                         (split-string (shell-command-to-string (concat "find "
+                                                                                                        (prin1-to-string base-dir)
+                                                                                                        " -name \"*.org\" -type f"))
+                                                                       "\n")))))))
+    (mapcar (lambda (path)
+              (parse-file path base-dir))
+            file-path-list)))
+
+(defun get-base-dir-as-eg-next-git-root ()
+  (helm-read-file-name "Select base-dir (e.g. a git directory root?):  "
+                       :initial-input (file-name-as-directory (car (split-string (shell-command-to-string "git rev-parse --show-toplevel")
+                                                                                 "\n")))))
+
+(defun parse-file (&optional file-path base-dir)
+  (interactive)
+  (unless file-path
+    ;; (setq file-path (expand-file-name "~/Dropbox/1Projects/programming/derivations-site/testpost.org"))
+    ;; (setq file-path (expand-file-name "/home/chris/Dropbox/org/notes/software/site.org"))
+    )
+
+  (let* (relative-dir-path)
+    (unless base-dir
+      (setq base-dir (get-base-dir-as-eg-next-git-root)))
+    (setq relative-dir-path (file-relative-name file-path base-dir))
+    (with-temp-buffer
+      (insert-file-contents file-path)
+      (org-mode)
+      (org-element-parse-buffer)
+      (let* ((title (org-element-property :value (car (org-global-props-get-plist "TITLE"))))
+             (date (org-element-property :value (car (org-global-props-get-plist "DATE"))))
+             (last-modified-date (format-time-string "%Y-%m-%d"
+                                                     (file-attribute-status-change-time (file-attributes file-path)))))
+        `(,title
+          ,date
+          ,last-modified-date
+          ,(file-name-base file-path)
+          ,(file-name-directory file-path))
+        (make-post-metadata :title title
+                            :date date
+                            :last-modified-date last-modified-date
+                            :file-name-base (file-name-base file-path)
+                            :relative-dir-path (file-name-directory file-path))))))
+
+(defun print-post-metadata-into-org (pm-instance)
+  ""
+  (insert "[["
+          (concat (file-name-as-directory (post-metadata-relative-dir-path pm-instance))
+                  (post-metadata-file-name-base pm-instance)
+                  ".org")
+          "]["
+          (post-metadata-title pm-instance)
+          "]]"))
+
+(defun get-home-as-org-file (&optional publish-dir)
+  "Publish the sitemap as an org file first.
+Then, it can also be converted to an html file, together with
+all other org files."
+  (interactive)
+  (with-temp-buffer
+    (org-mode)
+    (org-element-parse-buffer)
+    (insert "#+OPTIONS: tex:dvisvgm\n")
+    (insert "#+OPTIONS: num:nil\n")
+    (insert "#+TITLE: Home\n")
+
+    (insert "
+#+BEGIN_EXPORT html
+<br></br>
+#+END_EXPORT
+")
+
+    (let* ((base-dir (get-base-dir-as-eg-next-git-root))
+           (pm-list (get-all-post-metadatas base-dir))
+           sorted-list)
+      ;; sort after last modified date and print
+      (setq sorted-list (reverse (my-sort-for-what pm-list 'post-metadata-last-modified-date)))
+      (when sorted-list
+        (insert "\n")
+        ;; sort
+        (insert "*Most recently updated pages:*")
+        (insert "\n")
+        (insert "\n")
+        (let* ((ctr 0))
+          (while (and (nth ctr sorted-list)
+                      (< ctr 3))
+            (print-post-metadata-into-org (nth ctr sorted-list))
+            (insert "\n")
+            (insert "\n")
+            (setq ctr (+ 1 ctr))))
+        (insert "
+#+BEGIN_EXPORT html
+<hr>
+#+END_EXPORT"))
+      ;; sort after last posted date and print
+      (setq sorted-list (reverse (my-sort-for-what pm-list 'post-metadata-date)))
+      (when sorted-list
+        (insert "\n")
+        ;; sort
+        (insert "*Most recent posts:*")
+        (insert "\n")
+        (insert "\n")
+        (let* ((ctr 0))
+          (while (and (nth ctr sorted-list)
+                      (< ctr 3))
+            (print-post-metadata-into-org (nth ctr sorted-list))
+            (insert "\n")
+            (insert "\n")
+            (setq ctr (+ 1 ctr))))
+        (insert "
+#+BEGIN_EXPORT html
+<hr>
+#+END_EXPORT"))
+      ;; sort after title
+      (setq sorted-list (reverse (my-sort-for-what pm-list 'post-metadata-title)))
+      (when sorted-list
+        (insert "\n")
+        ;; sort
+        (insert "*All posts, sorted after title:*")
+        (insert "\n")
+        (insert "\n")
+        (let* ((ctr 0))
+          (while (nth ctr sorted-list)
+            (print-post-metadata-into-org (nth ctr sorted-list))
+            (insert "\n")
+            (insert "\n")
+            (setq ctr (+ 1 ctr)))))
+      ;; (write-file (expand-file-name "/home/chris/Desktop/demo.org"))
+      (write-file (helm-read-file-name "Publish the home.org to: " :initial-input (concat base-dir "home.org"))))))
+
+(defun org-global-props-get-plist (&optional property buffer)
+  "Get the plists of global org properties of current buffer."
+  (unless property (setq property "PROPERTY"))
+  (with-current-buffer (or buffer (current-buffer))
+    (org-element-map (org-element-parse-buffer) 'keyword (lambda (el) (when (string-match property (org-element-property :key el)) el)))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (provide 'cs-org-publish)
 ;;; cs-org-publish.el ends here
