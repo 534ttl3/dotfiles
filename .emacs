@@ -32,9 +32,6 @@
  '(helm-gtags-auto-update t)
  '(helm-gtags-ignore-case t)
  '(helm-gtags-path-style (quote relative))
- '(org-agenda-files
-   (quote
-    ("~/Dropbox/courses/rattrapage-preparation/tasks.org")))
  '(org-export-show-temporary-export-buffer t)
  '(org-modules
    (quote

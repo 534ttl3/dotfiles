@@ -123,6 +123,23 @@ Set scrolling behaviour (that is almost like smooth-scrolling)
 #+RESULTS:
 : 2
 
+Set scrolling behaviour for mouse (it's choppy otherwise)
+
+#+BEGIN_SRC emacs-lisp
+  (when (display-graphic-p)
+    (setq mouse-wheel-scroll-amount '(1
+                                      ((shift) . 1))
+          mouse-wheel-progressive-speed
+          nil))
+
+  (setq scroll-step 1
+        scroll-margin 0
+        scroll-conservatively 100000)
+#+END_SRC
+
+#+RESULTS:
+: 100000
+
 Pixel scrolling
 #+BEGIN_SRC emacs-lisp
   ;;; Scrolling.
@@ -1992,11 +2009,12 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 * general utility functions
 #+BEGIN_SRC emacs-lisp
-  (defun my-toggle-margins ()
+  (defun my-toggle-margins (&optional enable-thick-margin)
     "Set margins in current buffer."
     (interactive)
-    (if (or (> left-margin-width 0)
-            (> right-margin-width 0))
+    (if (and (or (> left-margin-width 0)
+                 (> right-margin-width 0))
+             (not enable-thick-margin))
         (progn
           (setq left-margin-width 0)
           (setq right-margin-width 0)

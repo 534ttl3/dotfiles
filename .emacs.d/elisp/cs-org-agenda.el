@@ -28,6 +28,27 @@
 (require 'org-agenda)
 (require 'hydra)
 
+;; let all org files be agenda relevant
+;; make sure you have all todo's synced
+;; idea: coarse todo lists into ~/Dropbox/org
+;;       fine todo-lists in any directory under ~/Dropbox ...
+
+(defun cs-org-agenda-reload-agenda-files-list ()
+  "Reloads the list of agenda files.
+Agenda files are in subdirectories of fixed directories."
+  (interactive)
+  (let* ((list-of-home-dirs (list "~/Dropbox/")))
+    (message (concat "Reloading... " (prin1-to-string list-of-home-dirs)))
+    (setq org-agenda-files (apply 'append
+                                  (mapcar (lambda (directory)
+                                            (f-files "~/Dropbox/"
+                                                     (lambda (f)
+                                                       (string= (f-ext f)
+                                                                "org"))
+                                                     'recursive))
+                                          list-of-home-dirs))))
+  (message (concat "Done reloading recursively from " (prin1-to-string))))
+
 ;; FIXME: writing agenda files to file in the cloud instead locally to .emacs
 
 ;; (setq org-agenda-files-file (expand-file-name "~/Dropbox/org/agendafiles/"))
@@ -73,8 +94,7 @@ _A_ agenda
 _W_ list (scheduled dates)
 _T_ todo list (all todos)
 _C_ cycle agenda files
-_[_ add this file to agenda
-_]_ remove this file from agenda
+_R_ Reload agenda files recursively (from fixed home directories)
 ^^             ^^
 
 ^Clock^      ^Visit entry^              ^Date^             ^Other^
@@ -103,8 +123,9 @@ _vr_ reset      ^^                       ^^                 ^^
   ("W" org-agenda-list :exit t) ;; see the schedule (week)
   ("A" org-agenda :exit t) ;; agenda menu
   ("C" org-cycle-agenda-files) ;; agenda cycle
-  ("[" org-agenda-file-to-front)
-  ("]" org-remove-file)
+  ;; ("[" org-agenda-file-to-front)
+  ;; ("]" org-remove-file)
+  ("R" cs-org-agenda-reload-agenda-files-list)
   ;; Entry
 
   ("hA" org-agenda-archive-default)
@@ -163,7 +184,13 @@ _vr_ reset      ^^                       ^^                 ^^
 
 ;; ----- binding
 (global-set-key (kbd "C-M-, a")
-                'hydra-org-agenda/body)
+                (lambda () (interactive)
+                  (if (not org-agenda-files)
+                      (progn
+                        (when (yes-or-no-p "There are no agenda files at the moment. Do you want to reload?")
+                            (cs-org-agenda-reload-agenda-files-list))))
+
+                  (hydra-org-agenda/body)))
 
 ;; unset
 (define-key org-mode-map (kbd "C-,") nil)

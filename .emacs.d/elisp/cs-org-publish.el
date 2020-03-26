@@ -141,11 +141,15 @@ Return output file name."
                                        :recursive t
                                        :publishing-function org-publish-attachment)
                                       (,"project-all"
-                                       :components ("project" "project-attachments")))))
-  (org-publish-reset-cache)
-  (org-publish-remove-all-timestamps)
-  (let* ()
-    (org-publish "project-all" t t)))
+                                       :components ("project" "project-attachments"))))
+
+
+    (org-publish-reset-cache)
+    (org-publish-remove-all-timestamps)
+    (let* ()
+      (org-publish "project-all" t nil))
+
+    (get-home-as-org-file project-publish-dir)))
 
 
 
