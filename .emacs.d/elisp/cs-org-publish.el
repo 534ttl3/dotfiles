@@ -131,10 +131,8 @@ Return output file name."
       (make-directory project-publish-dir t))
 
     (setq org-publish-project-alist `(("project" :base-directory ,project-base-dir
-                                       :publishing-function (lambda ()
-                                                              (my-org-html-publish-to-my-html)
-                                                              (get-home-as-org-file))
-                                       :publishing-directory,project-publish-dir
+                                       :publishing-function my-org-html-publish-to-my-html
+                                       :publishing-directory ,project-publish-dir
                                        :exclude ".*"
                                        :include [,filepath])
                                       ("project-attachments" :base-directory ,project-base-dir
