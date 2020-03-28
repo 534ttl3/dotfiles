@@ -33,6 +33,21 @@
 ;; idea: coarse todo lists into ~/Dropbox/org
 ;;       fine todo-lists in any directory under ~/Dropbox ...
 
+(defun org-toggle-todo-and-fold ()
+  (interactive)
+  (save-excursion
+    (org-back-to-heading t) ;; Make sure command works even if point is
+                            ;; below target heading
+    (cond ((looking-at "\*+ TODO")
+           (org-todo "DONE")
+           (hide-subtree))
+          ((looking-at "\*+ DONE")
+           (org-todo "TODO")
+           (hide-subtree))
+          (t (message "Can only toggle between TODO and DONE.")))))
+
+(define-key org-mode-map (kbd "C-c C-d") 'org-toggle-todo-and-fold)
+
 (defun cs-org-agenda-reload-agenda-files-list ()
   "Reloads the list of agenda files.
 Agenda files are in subdirectories of fixed directories."
@@ -47,7 +62,7 @@ Agenda files are in subdirectories of fixed directories."
                                                                 "org"))
                                                      'recursive))
                                           list-of-home-dirs))))
-  (message (concat "Done reloading recursively from " (prin1-to-string))))
+  (message (concat "Done reloading recursively from " (prin1-to-string list-of-home-dirs))))
 
 ;; FIXME: writing agenda files to file in the cloud instead locally to .emacs
 

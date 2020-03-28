@@ -28,7 +28,8 @@
   (interactive)
   (let* ((clipboard-contents (with-temp-buffer
                                (yank)
-                               (buffer-string))))
+                               (buffer-string)))
+         (parsed-clipboard-contents ))
     (if (file-exists-p clipboard-contents)
         (find-file-existing clipboard-contents)
       (user-error (concat "Clipbord does not contain file name that exists! Clipboard content: " clipboard-contents)))))

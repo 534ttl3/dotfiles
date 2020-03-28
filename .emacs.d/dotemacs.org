@@ -262,6 +262,15 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
   (global-set-key (kbd "C-2") 'helm-mini))
 #+END_SRC
 
+** helm-fzf
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/helm-fzf"))
+  (require 'helm-fzf)
+#+END_SRC
+
+#+RESULTS:
+: helm-fzf
+
 *** helm-projectile
 #+BEGIN_SRC emacs-lisp
   (use-package helm-projectile

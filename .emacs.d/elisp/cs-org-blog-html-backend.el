@@ -159,6 +159,17 @@ font-family: -apple-system,BlinkMacSystemFont,\"Roboto\",\"Segoe UI\",\"Helvetic
 font-size: .75em;
 margin-right: 1em;
 }
+
+.post-container-div {
+border-left: 5px solid cornflowerblue;
+padding-left: 25px;
+padding-top: 5px;
+padding-bottom: 10px;
+border-right: 5px solid cornflowerblue;
+background: aliceblue;
+margin-bottom: 25px;
+margin-top: 25px;
+}
 "
    "</style>
 </head>
@@ -166,9 +177,9 @@ margin-right: 1em;
 <div class=\"topbar\">
   <div class=\"slidingtopbar\">
     <a href=\"https://534ttl3.github.io/index.html\">Home</a>
-    <a href=\"./sitemap.html\">Sitemap</a>
-    <a href=\"javascript:window.location.href = 'https://github.com/534ttl3/' + document.URL.split('/').slice(0,-1).slice(-1)[0] + '/edit/master/org/' + document.URL.split('/').slice(-1)[0].split('.').slice(0, -1)[0] + '.org'\">Edit this page on GitHub</a>
-  </div>
+    <a href=\"https://534ttl3.github.io/sitemap.html\">Sitemap</a>"
+   ;; "<a href=\"javascript:window.location.href = 'https://github.com/534ttl3/' + document.URL.split('/').slice(0,-1).slice(-1)[0] + '/edit/master/org/' + document.URL.split('/').slice(-1)[0].split('.').slice(0, -1)[0] + '.org'\">Edit this page on GitHub</a> "
+   "</div>
 </div>"))
 
 (defun get-my-html-postamble-str ()
@@ -222,12 +233,13 @@ holding export options."
            (format "<span class=\"posted\">%s: %s</span>\n"
                    (org-html--translate "posted" info)
                    date))
-      (and (plist-get info :time-stamp-file)
-           (format
-            "<span class=\"lastedited\">%s: %s</span>\n"
-            (org-html--translate "last edited" info)
-            (format-time-string
-             (plist-get info :html-metadata-timestamp-format))))))
+      ;; (and (plist-get info :time-stamp-file)
+      ;;      (format
+      ;;       "<span class=\"lastedited\">%s: %s</span>\n"
+      ;;       (org-html--translate "last edited" info)
+      ;;       (format-time-string
+      ;;        (plist-get info :html-metadata-timestamp-format))))
+      ))
 
    contents
    "\n</div>"
