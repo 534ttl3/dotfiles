@@ -48,18 +48,6 @@
   (setq use-package-always-ensure t)
 #+END_SRC
 
-#+RESULTS:
-: t
-
-*** manual install
-Manual download of packages from e.g. the EmacsWiki, interfaces with use-package by giving use-package a load-path (but doesn't update automatically).
-#+BEGIN_SRC emacs-lisp :results output silent
-  (defvar cs/manual-install-packages-load-path
-    (expand-file-name "~/.emacs.d/elisp/")
-    "Here, custom packages or packages from e.g. EmacsWiki that I update manually are stored.")
-  (add-to-list 'load-path cs/manual-install-packages-load-path)
-#+END_SRC
-
 * Path
 #+BEGIN_SRC emacs-lisp
   (use-package exec-path-from-shell
@@ -1223,22 +1211,6 @@ Provide multiple cursors
 #+RESULTS:
 : t
 
-** COMMENT framemove
-#+BEGIN_SRC emacs-lisp
-  ;; manual install
-  (use-package framemove
-    :load-path cs/manual-install-packages-load-path
-    :config
-    ;; (framemove-default-keybindings)
-    (require 'framemove)
-    ;; (windmove-default-keybindings)
-    (setq framemove-hook-into-windmove t)
-    )
-#+end_src
-
-#+RESULTS:
-: t
-
 ** emacs-rotate
 #+BEGIN_SRC emacs-lisp
   (use-package rotate
@@ -2245,10 +2217,6 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 * Klin
 #+BEGIN_SRC emacs-lisp
-
-  ;; (use-package klin  ; not in melpa, must be manually put in the load path
-  ;; :load-path (expand-file-name "~/Dropbox/stuff/klin"))
-
   (add-to-list 'load-path (expand-file-name "~/Dropbox/1Projects/programming/klin/")) ;
   (require 'klin)
 #+END_SRC

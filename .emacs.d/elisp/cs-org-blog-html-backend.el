@@ -47,10 +47,7 @@ background of code to whatever theme I'm using's background"
 
 
 (org-export-define-derived-backend 'my-html 'html
-  :translate-alist '((template . my-org-html-template)
-                     ;; (latex-environment . my-org-html-latex-environment)
-                     ;; (latex-fragment . my-org-html-latex-fragment)
-                     )
+  :translate-alist '((template . my-org-html-template))
   :menu-entry
   '(?y "Export to blog using my-html"
        (;; (?H "As HTML buffer" org-html-export-as-html)

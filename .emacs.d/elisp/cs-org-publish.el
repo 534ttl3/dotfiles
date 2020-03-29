@@ -118,7 +118,7 @@ Return output file name."
     (org-publish-remove-all-timestamps)
     (org-publish project-component-all t t)
     ;; ask by using a hydra if you want to see the preview
-    (browse-url (concat "file://" project-publish-dir))
+    ;; (browse-url (concat "file://" project-publish-dir))
     ;; (defun run-dis-hydra ()
     ;;   (interactive)
     ;;   (let* ((hydra-body (eval (remove nil
