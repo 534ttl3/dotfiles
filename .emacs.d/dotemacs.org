@@ -2239,6 +2239,13 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   (require 'cs-org-publish)
 #+END_SRC
 
+* org transfer
+Enables transferring (or copying) an org file with it's linked assets to anoter directory (1st level links) and if needed pulls the links into a dedicated assets folder (+renames the links to point to the new locations).
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
+  (require 'cs-org-transfer)
+#+END_SRC
+
 * org mode latex
 #+BEGIN_SRC emacs-lisp
   ;; ------------ latex fragments preview (small custom library)
