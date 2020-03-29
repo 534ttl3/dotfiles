@@ -27,7 +27,6 @@
 (require 'org)
 (require 'org-lint)
 
-
 (defun cs-transfer-single-org-file (&optional org-file-path only-if-not-in-project)
   (interactive)
     "Integrate a notes file into the website.
@@ -174,6 +173,10 @@ a directory myfile and a directory myfile/assets"
           (make-directory assets-dir t))
       (message "asset directory was not created"))))
 
+(defun cs-org-get-linked-files-not-in-dedicated-assets-folder ()
+  "Each org file can get a dedicated assets folder:
+e.g.: ./a.org gets ./a/assets/ in which to ")
+
 (defun cs-org-get-linked-files ()
   "Gets linked file paths, but in their formatted version.
 That means not in their full expanded version."
@@ -216,14 +219,16 @@ ORG-BUFFER refers to the org buffer the links of which should be extracted."
                   (cons filepath filepath))
                 (remove nil
                         (mapcar (lambda (filepath)
-                                  (unless (files-under-same-project-p filepath
-                                                                      (buffer-file-name org-buffer))
-                                    filepath)
-                                  filepath)
+                                  (if (files-under-same-project-p filepath
+                                                                  (buffer-file-name org-buffer))
+                                      nil
+                                    filepath))
                                 (cs-org-get-linked-files))))
-      (mapcar (lambda (filepath)
-                (cons filepath filepath))
-              (cs-org-get-linked-files)))))
+      (remove nil (mapcar (lambda (filepath)
+                            (when (not (file-exists-somewhere-within-folder-p filepath
+                                                                              (file-name-directory (buffer-file-name org-buffer))))
+                              (cons filepath filepath)))
+                          (cs-org-get-linked-files))))))
 
 
 (defun get-target-filepath-in-assets-dir (assets-dir original-filepath)
@@ -292,8 +297,8 @@ and what to call the new file."
         (save-excursion
           (goto-char (point-min))
           (query-replace-regexp (regexp-quote candidate-filepath-as-printed-in-org)
-                                (file-relative-name (car target-path-results)
-                                                    (file-name-directory org-file-path))))))))
+                                (concat "./" (file-relative-name (car target-path-results)
+                                                            (file-name-directory org-file-path)))))))))
 
 
 (defun pull-files-into-asset-dir (&optional org-buffer only-if-not-in-project)

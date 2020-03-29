@@ -31,7 +31,40 @@
 (require 'cs-org-transfer)
 
 
+;; (defconst foo "foo-global-value")
+
+;; (defun otherfunc ()
+;;   ""
+;;   (prin1-to-string foo))
+
+;; (defun myfunc ()
+;;   ""
+;;   (interactive)
+;;   (prin1-to-string foo)
+;;   (let* ((foo "foo-changed-value"))
+;;     (prin1-to-string foo)
+;;     (otherfunc)
+;;     (prin1-to-string foo))
+;;   (prin1-to-string foo))
+
+
 ;; --- setting up a custom org-publish backend ---
+
+
+
+(cl-defstruct cs-relative-paths filepath relative-link-to-sitemap relative-link-to-index absolute-path-to-github-org-file)
+
+;; (defconst cs-relative-paths "global-value")
+
+(defconst cur-rel-paths (make-cs-relative-paths :filepath nil
+                                                :relative-link-to-sitemap
+                                                nil
+                                                :relative-link-to-index
+                                                nil
+                                                :absolute-path-to-github-org-file
+                                                nil))
+
+
 
 (defun my-org-html-publish-to-my-html (plist filename pub-dir ;; &optional anotherone
                                              )
@@ -49,7 +82,7 @@ Return output file name."
 				      "html"))
 		      plist pub-dir))
 
-(defun publish-project (&optional current-directory git-root for-preview)
+(defun cs-org-publish-project (&optional project-root-dir)
   "Publish the whole project.
    TODO: - check that only those files that are linked from org documents
            (and are in the org subfolder or the assets subfolder) are published as attachments
@@ -66,64 +99,124 @@ Return output file name."
            Interesting links:
            https://emacs.stackexchange.com/questions/45751/org-export-to-different-directory
            - check if there is some way of running latex blocks and exporting their output to html
-             and exporing them to latex as-is
-           "
-  (interactive)
-  (if (not current-directory)
-      (setq current-directory (expand-file-name "~")))
+             and exporing them to latex as-is"
 
-  (let* ((some-variable "hey")
+  (interactive)
+
+  (unless project-root-dir
+    (setq project-root-dir (get-next-project-root (buffer-file-name)
+                                                  t)))
+
+  (let* (;; (some-variable "hey")
          (project-name "site")
          (project-component-doc-name (concat project-name "org"))
          (project-component-other-name (concat project-name "other"))
          (project-component-all (concat project-name "all"))
-         (project-base-dir (helm-read-file-name "Publish: Select project's base dir:"
-                                                :initial-input (get-projects-base-dir (buffer-file-name))))
-         (project-publish-dir (if for-preview
-                                  (helm-read-file-name "Select project's publishing buffer (for preview) dir:"
-                                                       :initial-input (get-projects-publish-dir (buffer-file-name)))
-                                ;; publish it directly
-                                (get-publish-dir-from-git-root nil cs-my-public-website-root-dir))))
+         (project-base-dir
+          (if project-root-dir
+              (get-projects-base-dir-from-root-dir project-root-dir)
+            (helm-read-file-name "Publish: Select project's base dir:"
+                                 :initial-input (get-projects-base-dir (buffer-file-name)))))
+         (project-publish-dir
+          (if project-root-dir
+              (get-projects-publish-dir-from-root-dir project-root-dir)
+            (helm-read-file-name "Select project's publishing buffer (for preview) dir:"
+                                 :initial-input (get-projects-publish-dir (buffer-file-name))))
+                              ;; publish it directly
+                              ;; (get-publish-dir-from-git-root nil cs-my-public-website-root-dir)
+                              ))
 
-    (setq org-publish-project-alist `((,project-component-doc-name :base-directory ,project-base-dir
-                                                                   :base-extension "org"
-                                                                   :publishing-directory ,project-publish-dir
-                                                                   :recursive t
-                                                                   :publishing-function my-org-html-publish-to-my-html
-                                                                   :auto-sitemap t
-                                                                   :sitemap-title "Sitemap")
-                                      (,project-component-other-name :base-directory ,project-base-dir
-                                                                     :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|svg"
-                                                                     :publishing-directory ,project-publish-dir
-                                                                     :recursive t
-                                                                     :publishing-function org-publish-attachment)
-                                      (,project-component-all
-                                       :components (,project-component-doc-name ,project-component-other-name))))
+    (setq org-publish-project-alist
+          `((,project-component-doc-name
+             :base-directory ,project-base-dir
+             :base-extension "org"
+             :publishing-directory ,project-publish-dir
+             :recursive t
+             :publishing-function
+             ((lambda (plist filename pub-dir)
+                (let* ((cur-rel-paths
+                        (make-cs-relative-paths :filepath filename
+                                                :relative-link-to-sitemap
+                                                (concat (file-relative-name ,project-base-dir
+                                                                            (file-name-directory filename))
+                                                        "sitemap.html")
+                                                :relative-link-to-index
+                                                (concat (file-relative-name ,project-base-dir
+                                                                            (file-name-directory filename))
+                                                        "index.html")
+                                                :absolute-path-to-github-org-file
+                                                (if (or (string-equal (file-name-nondirectory filename) "index.org")
+                                                        (string-equal (file-name-nondirectory filename) "sitemap.org"))
+                                                    (get-project-repo-url (get-project-repo-name ,project-root-dir))
+                                                  (get-edit-on-github-link (get-project-repo-name ,project-root-dir)
+                                                                           ,project-root-dir
+                                                                           filename)))))
+                  (my-org-html-publish-to-my-html plist filename
+                                                  pub-dir))))
+             :auto-sitemap t
+             :sitemap-title "Sitemap")
+            (,project-component-other-name :base-directory ,project-base-dir
+                                           :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|svg"
+                                           :publishing-directory ,project-publish-dir
+                                           :recursive t
+                                           :publishing-function org-publish-attachment)
+            (,project-component-all
+             :components (,project-component-doc-name ,project-component-other-name))))
 
     (org-publish-reset-cache)
     (org-publish-remove-all-timestamps)
     (org-publish project-component-all t nil)
 
     (when (yes-or-no-p "Do you want to open the preview folder? ")
-      (shell-command (concat "nautilus " (prin1-to-string project-publish-dir) " &") publish-buffer-name publish-buffer-name))))
+      (shell-command (concat "nautilus " (prin1-to-string project-publish-dir) " &") publish-buffer-name publish-buffer-name))
+    ))
 
 
 
 ;;----- high-level, pushing to website functions -------
 
-(defun publish-project-one-whack (&optional root-dir)
+(defun publish-project-offline (&optional project-root-dir)
   (interactive)
-  (unless root-dir
-    (setq root-dir (get-next-git-root))
-    (unless root-dir
+  (unless project-root-dir
+    (setq project-root-dir (get-next-project-root (buffer-file-name)
+                                                  t))
+    (unless project-root-dir
+      (user-error "Root git dir not found")))
+  ;; project
+  (cs-clean-project-publish-buffer project-root-dir)
+  (produce-index-org project-root-dir)
+  (cs-org-publish-project project-root-dir))
+
+(defun publish-project-to-website-repo-offline (&optional project-root-dir)
+  (interactive)
+  (unless project-root-dir
+    (setq project-root-dir (get-next-project-root (buffer-file-name)  t))
+    (unless project-root-dir
       (user-error "Root git dir not found")))
 
-  (cs-clean-project-publish-buffer root-dir)
-  (update-index-and-publish-project root-dir)
-  (publish-override-directory-commit-and-push (get-publish-dir-from-git-root t (get-next-git-root))
-                                              (get-publish-dir-from-git-root nil cs-my-public-website-root-dir)))
+  ;; project
+  (cs-clean-project-publish-buffer project-root-dir)
 
-(defun publish-override-directory-commit-and-push (&optional source-dir target-dir)
+  (produce-index-org project-root-dir)
+
+  (cs-org-publish-project)
+
+  ;; website
+  (cs-website-project-clear-and-paste
+   ;; project publish dir
+   (get-publish-dir-from-git-root t
+                                  (get-next-git-root))
+   ;; website's publish dir
+   (get-publish-dir-from-git-root nil cs-my-public-website-root-dir))
+
+  (when (yes-or-no-p "Preview the website's local repo? ")
+    (shell-command (concat "nautilus " cs-my-public-website-root-dir " &") publish-buffer-name publish-buffer-name)))
+
+
+(defun cs-website-project-clear-and-paste (&optional source-dir target-dir)
+  "The website project could in the future be composed of several projects.
+But it can also just be a plain directory (with a .git and .gitignore)
+in which the html of a project (with an index.html is pasted)"
   (interactive)
   (let* ()
     (unless source-dir
@@ -134,34 +227,39 @@ Return output file name."
       (setq target-dir (helm-read-file-name "Select public publishing dir: "
                                             :initial-input (get-publish-dir-from-git-root nil cs-my-public-website-root-dir))))
 
+    ;; remove everything from the website's git repository directory (except the configuration files and the .git)
+    (with-output-to-temp-buffer publish-buffer-name
+      (shell-command (read-shell-command "Trash the website repo's html (except dotfiles): "
+                                         (concat " cd " (prin1-to-string target-dir) " ; "
+                                                 " trash -rf ./* ; "))
+                     publish-buffer-name))
+
     ;; override to website's git repository directory
     (with-output-to-temp-buffer publish-buffer-name
-      (shell-command (read-shell-command "Run the publishing command like this: "
+      (shell-command (read-shell-command "Copy the html to the website repo: "
                                          (concat "cp -af "
                                                  (prin1-to-string (concat (file-name-as-directory source-dir)
                                                                           "."))
                                                  " "
                                                  (prin1-to-string target-dir)))
                      publish-buffer-name))
-    (pop-to-buffer publish-buffer-name)
+    ;; (pop-to-buffer publish-buffer-name)
+    ))
 
-    ;; add all, commit and push in one step
-    (if (yes-or-no-p "Continue to add all, commit and push?")
-        (progn
-          (with-output-to-temp-buffer publish-buffer-name
-            (shell-command (read-shell-command "Run the pushing command like this: "
-                                               (concat " cd " (prin1-to-string target-dir) " ; "
-                                                       " git add . ; git commit -m 'pushing html' ; git push ; "))
-                           publish-buffer-name))
-          ;; go to the website to preview
-          (when (yes-or-no-p "Wanna open the website in browser?")
-            (browse-url (concat "https://"
-                                (file-name-nondirectory (directory-file-name (file-name-directory cs-my-public-website-root-dir)))))
-            (browse-url (concat cs-my-github-page-url
-                                (file-name-nondirectory (directory-file-name (file-name-directory cs-my-public-website-root-dir)))))))
-
-      ;; else, just open the directory in dired
-      (dired target-dir))))
+(defun cs-deploy-website-with-git ()
+  (interactive)
+  "Push the website's generated html to github pages."
+  (let* ((big-project-root-dir cs-my-public-website-root-dir))
+    (with-output-to-temp-buffer publish-buffer-name
+      (shell-command (read-shell-command "Run the pushing command like this: "
+                                         (concat " cd " (prin1-to-string big-project-root-dir) " ; "
+                                                 " git add . ; git commit -m 'pushing html' ; git push ; "))
+                     publish-buffer-name))
+    ;; go to the website to preview
+    ;; (when (yes-or-no-p "Wanna open the website in browser?")
+    ;;   (browse-url cs-my-github-website-url)
+    ;;   (browse-url cs-my-github-website-repo-url))
+    ))
 
 
 ;; ----- creating/updating the index.html of a project from it's set of org files ----
@@ -201,7 +299,11 @@ all other org files."
 ;; <hr>
 ;; #+END_EXPORT"))
       ;; sort after last posted date and print
-      (setq sorted-list (reverse (my-sort-for-what (copy-list pm-list) 'post-metadata-date)))
+      (setq sorted-list (reverse
+                         (remove nil (mapcar (lambda (metadata)
+                                               (when (post-metadata-date metadata)
+                                                 metadata))
+                                             (my-sort-for-what (copy-list pm-list) 'post-metadata-date)))))
       (when sorted-list
         (insert "\n")
         ;; sort
@@ -258,12 +360,12 @@ all other org files."
     (setq root-dir (get-next-git-root)))
   (get-index-as-org-file root-dir))
 
-(defun update-index-and-publish-project (&optional root-dir)
-  (interactive)
-  (unless root-dir
-    (setq root-dir (get-next-git-root)))
-  (produce-index-org root-dir)
-  (publish-project nil root-dir t))
+;; (defun update-index-and-publish-project (&optional root-dir)
+;;   (interactive)
+;;   (unless root-dir
+;;     (setq root-dir (get-next-git-root)))
+;;   (produce-index-org root-dir)
+;;   (cs-org-publish-project nil root-dir t))
 
 ;; --- importing an org file and it's needed assets into a project from outside -----
 
@@ -277,6 +379,49 @@ adjusted in the org file."
   (unless org-file-path
     (setq org-file-path (buffer-file-name)))
   (cs-transfer-single-org-file org-file-path t))
+
+
+
+(defun cs-org-publish-run-hydra ()
+  ""
+  (interactive)
+  (let* ((hydra-body (eval (remove nil
+                                   `(defhydra hydra-cs-org-publish
+                                      (:columns 1 :exit t)
+                                      "cs-org-publish: options for publishing a blog post"
+                                      ("t s o"
+                                       (lambda ()
+                                         (interactive)
+                                         (cs-transfer-single-org-file))
+                                       "transfer single org file")
+                                      ("p l f"
+                                       (lambda ()
+                                         (interactive)
+                                         (pull-files-into-asset-dir))
+                                       "pull linked files into asset directory")
+                                      ("p p o"
+                                       (lambda ()
+                                         (interactive)
+                                         (publish-project-offline))
+                                       "publish the project offline for preview")
+                                      ("p w r"
+                                       (lambda ()
+                                         (interactive)
+                                         (publish-project-to-website-repo-offline))
+                                       "publish the project offline to website repo")
+                                      ("d w g"
+                                       (lambda ()
+                                         (interactive)
+                                         (cs-deploy-website-with-git))
+                                       "deploy website with git")
+                                      ("q" nil "cancel")))))))
+    (hydra-cs-org-publish/body)
+    (fmakunbound 'hydra-cs-org-publish/body)
+    (setq hydra-cs-org-publish/body nil))
+
+(define-key org-mode-map (kbd "C-M-, P") ; process
+  'cs-org-publish-run-hydra)
+
 
 (provide 'cs-org-publish)
 ;;; cs-org-publish.el ends here

@@ -172,10 +172,10 @@ margin-top: 25px;
 </head>
 <body>
 <div class=\"topbar\">
-  <div class=\"slidingtopbar\">
-    <a href=\"https://534ttl3.github.io/index.html\">Home</a>
-    <a href=\"https://534ttl3.github.io/sitemap.html\">Sitemap</a>"
-   ;; "<a href=\"javascript:window.location.href = 'https://github.com/534ttl3/' + document.URL.split('/').slice(0,-1).slice(-1)[0] + '/edit/master/org/' + document.URL.split('/').slice(-1)[0].split('.').slice(0, -1)[0] + '.org'\">Edit this page on GitHub</a> "
+  <div class=\"slidingtopbar\">"
+    "<a href=\"" (cs-relative-paths-relative-link-to-index cur-rel-paths) "\">Home</a>"
+    "<a href=\"" (cs-relative-paths-relative-link-to-sitemap cur-rel-paths) "\">Sitemap</a>"
+    "<a href=\"" (cs-relative-paths-absolute-path-to-github-org-file cur-rel-paths) "\">Edit on Github</a>"
    "</div>
 </div>"))
 
@@ -237,6 +237,8 @@ holding export options."
       ;;       (format-time-string
       ;;        (plist-get info :html-metadata-timestamp-format))))
       ))
+
+   ;; (prin1-to-string cur-rel-paths)
 
    contents
    "\n</div>"

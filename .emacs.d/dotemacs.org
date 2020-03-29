@@ -2246,6 +2246,9 @@ Enables transferring (or copying) an org file with it's linked assets to anoter 
   (require 'cs-org-transfer)
 #+END_SRC
 
+#+RESULTS:
+: cs-org-transfer
+
 * org mode latex
 #+BEGIN_SRC emacs-lisp
   ;; ------------ latex fragments preview (small custom library)

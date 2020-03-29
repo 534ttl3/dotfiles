@@ -33,11 +33,17 @@
 ;; This you might need to change depending on your installation
 (defconst cs-my-public-website-root-dir (file-name-as-directory (expand-file-name "~/Dropbox/1Projects/programming/534ttl3.github.io")))
 (defconst cs-my-github-page-url "https://github.com/534ttl3/")
+(defconst cs-my-github-website-repo-name "534ttl3.github.io")
+(defconst cs-my-github-website-url (concat "https://" cs-my-github-website-repo-name))
+(defconst cs-my-github-website-repo-url (concat cs-my-github-page-url cs-my-github-website-repo-name))
 (defconst project-properties-filename ".project-properties")
 (defconst publish-for-preview-dir-name (file-name-as-directory "publish-buffer"))
 (defconst cs-org-publish-within-single-project-base-dir-name (file-name-as-directory "org"))
 (defconst publish-buffer-name "*publish*")
-
+(defconst cs-github-edit-master-subdir-path-name "./edit/master/")
+(defconst cs-github-blob-master-subdir-path-name "./blob/master/")
+;; a link to a website could look like this:
+;; https://github.com/534ttl3/derivations-site/blob/master/org/example.org
 
 ;; ------- getting relevant project directories or vcs directories automatically, or from file paths --------
 (defun get-projects-base-dir (buffname)
@@ -51,6 +57,36 @@
                                                         (get-next-project-root buffname)
                                                       (file-name-directory buffname)))
                             publish-for-preview-dir-name)))
+
+(defun get-projects-base-dir-from-root-dir (project-root-dir)
+  (let* ((standard (concat project-root-dir cs-org-publish-within-single-project-base-dir-name)))
+    (if (file-exists-p standard)
+        standard
+      (user-error (concat "Base dir " standard " does not exist")))))
+
+(defun get-projects-publish-dir-from-root-dir (project-root-dir)
+  (let* ((standard (concat project-root-dir publish-for-preview-dir-name)))
+    standard
+    ;; (if (file-exists-p standard)
+    ;;     standard
+    ;;   (user-error (concat "Publish for preview dir " standard " does not exist")))
+    ))
+
+(defun get-project-repo-name (project-root)
+  (file-name-nondirectory
+   (directory-file-name
+    (file-name-directory (file-name-as-directory project-root)))))
+
+(defun get-project-repo-url (project-repo-name)
+  (concat cs-my-github-page-url project-repo-name "/"))
+
+(defun get-project-view-file-in-repo-url (project-repo-name)
+  (concat cs-my-github-page-url project-repo-name "/"))
+
+(defun get-edit-on-github-link (project-repo-name project-root-dir file-path)
+  (concat cs-my-github-page-url (file-name-as-directory project-repo-name)
+          cs-github-blob-master-subdir-path-name (file-relative-name file-path project-root-dir))
+  )
 
 (defun get-next-git-root (&optional ask)
   (let* ((automatically-found-dir (file-name-as-directory (car (split-string (shell-command-to-string "git rev-parse --show-toplevel")
@@ -75,7 +111,7 @@
                (file-exists-p git-root))
     (setq git-root (get-next-git-root)))
   (if publish-to-buffer
-      (file-name-as-directory (concat git-root "publish-buffer"))
+      (file-name-as-directory (concat git-root publish-for-preview-dir-name))
     ;; not publish to buffer means: publish index.html into the root, i.e. publish directly
     (file-name-as-directory git-root)))
 
@@ -203,35 +239,33 @@
 
 (defun print-post-metadata-into-org (pm-instance)
   (let* ((date-str (post-metadata-date pm-instance)))
-    (insert "#+BEGIN_EXPORT html"
-            "\n"
-            "<div class=\"post-container-div\">"
-            "\n"
-            "#+END_EXPORT"
-            "\n"
-            "[["
-            (concat (file-name-as-directory (post-metadata-relative-dir-path pm-instance))
-                    (post-metadata-file-name-base pm-instance)
-                    ".org")
-            "]["
-            (post-metadata-title pm-instance)
-            "]]"
-            "\n"
-            (when date-str
-              (concat "#+BEGIN_EXPORT html"
-                      "\n"
-                      (format "<p class=\"posted\"> %s </p>"
-                              date-str)
-                      "\n"
-                      "#+END_EXPORT"
-                      "\n"))
-            "#+BEGIN_EXPORT html"
-            "\n"
-            "</div>"
-            "\n"
-            "#+END_EXPORT"
-            "\n"
-            )))
+    (insert (concat "#+BEGIN_EXPORT html"
+                    "\n"
+                    "<div class=\"post-container-div\">"
+                    "\n"
+                    "#+END_EXPORT"
+                    "\n"
+                    "[["
+                    (concat (file-name-as-directory (post-metadata-relative-dir-path pm-instance))
+                            (post-metadata-file-name-base pm-instance)
+                            ".org")
+                    "]["
+                    (post-metadata-title pm-instance)
+                    "]]"
+                    "\n"
+                    (when date-str
+                      (concat "#+BEGIN_EXPORT html"
+                              "\n"
+                              (format "<p class=\"posted\"> %s </p>" date-str)
+                              "\n"
+                              "#+END_EXPORT"
+                              "\n"))
+                    "#+BEGIN_EXPORT html"
+                    "\n"
+                    "</div>"
+                    "\n"
+                    "#+END_EXPORT"
+                    "\n"))))
 
 
 ;; ------- cleaning out the produced html of a projcet --------
@@ -248,7 +282,7 @@
                                                " ; "
                                                ;; " && rm -rvf *.elc 2>/dev/null "
                                                " rm -rvf "
-                                               (prin1-to-string (get-publish-dir-from-git-root t root-dir))
+                                               (prin1-to-string publish-for-preview-dir-name)
                                                " ; "
                                                " rm -rvf ~/.org-timestamps/* ; "))
                    publish-buffer-name)))
