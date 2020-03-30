@@ -37,7 +37,7 @@
 (defconst cs-my-github-website-url (concat "https://" cs-my-github-website-repo-name))
 (defconst cs-my-github-website-repo-url (concat cs-my-github-page-url cs-my-github-website-repo-name))
 (defconst project-properties-filename ".project-properties")
-(defconst publish-for-preview-dir-name (file-name-as-directory "publish-buffer"))
+(defconst www-dir-name (file-name-as-directory "www"))
 (defconst cs-org-publish-within-single-project-base-dir-name (file-name-as-directory "org"))
 (defconst publish-buffer-name "*publish*")
 (defconst cs-github-edit-master-subdir-path-name "./edit/master/")
@@ -56,7 +56,7 @@
   (expand-file-name (concat (file-name-as-directory (if (get-next-project-root buffname)
                                                         (get-next-project-root buffname)
                                                       (file-name-directory buffname)))
-                            publish-for-preview-dir-name)))
+                            www-dir-name)))
 
 (defun get-projects-base-dir-from-root-dir (project-root-dir)
   (let* ((standard (concat project-root-dir cs-org-publish-within-single-project-base-dir-name)))
@@ -65,7 +65,7 @@
       (user-error (concat "Base dir " standard " does not exist")))))
 
 (defun get-projects-publish-dir-from-root-dir (project-root-dir)
-  (let* ((standard (concat project-root-dir publish-for-preview-dir-name)))
+  (let* ((standard (concat project-root-dir www-dir-name)))
     standard
     ;; (if (file-exists-p standard)
     ;;     standard
@@ -88,16 +88,24 @@
           cs-github-blob-master-subdir-path-name (file-relative-name file-path project-root-dir))
   )
 
-(defun get-next-git-root (&optional ask)
-  (let* ((automatically-found-dir (file-name-as-directory (car (split-string (shell-command-to-string "git rev-parse --show-toplevel")
+(defun get-next-git-root (&optional ask prompt filepath)
+  (let* ((automatically-found-dir (file-name-as-directory (car (split-string (shell-command-to-string
+                                                                              (concat (when (and filepath (if (file-exists-p filepath)
+                                                                                                              t
+                                                                                                            (user-error (concat "Filepath " (prin1-to-string filepath) " given to get-next-git-root doesn't exist"))))
+                                                                                        (concat " cd "
+                                                                                                (prin1-to-string (file-name-directory filepath))
+                                                                                                " ; "))
+                                                                                      "git rev-parse --show-toplevel"))
                                                                              "\n")))))
     (if (not ask)
         (if automatically-found-dir
             automatically-found-dir
           (user-error "No git dir was automatically found"))
-      (helm-read-file-name "Select git directory root: "
-                           :initial-input (file-name-as-directory (car (split-string (shell-command-to-string "git rev-parse --show-toplevel")
-                                                                                     "\n"))))))
+      (helm-read-file-name (if prompt
+                               prompt
+                             "Select git directory root: ")
+                           :initial-input automatically-found-dir)))
   ;; TODO: give error or warning if it's not a git dir root
   )
 
@@ -106,18 +114,22 @@
     (setq git-root (get-next-git-root)))
   (file-name-as-directory (concat git-root "org")))
 
-(defun get-publish-dir-from-git-root (publish-to-buffer &optional git-root)
+(defun get-publish-dir-from-git-root (publish-to-buffer &optional git-root subproject-name)
   (unless (and git-root
                (file-exists-p git-root))
     (setq git-root (get-next-git-root)))
   (if publish-to-buffer
-      (file-name-as-directory (concat git-root publish-for-preview-dir-name))
+      (let* ((www-dir (file-name-as-directory (concat git-root www-dir-name))))
+        (if subproject-name
+            (file-name-as-directory (concat www-dir subproject-name))
+          www-dir))
     ;; not publish to buffer means: publish index.html into the root, i.e. publish directly
+    ;; FIXME: maybe remove this option eventually
     (file-name-as-directory git-root)))
 
-(defun get-next-project-root (filepath &optional ask)
+(defun get-next-project-root (filepath &optional ask prompt)
   "From inside a path, get the project's root."
-  (let* ((project-root-dir (get-next-git-root ask)))
+  (let* ((project-root-dir (get-next-git-root ask prompt filepath)))
     (when (and (file-exists-p (concat project-root-dir project-properties-filename))
                (file-exists-somewhere-within-folder-p filepath
                                                       project-root-dir))
@@ -162,10 +174,7 @@
 (cl-defstruct post-metadata title date last-modified-date file-name-base relative-dir-path post-type)
 
 (defun my-sort-for-what (mylist sort-for-what)
-  (let* ( ;; (foo (make-post-metadata :title "dis foo title"))
-         ;; (bar (make-post-metadata :title "dis bar title"))
-         ;; (mylist (list foo bar))
-         )
+  (let* ()
     (sort mylist
           `(lambda (elem1 elem2)
              (string-lessp (,sort-for-what elem1)
@@ -173,6 +182,7 @@
 
 (defun get-all-post-metadatas (base-dir &optional forbidden-file-names)
   (interactive)
+  (setq base-dir (expand-file-name base-dir))
   (setq forbidden-file-names (list "sitemap.org" "index.org" "index.org"))
   ;; (setq base-dir (expand-file-name "/home/chris/Dropbox/1Projects/programming/derivations-site"))
   (let* ((file-path-list (remove nil
@@ -269,22 +279,25 @@
 
 
 ;; ------- cleaning out the produced html of a projcet --------
-(defun cs-clean-project-publish-buffer (&optional root-dir)
+(defun cs-clean-project-publish-buffer (&optional root-dir prompt subdir-rel-path)
   (interactive)
   (unless root-dir
     (setq root-dir (get-next-git-root))
     (unless root-dir
       (user-error "Root git dir not found")))
   (with-output-to-temp-buffer publish-buffer-name
-    (shell-command (read-shell-command "Run the cleaning command like this: "
-                                       (concat "cd "
-                                               (prin1-to-string root-dir)
-                                               " ; "
-                                               ;; " && rm -rvf *.elc 2>/dev/null "
-                                               " rm -rvf "
-                                               (prin1-to-string publish-for-preview-dir-name)
-                                               " ; "
-                                               " rm -rvf ~/.org-timestamps/* ; "))
+    (shell-command
+     (read-shell-command (if prompt prompt "Run the cleaning command like this: ")
+                         (concat "cd "
+                                 (prin1-to-string root-dir)
+                                 " ; "
+                                 ;; " && rm -rvf *.elc 2>/dev/null "
+                                 " find "
+                                 (prin1-to-string (concat (file-name-as-directory www-dir-name)
+                                                          subdir-rel-path))
+                                 " -type f,d -exec rm -f {} + "
+                                 " ; "
+                                 " rm -rvf ~/.org-timestamps/* ; "))
                    publish-buffer-name)))
 
 

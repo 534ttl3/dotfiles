@@ -31,25 +31,7 @@
 (require 'cs-org-transfer)
 
 
-;; (defconst foo "foo-global-value")
-
-;; (defun otherfunc ()
-;;   ""
-;;   (prin1-to-string foo))
-
-;; (defun myfunc ()
-;;   ""
-;;   (interactive)
-;;   (prin1-to-string foo)
-;;   (let* ((foo "foo-changed-value"))
-;;     (prin1-to-string foo)
-;;     (otherfunc)
-;;     (prin1-to-string foo))
-;;   (prin1-to-string foo))
-
-
 ;; --- setting up a custom org-publish backend ---
-
 
 
 (cl-defstruct cs-relative-paths filepath relative-link-to-sitemap relative-link-to-index absolute-path-to-github-org-file)
@@ -183,37 +165,43 @@ Return output file name."
     (unless project-root-dir
       (user-error "Root git dir not found")))
   ;; project
-  (cs-clean-project-publish-buffer project-root-dir)
+  (cs-clean-project-publish-buffer project-root-dir (concat "Clean out " (get-project-repo-name project-root-dir) "'s html directory: "))
   (produce-index-org project-root-dir)
   (cs-org-publish-project project-root-dir))
 
 (defun publish-project-to-website-repo-offline (&optional project-root-dir)
   (interactive)
-  (unless project-root-dir
-    (setq project-root-dir (get-next-project-root (buffer-file-name)  t))
+  (let* (project-name)
     (unless project-root-dir
-      (user-error "Root git dir not found")))
+      (setq project-root-dir (get-next-project-root (buffer-file-name) t "select local project which you want to publish"))
+      (unless project-root-dir
+        (user-error "Root git dir not found")))
 
-  ;; project
-  (cs-clean-project-publish-buffer project-root-dir)
+    (setq project-name (get-project-repo-name project-root-dir))
 
-  (produce-index-org project-root-dir)
+    ;; clean project
+    (cs-clean-project-publish-buffer project-root-dir (concat "Clean out " project-name "'s html directory: "))
 
-  (cs-org-publish-project)
+    (produce-index-org project-root-dir)
 
-  ;; website
-  (cs-website-project-clear-and-paste
-   ;; project publish dir
-   (get-publish-dir-from-git-root t
-                                  (get-next-git-root))
-   ;; website's publish dir
-   (get-publish-dir-from-git-root nil cs-my-public-website-root-dir))
+    (cs-org-publish-project project-root-dir)
 
-  (when (yes-or-no-p "Preview the website's local repo? ")
-    (shell-command (concat "nautilus " cs-my-public-website-root-dir " &") publish-buffer-name publish-buffer-name)))
+    ;; website
+    (cs-website-project-clear-and-paste
+     ;; project publish dir
+     (get-publish-dir-from-git-root t
+                                    (get-next-git-root) )
+     ;; website's publish dir
+     (get-publish-dir-from-git-root t cs-my-public-website-root-dir project-name)
+
+     ;; subproject's name
+     project-name)
+
+    (when (yes-or-no-p "Preview the website's local repo? ")
+      (shell-command (concat "nautilus " cs-my-public-website-root-dir " &") publish-buffer-name publish-buffer-name))))
 
 
-(defun cs-website-project-clear-and-paste (&optional source-dir target-dir)
+(defun cs-website-project-clear-and-paste (&optional source-dir target-dir subproject-name)
   "The website project could in the future be composed of several projects.
 But it can also just be a plain directory (with a .git and .gitignore)
 in which the html of a project (with an index.html is pasted)"
@@ -225,14 +213,18 @@ in which the html of a project (with an index.html is pasted)"
                                                                                           (get-next-git-root)))))
     (unless target-dir
       (setq target-dir (helm-read-file-name "Select public publishing dir: "
-                                            :initial-input (get-publish-dir-from-git-root nil cs-my-public-website-root-dir))))
+                                            :initial-input (get-publish-dir-from-git-root t cs-my-public-website-root-dir))))
 
-    ;; remove everything from the website's git repository directory (except the configuration files and the .git)
-    (with-output-to-temp-buffer publish-buffer-name
-      (shell-command (read-shell-command "Trash the website repo's html (except dotfiles): "
-                                         (concat " cd " (prin1-to-string target-dir) " ; "
-                                                 " trash -rf ./* ; "))
-                     publish-buffer-name))
+    ;; clean out the website's www directory (or subdirectory)
+    (if (not (file-exists-p target-dir))
+        (if (yes-or-no-p (concat "Target dir " (prin1-to-string target-dir) " doesn't exist. Create it?"))
+            (make-directory (file-name-as-directory target-dir) t)
+          (user-error "Target dir not created, thus no target to write to clean out or to write to")))
+
+    (cs-clean-project-publish-buffer
+     (get-next-project-root target-dir t "Select website repo: ")
+     "Clean out website's html directory: "
+     (file-name-as-directory subproject-name))
 
     ;; override to website's git repository directory
     (with-output-to-temp-buffer publish-buffer-name
@@ -276,28 +268,8 @@ all other org files."
     (insert "#+OPTIONS: num:nil\n")
     (insert "#+TITLE: Home\n")
 
-    (let* ((base-dir (get-org-dir-from-git-root root-dir))
-           (pm-list (get-all-post-metadatas base-dir)) sorted-list)
-      ;; ;; sort after last modified date and print
-      ;; ;; this doesn't really work yet, since org-publish touches every org file when publishing
-;;       (setq sorted-list (reverse (my-sort-for-what pm-list 'post-metadata-last-modified-date)))
-;;       (when sorted-list
-;;         (insert "\n")
-;;         ;; sort
-;;         (insert "*Most recently updated pages:*")
-;;         (insert "\n")
-;;         (insert "\n")
-;;         (let* ((ctr 0))
-;;           (while (and (nth ctr sorted-list)
-;;                       (< ctr 3))
-;;             (print-post-metadata-into-org (nth ctr sorted-list))
-;;             (insert "\n")
-;;             (insert "\n")
-;;             (setq ctr (+ 1 ctr))))
-;;         (insert "
-;; #+BEGIN_EXPORT html
-;; <hr>
-;; #+END_EXPORT"))
+    (let* ((base-dir (get-org-dir-from-git-root (expand-file-name root-dir)))
+           (pm-list (get-all-post-metadatas (expand-file-name base-dir))) sorted-list)
       ;; sort after last posted date and print
       (setq sorted-list (reverse
                          (remove nil (mapcar (lambda (metadata)
@@ -421,6 +393,13 @@ adjusted in the org file."
 
 (define-key org-mode-map (kbd "C-M-, P") ; process
   'cs-org-publish-run-hydra)
+
+
+
+(defun generate-index-html-across-subprojects (subproject-dirs)
+  (interactive)
+  (get-all-post-metadatas "~/Dropbox/1Projects/programming/derivations-site/org/")
+  )
 
 
 (provide 'cs-org-publish)

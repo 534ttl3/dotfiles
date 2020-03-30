@@ -167,6 +167,13 @@ background: aliceblue;
 margin-bottom: 25px;
 margin-top: 25px;
 }
+
+pre.src {
+width: auto;
+position: absolute;
+overflow: visible;
+}
+
 "
    "</style>
 </head>
