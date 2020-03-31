@@ -27,6 +27,7 @@
 (require 'org)
 (require 'org-agenda)
 (require 'hydra)
+(require 'dash)
 
 ;; let all org files be agenda relevant
 ;; make sure you have all todo's synced
@@ -35,6 +36,7 @@
 
 (defun org-toggle-todo-and-fold ()
   (interactive)
+  (setq org-log-done 'time)
   (save-excursion
     (org-back-to-heading t) ;; Make sure command works even if point is
                             ;; below target heading
@@ -52,17 +54,34 @@
   "Reloads the list of agenda files.
 Agenda files are in subdirectories of fixed directories."
   (interactive)
-  (let* ((list-of-home-dirs (list "~/Dropbox/")))
-    (message (concat "Reloading... " (prin1-to-string list-of-home-dirs)))
-    (setq org-agenda-files (apply 'append
-                                  (mapcar (lambda (directory)
-                                            (f-files "~/Dropbox/"
-                                                     (lambda (f)
-                                                       (string= (f-ext f)
-                                                                "org"))
-                                                     'recursive))
-                                          list-of-home-dirs))))
-  (message (concat "Done reloading recursively from " (prin1-to-string list-of-home-dirs))))
+  (let* ((org-files-dirs
+          (remove nil
+                  (mapcar (lambda (dir)
+                            (when (file-exists-p (expand-file-name dir))
+                              (expand-file-name dir)))
+                          (list "~/Dropbox/")))))
+    (message (concat "Reloading... " (prin1-to-string org-files-dirs)))
+    (setq org-agenda-files '())
+    (setq org-agenda-files
+          (append org-agenda-files
+                 (let* ((find-output-split
+                         (split-string
+                          (shell-command-to-string
+                           (concat
+                            "find "
+                            (let* ((mystr ""))
+                              (mapcar (lambda (org-files-dir)
+                                        (setq mystr (concat mystr " " (prin1-to-string org-files-dir))))
+                                org-files-dirs)
+                              mystr)
+                            " -name \"*.org\" -type f"))
+                          "\n"))
+                        (slice-end (length find-output-split)))
+                   (when (string-equal (cadr find-output-split)
+                                       "")
+                     (setq slice-end -1))
+                   (-slice find-output-split 0 slice-end))))
+    (message (concat "Done reloading " (prin1-to-string org-files-dirs)))))
 
 ;; FIXME: writing agenda files to file in the cloud instead locally to .emacs
 

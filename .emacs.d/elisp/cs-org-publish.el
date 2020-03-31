@@ -395,10 +395,73 @@ adjusted in the org file."
   'cs-org-publish-run-hydra)
 
 
+(cl-defstruct project-properties description-html ranking visibility subproject-paths)
 
-(defun generate-index-html-across-subprojects (subproject-dirs)
+(defconst project-properties-keyword-list
+  (list "description-html" "ranking" "visibility" "subproject-paths"))
+
+(defun get-project-properties-relative-file-path (project-root)
+  (expand-file-name (concat (file-name-as-directory project-root) project-properties-filename)))
+
+(defun get-current-line ()
+  (buffer-substring-no-properties (progn (beginning-of-line)
+                                           (point))
+                                    (progn (end-of-line)
+                                           (point))))
+
+
+(defun parse-subproject-paths ()
+  ""
+  (let* (cur-line
+         project-paths)
+    (goto-char (point-min))
+    (re-search-forward "subproject-paths")
+    (forward-line)
+    (while (and (not (equal (point) (point-max)))
+                (not (string-equal (setq cur-line (get-current-line)) "")))
+      (setq project-paths (append project-paths (list cur-line)))
+      (forward-line))
+    project-paths))
+
+(defun search-forward-to-the-next-of-list ()
+  ""
+  (let* ((original-point (point)))
+    (goto-char (car (-sort '< (remove nil (mapcar (lambda (keyword)
+                                                    (save-excursion
+                                                      (re-search-forward keyword nil t)
+                                                      (when (> (point) original-point)
+                                                        (point))))
+                                                  project-properties-keyword-list)))))))
+
+(defun parse-html-description ()
+  ""
+  (let* (cur-line
+         project-paths)
+    (goto-char (point-min))
+    (re-search-forward "html-description")
+    (forward-line)
+    (while (and (not (equal (point) (point-max)))
+                (not (string-equal (setq cur-line (get-current-line)) "")))
+      (setq project-paths (append project-paths (list cur-line)))
+      (forward-line))
+    project-paths))
+
+(defun parse-project-properties (project-root)
+  (find-file-other-window (get-project-properties-relative-file-path project-root))
+  (let* ((project-properties (make-project-properties
+                              :subproject-paths (re-search-backward "subproject-paths:\n")
+                              )))))
+
+(defun generate-index-html-across-subprojects (&optional project-root)
   (interactive)
-  (get-all-post-metadatas "~/Dropbox/1Projects/programming/derivations-site/org/")
+  ;; (get-all-post-metadatas "~/Dropbox/1Projects/programming/derivations-site/org/")
+
+  ;; go to the paths of the two projects and parse their .project-properties files
+
+  (unless project-root
+    ;; (setq project-root (get-next-project-root (buffer-file-name)))
+    (setq project-root (expand-file-name "~/Dropbox/1Projects/programming/534ttl3.github.io/")))
+  (let* ((project-properties )))
   )
 
 
