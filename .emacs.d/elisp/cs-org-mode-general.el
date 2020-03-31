@@ -132,6 +132,10 @@
                            prepend)
                           ("\\<\\(TOASK\\):" 1 'cs-org-face-toask
                            prepend)
+                          ("\\<\\(EXPECTATION:\\):" 1 'font-lock-warning-face
+                           prepend)
+                          ("\\<\\(RESULT\\):" 1 'cs-org-face-toreport
+                           prepend)
                           ("\\<\\(RESPONSE\\):" 1 'cs-org-face-response
                            prepend))
                         t)
