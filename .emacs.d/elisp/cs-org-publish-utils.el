@@ -33,6 +33,7 @@
 ;; This you might need to change depending on your installation
 (defconst cs-my-public-website-root-dir (file-name-as-directory (expand-file-name "~/Dropbox/1Projects/programming/534ttl3.github.io")))
 (defconst cs-my-github-page-url "https://github.com/534ttl3/")
+(defconst cs-my-youtube-page-url "https://youtube.com/s41b0tproductions")
 (defconst cs-my-github-website-repo-name "534ttl3.github.io")
 (defconst cs-my-github-website-url (concat "https://" cs-my-github-website-repo-name))
 (defconst cs-my-github-website-repo-url (concat cs-my-github-page-url cs-my-github-website-repo-name))
@@ -295,7 +296,7 @@
                                  " find "
                                  (prin1-to-string (concat (file-name-as-directory www-dir-name)
                                                           subdir-rel-path))
-                                 " -type f,d -exec rm -f {} + "
+                                 " -type f,d -exec rm -rf {} + "
                                  " ; "
                                  " rm -rvf ~/.org-timestamps/* ; "))
                    publish-buffer-name)))

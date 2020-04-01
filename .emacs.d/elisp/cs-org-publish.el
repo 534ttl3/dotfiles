@@ -381,6 +381,11 @@ adjusted in the org file."
                                          (interactive)
                                          (publish-project-to-website-repo-offline))
                                        "publish the project offline to website repo")
+                                      ("g b i f"
+                                       (lambda ()
+                                         (interactive)
+                                         (generate-index-html-for-base-project ))
+                                       "generate base index.html file")
                                       ("d w g"
                                        (lambda ()
                                          (interactive)
@@ -395,7 +400,7 @@ adjusted in the org file."
   'cs-org-publish-run-hydra)
 
 
-(cl-defstruct project-properties description-html ranking visibility subproject-paths)
+(cl-defstruct project-properties description-html visibility subproject-paths)
 
 (defconst project-properties-keyword-list
   (list "description-html" "ranking" "visibility" "subproject-paths"))
@@ -410,60 +415,168 @@ adjusted in the org file."
                                            (point))))
 
 
-(defun parse-subproject-paths ()
-  ""
-  (let* (cur-line
-         project-paths)
-    (goto-char (point-min))
-    (re-search-forward "subproject-paths")
-    (forward-line)
-    (while (and (not (equal (point) (point-max)))
-                (not (string-equal (setq cur-line (get-current-line)) "")))
-      (setq project-paths (append project-paths (list cur-line)))
-      (forward-line))
-    project-paths))
+;; (defun parse-subproject-paths ()
+;;   ""
+;;   (let* (cur-line
+;;          project-paths)
+;;     (goto-char (point-min))
+;;     (re-search-forward "subproject-paths")
+;;     (forward-line)
+;;     (while (and (not (equal (point) (point-max)))
+;;                 (not (string-equal (setq cur-line (get-current-line)) "")))
+;;       (setq project-paths (append project-paths (list cur-line)))
+;;       (forward-line))
+;;     project-paths))
 
 (defun search-forward-to-the-next-of-list ()
   ""
-  (let* ((original-point (point)))
-    (goto-char (car (-sort '< (remove nil (mapcar (lambda (keyword)
-                                                    (save-excursion
-                                                      (re-search-forward keyword nil t)
-                                                      (when (> (point) original-point)
-                                                        (point))))
-                                                  project-properties-keyword-list)))))))
+  (let* ((original-point (point))
+         (end-char (car (-sort '<
+                           (remove nil
+                                   (mapcar (lambda (keyword)
+                                             (save-excursion
+                                               (re-search-forward keyword nil t)
+                                               (when (> (point) original-point)
+                                                 (point))))
+                                           project-properties-keyword-list))))))
+    (when end-char
+      (goto-char end-char))))
 
-(defun parse-html-description ()
+(defun search-forward-to-next-of-list-or-end-of-file ()
   ""
-  (let* (cur-line
-         project-paths)
+  (unless (search-forward-to-the-next-of-list)
+    (goto-char (point-max)))
+  (point))
+
+(defun get-keyword-section-content (keyword-str)
+  ""
+  (save-excursion
+    ;; start at the beginning
     (goto-char (point-min))
-    (re-search-forward "html-description")
-    (forward-line)
-    (while (and (not (equal (point) (point-max)))
-                (not (string-equal (setq cur-line (get-current-line)) "")))
-      (setq project-paths (append project-paths (list cur-line)))
-      (forward-line))
-    project-paths))
+    (re-search-forward keyword-str nil t)
+    (when (not (equal (point) (point-min)))
+      ;; it has found the keyword
+      (let* ((point-searched-from (point))
+             (point-searched-to (progn
+                                  (save-excursion
+                                    (search-forward-to-next-of-list-or-end-of-file)
+                                    (when (not (equal (point) point-searched-from))
+                                      (point))))))
+        (when point-searched-to
+          (buffer-substring-no-properties (save-excursion (goto-char point-searched-from)
+                                                          (end-of-line)
+                                                          (point))
+                                          (save-excursion (goto-char point-searched-to)
+                                                          (if (equal point-searched-to (point-max))
+                                                              (end-of-line)
+                                                            (beginning-of-line))
+                                                          (point))))))))
+
+(defun parse-subproject-paths ()
+  ""
+  (mapcar (lambda (filepath)
+            (file-name-as-directory filepath))
+          (let* ((result (get-keyword-section-content "subproject-paths")))
+            (when result
+              (split-string-and-unquote result "\n")))))
+
+(defun parse-visibility ()
+  "Allowed: a simple `yes` or `no`.
+That is after the linebreak of the keyword, of course.
+If invalid value, assume `yes`.
+If nothing specified, assume `yes`."
+  (let* ((result
+          (car (mapcar
+                (lambda (str)
+                  (string-trim str))
+                (split-string-and-unquote
+                 (concat (get-keyword-section-content "visibility"))
+                 "\n")))))
+    (cond
+     ;; check for `no` string case-insensitively
+     ((equalp result "no") nil)
+     (t t))))
+
+(defun parse-description-html ()
+  ""
+  (string-trim (concat (get-keyword-section-content "description-html"))))
 
 (defun parse-project-properties (project-root)
-  (find-file-other-window (get-project-properties-relative-file-path project-root))
-  (let* ((project-properties (make-project-properties
-                              :subproject-paths (re-search-backward "subproject-paths:\n")
-                              )))))
+  ""
+  (with-temp-buffer
+    (insert-file-contents (get-project-properties-relative-file-path project-root))
+    (make-project-properties :subproject-paths (parse-subproject-paths)
+                             :description-html (parse-description-html)
+                             :visibility (parse-visibility))))
 
-(defun generate-index-html-across-subprojects (&optional project-root)
-  (interactive)
-  ;; (get-all-post-metadatas "~/Dropbox/1Projects/programming/derivations-site/org/")
-
-  ;; go to the paths of the two projects and parse their .project-properties files
-
+(defun generate-index-html-for-base-project (&optional project-root)
+  "This base project has a directory structure:
+"
   (unless project-root
-    ;; (setq project-root (get-next-project-root (buffer-file-name)))
-    (setq project-root (expand-file-name "~/Dropbox/1Projects/programming/534ttl3.github.io/")))
-  (let* ((project-properties )))
-  )
+    ;; (setq project-root
+    ;;       (get-next-project-root (buffer-file-name)
+    ;;                              t
+    ;;                              "Select project root for which to generate an index.html: "))
+    (setq project-root (expand-file-name cs-my-public-website-root-dir)))
 
+  (let* ((base-project-properties (parse-project-properties project-root))
+         (project-blocks-html
+          ;; go through and collect the descriptions, then generate blocks
+          ;; out of them and concatenate them into the html for the content
+          (cl-reduce 'concat
+                     (remove nil (mapcar* (lambda (pr subproject-name)
+                                            (when (file-exists-p (concat project-root "www/" subproject-name "/index.html"))
+                                              ;; only link to it if the index.html isn't a dead link
+                                              (let* ((pp (parse-project-properties pr)))
+                                                (cs-html-format-project-description-block
+                                                 (project-properties-description-html pp)
+                                                 (concat "./" ;; "www/"
+                                                         subproject-name "/index.html")))))
+                                          (project-properties-subproject-paths base-project-properties)
+                                          (mapcar (lambda (root-dir)
+                                                    (file-name-nondirectory (directory-file-name root-dir)))
+                                                  (project-properties-subproject-paths base-project-properties)))))))
+    (with-temp-buffer
+      (insert (my-html-template-plain (cs-html-format-slidingtopbar-html cs-my-youtube-page-url
+                                                                         cs-my-github-page-url)
+                                      (cs-html-format-title-html (project-properties-description-html
+                                                                  base-project-properties))
+                                      project-blocks-html))
+      (write-file (helm-read-file-name "Write the index file to: "
+                                       :initial-input (concat (file-name-as-directory project-root)
+                                                              "www/index.html"))))))
+
+(defun cs-html-format-project-description-block (title-str rel-link-to-html &optional project-name)
+  ""
+  (unless project-name
+    (setq project-name (file-name-nondirectory (directory-file-name (file-name-directory rel-link-to-html)))))
+  (unless (or (not title-str) (not (string-equal title-str "")))
+    (setq title-str project-name))
+  (concat "<div class=\"project-container-div\">\n"
+          "<p>\n"
+          "<a href=" (prin1-to-string rel-link-to-html) ">\n"
+          title-str
+          "</a>\n"
+          "</p>\n"
+          "<p class=\"posted\">"
+          "GitHub: <a style=\"text-decoration: none;\" href=" cs-my-github-page-url
+          project-name ">\n"
+          project-name
+          "</a>\n"
+          "</p>"
+          "</div>"))
+
+(defun cs-html-format-slidingtopbar-html (&optional youtube-url github-url)
+  ""
+  (concat
+   "<div class=\"container\">\n"
+   (when github-url (concat "<a href=" (prin1-to-string github-url) ">Github</a>\n"))
+   (when youtube-url (concat "<a href=" (prin1-to-string youtube-url) ">YouTube</a>\n"))
+   "</div>"))
+
+(defun cs-html-format-title-html (&optional title)
+  ""
+  (concat (when title (concat "<h2>" title "</h2>"))))
 
 (provide 'cs-org-publish)
 ;;; cs-org-publish.el ends here
