@@ -32,37 +32,24 @@
 
 (require 'cs-org-publish)
 
-;; (progn
-;;   (defun imalison:org-inline-css-hook (exporter)
-;;     "Insert custom inline css to automatically set the
-;; background of code to whatever theme I'm using's background"
-;;     (when (eq exporter 'my-html)
-;;       (let* ((my-pre-bg (face-background 'default))
-;;              (my-pre-fg (face-foreground 'default)))
-;;         (setq org-html-head-extra (concat org-html-head-extra
-;;                                           (format "<style type=\"text/css\">\n pre.src {background-color: %s; color: %s;}</style>\n"
-;;                                                   my-pre-bg my-pre-fg))))))
-;;   (add-hook 'org-export-before-processing-hook
-;;             'imalison:org-inline-css-hook))
-
-
 (org-export-define-derived-backend 'my-html 'html
   :translate-alist '((template . my-org-html-template))
   :menu-entry
   '(?y "Export to blog using my-html"
-       (;; (?H "As HTML buffer" org-html-export-as-html)
-	(?h "As HTML file" my-org-html-publish-to-my-html)
-	;; (?o "As HTML file and open"
-	;;     (lambda (a s v b)
-	;;       (if a (org-html-export-to-html t s v b)
-	;; 	(org-open-file (org-html-export-to-html nil s v b)))))
-    )))
+       ((?h "As HTML file" my-org-html-publish-to-my-html))))
 
 (defun cs-my-html-insert-get-org-head-content (info)
   ""
   (org-html--build-meta-info info)
   (org-html--build-head info)
   (org-html--build-mathjax-config info))
+
+(defun cs-org-code-block-css-settings-hook (backend-used)
+  "This sets all code blocks to not be colored, for a specific backend"
+  (when (equal backend-used 'my-html)
+    (setq org-html-htmlize-output-type nil)))
+
+(add-hook 'org-export-before-processing-hook 'cs-org-code-block-css-settings-hook)
 
 (defun get-my-html-preamble-str (&optional org-info no-org sliding-topbar-verbose-html)
   "This is a general html preamble string.
@@ -76,10 +63,9 @@ but also just from any function which wants to create an html file."
 <head>
 <meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />
 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n"
-   "<head>\n"
    (unless no-org
      (cs-my-html-insert-get-org-head-content org-info))
-   "<title>" "</title>"
+   "\n"
    "<style type=\"text/css\">
   body {
       font-family: 'Helvetica', 'Arial', sans-serif;
@@ -91,9 +77,9 @@ but also just from any function which wants to create an html file."
   }
 
   .slidingtopbar {
-      overflow: hidden;
-      width: 800px;
+
   }
+
 
 /* 2: min-width */
 @media screen and (min-width: 800px) {
@@ -104,6 +90,7 @@ but also just from any function which wants to create an html file."
 
     .slidingtopbar {
         margin: auto;
+        width: 800px;
 	}
 }
 
@@ -126,17 +113,34 @@ but also just from any function which wants to create an html file."
   margin: 0;
   padding: 0;
   background-color: #242424;
-  overflow: auto;
+  overflow: hidden;
   position: relative;
 }
 
-.topbar a {
+
+.aboutlink {
+    border-bottom: 5px solid aquamarine;
+    float: right;
+}
+
+.projectlink, .aboutlink {
   display: block;
   color: white;
   padding: 16px;
   text-decoration: none;
-  float: left;
-  border-bottom: 5px solid cornflowerblue;
+}
+
+.projectlink {
+    float: left;
+}
+
+.aboutlink {
+    float: right;
+}
+
+.projectlink:hover:not(.active){
+  background-color: #555;
+  color: white;
 }
 
 .topbar a:hover:not(.active){
@@ -145,9 +149,21 @@ but also just from any function which wants to create an html file."
 }
 
 @media screen and (max-width: 400px) {
-  .topbar a {
+.projectlink, .aboutlink {
     text-align: center;
     float: none;
+  }
+
+  .projectlink, .aboutlink {
+    text-align: center;
+    float: none;
+  }
+
+  .aboutlink {
+    text-align: center;
+    float: none;
+    border-bottom: none;
+    border-top: 5px solid aquamarine;
   }
 
   .slidingtopbar {
@@ -156,6 +172,9 @@ but also just from any function which wants to create an html file."
   }
 }
 
+.projectlink {
+    border-top: 5px solid cornflowerblue;
+}
 
 .posted, .lastedited{
 color: #646769;
@@ -177,8 +196,17 @@ margin-top: 25px;
 
 pre.src {
 width: auto;
-position: absolute;
 overflow: visible;
+font-family: Courier;
+font-size: 10pt;
+}
+
+.org-src-container {
+background-color: rgba(255, 255, 255, 0.9);
+border-left: 2px solid black;
+padding-left: 15px;padding-right: 15px;
+color: black;
+font-family: \"Courier New\", Courier, monospace;
 }
 
 .container{
@@ -201,7 +229,7 @@ overflow: visible;
     border-right: 5px solid cornflowerblue;
 }
 
-"
+\""
    "</style>
 </head>
 <body>
@@ -209,9 +237,17 @@ overflow: visible;
   <div class=\"slidingtopbar\">"
    (if sliding-topbar-verbose-html
        sliding-topbar-verbose-html
-     (concat "<a href=\"" (cs-relative-paths-relative-link-to-index cur-rel-paths) "\">Home</a>"
-             "<a href=\"" (cs-relative-paths-relative-link-to-sitemap cur-rel-paths) "\">Sitemap</a>"
-             "<a href=\"" (cs-relative-paths-absolute-path-to-github-org-file cur-rel-paths) "\">Edit on Github</a>"))
+     (concat "<a " " class=\"projectlink\"" " href=\""
+             (cs-relative-paths-relative-link-to-index cur-rel-paths)
+             "\">Home</a>\n"
+             "<a " " class=\"projectlink\" " " href=\""
+             (cs-relative-paths-relative-link-to-sitemap cur-rel-paths)
+             "\">Sitemap</a>\n"
+             "<a " " class=\"projectlink\" " " href=\""
+             (cs-relative-paths-absolute-path-to-github-org-file
+              cur-rel-paths) "\">Edit on Github</a>\n"
+              "<a " " class=\"aboutlink\" " " href=\""
+              cs-my-github-website-about-link "\">About</a>\n"))
    "</div>
 </div>"))
 
@@ -249,46 +285,49 @@ overflow: visible;
   "Return complete document string after HTML conversion.
 CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
+
   (interactive)
-  (concat
-   (let ((link-up (org-trim (plist-get info :html-link-up)))
-     (link-home (org-trim (plist-get info :html-link-home))))
-     (unless (and (string= link-up "") (string= link-home ""))
-       (format (plist-get info :html-home/up-format)
-           (or link-up link-home)
-           (or link-home link-up))))
-   ;; Preamble.
-   (org-html--build-pre/postamble 'preamble info)
+  (let* ()
+    (concat
+     (let ((link-up (org-trim (plist-get info :html-link-up)))
+           (link-home (org-trim (plist-get info :html-link-home))))
+       (unless (and (string= link-up "") (string= link-home ""))
+         (format (plist-get info :html-home/up-format)
+                 (or link-up link-home)
+                 (or link-home link-up))))
+     ;; Preamble.
+     (org-html--build-pre/postamble 'preamble info)
 
-   (get-my-html-preamble-str info)
+     (get-my-html-preamble-str info)
 
-   "\n<div id=\"content\">\n"
-   ;; Print the title (if it's there)
-   (get-my-html-print-title-str info)
+     "\n<div id=\"content\">\n"
+     ;; Print the title (if it's there)
+     (get-my-html-print-title-str info)
 
-   ;; Print the date (if it's there)
-   (let* ((spec (org-html-format-spec info))
-          (date (cdr (assq ?d spec))))
-     (concat
-      (and (plist-get info :with-date)
-           (org-string-nw-p date)
-           (format "<span class=\"posted\">%s: %s</span>\n"
-                   (org-html--translate "posted" info)
-                   date))
-      ;; (and (plist-get info :time-stamp-file)
-      ;;      (format
-      ;;       "<span class=\"lastedited\">%s: %s</span>\n"
-      ;;       (org-html--translate "last edited" info)
-      ;;       (format-time-string
-      ;;        (plist-get info :html-metadata-timestamp-format))))
-      ))
+     ;; Print the date (if it's there)
+     (let* ((spec (org-html-format-spec info))
+            (date (cdr (assq ?d spec))))
+       (concat
+        (and (plist-get info :with-date)
+             (org-string-nw-p date)
+             (format (concat "<span class=\"posted\">" ;; "%s: "
+                             "%s</span>\n")
+                     ;; (org-html--translate "" info)
+                     date))
+        ;; (and (plist-get info :time-stamp-file)
+        ;;      (format
+        ;;       "<span class=\"lastedited\">%s: %s</span>\n"
+        ;;       (org-html--translate "last edited" info)
+        ;;       (format-time-string
+        ;;        (plist-get info :html-metadata-timestamp-format))))
+        ))
 
-   ;; (prin1-to-string cur-rel-paths)
+     ;; (prin1-to-string cur-rel-paths)
 
-   contents
-   "\n</div>"
-   ;; (org-html--build-pre/postamble 'postamble info)
-   (get-my-html-postamble-str)))
+     contents
+     "\n</div>"
+     ;; (org-html--build-pre/postamble 'postamble info)
+     (get-my-html-postamble-str))))
 
 (defun my-html-template-plain (&optional sliding-topbar-html title-html
                                          content-html)

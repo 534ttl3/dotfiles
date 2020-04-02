@@ -35,7 +35,9 @@
 (defconst cs-my-github-page-url "https://github.com/534ttl3/")
 (defconst cs-my-youtube-page-url "https://youtube.com/s41b0tproductions")
 (defconst cs-my-github-website-repo-name "534ttl3.github.io")
-(defconst cs-my-github-website-url (concat "https://" cs-my-github-website-repo-name))
+(defconst cs-my-github-website-url (concat "https://" cs-my-github-website-repo-name "/"))
+(defconst cs-my-github-website-about-link
+  (concat cs-my-github-website-url "www/about.html"))
 (defconst cs-my-github-website-repo-url (concat cs-my-github-page-url cs-my-github-website-repo-name))
 (defconst project-properties-filename ".project-properties")
 (defconst www-dir-name (file-name-as-directory "www"))
