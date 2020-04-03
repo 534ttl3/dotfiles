@@ -38,18 +38,19 @@
 
 ;; (defconst cs-relative-paths "global-value")
 
-(defconst cur-rel-paths (make-cs-relative-paths :filepath nil
-                                                :relative-link-to-sitemap
-                                                nil
-                                                :relative-link-to-index
-                                                nil
-                                                :absolute-path-to-github-org-file
-                                                nil))
+(defconst cur-rel-paths ;; (make-cs-relative-paths :filepath nil
+                        ;;                         :relative-link-to-sitemap
+                        ;;                         nil
+                        ;;                         :relative-link-to-index
+                        ;;                         nil
+                        ;;                         :absolute-path-to-github-org-file
+  ;;                         nil)
+  nil
+  )
 
 
 
-(defun my-org-html-publish-to-my-html (plist filename pub-dir ;; &optional anotherone
-                                             )
+(defun cs-org-html-publish-to-backend (plist filename pub-dir &optional backend)
   "Publish an org file to HTML.
 
 FILENAME is the filename of the Org file to be published.  PLIST
@@ -58,7 +59,7 @@ publishing directory.
 
 Return output file name."
   ;; (message (concat (prin1-to-string anotherone)))
-  (org-publish-org-to 'my-html filename
+  (org-publish-org-to backend filename
 		      (concat "." (or (plist-get plist :html-extension)
 				      org-html-extension
 				      "html"))
@@ -133,8 +134,8 @@ Return output file name."
                                                   (get-edit-on-github-link (get-project-repo-name ,project-root-dir)
                                                                            ,project-root-dir
                                                                            filename)))))
-                  (my-org-html-publish-to-my-html plist filename
-                                                  pub-dir))))
+                  (cs-org-html-publish-to-backend plist filename
+                                                  pub-dir 'my-html))))
              :auto-sitemap t
              :sitemap-title "Sitemap")
             (,project-component-other-name :base-directory ,project-base-dir
@@ -152,7 +153,6 @@ Return output file name."
     (when (yes-or-no-p "Do you want to open the preview folder? ")
       (shell-command (concat "nautilus " (prin1-to-string project-publish-dir) " &") publish-buffer-name publish-buffer-name))
     ))
-
 
 
 ;;----- high-level, pushing to website functions -------
@@ -332,27 +332,18 @@ all other org files."
     (setq root-dir (get-next-git-root)))
   (get-index-as-org-file root-dir))
 
-;; (defun update-index-and-publish-project (&optional root-dir)
-;;   (interactive)
-;;   (unless root-dir
-;;     (setq root-dir (get-next-git-root)))
-;;   (produce-index-org root-dir)
-;;   (cs-org-publish-project nil root-dir t))
-
 ;; --- importing an org file and it's needed assets into a project from outside -----
 
 (defun cs-org-integrate-into-project (&optional org-file-path)
   "This means to select certain links in the org file (first level links) and
 back them up into an assets directory, at the same level as the copied
 org file, but also to check if that org file already links
-to resources inside a project. There links are not copied, but are merely
+to resources inside a project. There, links are not copied, but are merely
 adjusted in the org file."
   (interactive)
   (unless org-file-path
     (setq org-file-path (buffer-file-name)))
   (cs-transfer-single-org-file org-file-path t))
-
-
 
 (defun cs-org-publish-run-hydra ()
   ""
@@ -413,20 +404,6 @@ adjusted in the org file."
                                            (point))
                                     (progn (end-of-line)
                                            (point))))
-
-
-;; (defun parse-subproject-paths ()
-;;   ""
-;;   (let* (cur-line
-;;          project-paths)
-;;     (goto-char (point-min))
-;;     (re-search-forward "subproject-paths")
-;;     (forward-line)
-;;     (while (and (not (equal (point) (point-max)))
-;;                 (not (string-equal (setq cur-line (get-current-line)) "")))
-;;       (setq project-paths (append project-paths (list cur-line)))
-;;       (forward-line))
-;;     project-paths))
 
 (defun search-forward-to-the-next-of-list ()
   ""
@@ -597,6 +574,82 @@ If nothing specified, assume `yes`."
       (write-file (helm-read-file-name "Write the about.html file to: "
                                        :initial-input (concat (file-name-as-directory project-root)
                                                               "www/about.html"))))))
+
+
+(defun cs-org-html-simple-export (&optional async subtreep visible-only body-only ext-plist)
+  ""
+  )
+
+(defun cs-org-html-export-but-actually-publish (&optional async subtreep visible-only body-only ext-plist source-filepath target-filepath-dir)
+  "Publish a single file with it's attachments.
+Org-mode-export does not properly support export to another directory,
+for example, it doesn't bring along the ltximg directory.
+From inside an org file, export it to html.
+If the selected directory doesn't exist however, and you
+want to properly include your latex fragments as well (which doesn't work otherwise),
+you need to actually /publish/ this one file to the directory."
+
+  (let* (target-filepath
+         source-filepath-dir
+         target-filename)
+    (unless source-filepath
+      (setq source-filepath (buffer-file-name)))
+
+    (setq source-filepath-dir (file-name-directory source-filepath))
+
+    (setq target-filename (concat (file-name-base source-filepath)
+                                  ".html"))
+
+    (unless target-filepath-dir
+      (setq target-filepath-dir (file-name-directory "/home/chris/Desktop/mytest/org/other/testpost.html"))
+      ;; (setq target-filepath-dir (helm-read-file-name (concat "Choose directory for " target-filename
+      ;;                                                        " : ")
+      ;;                                                :initial-input (concat (file-name-directory (buffer-file-name)))))
+      )
+
+    (unless (file-exists-p target-filepath-dir)
+      (make-directory target-filepath-dir t))
+
+    (let* ((project-base-dir source-filepath-dir)
+           (project-publish-dir target-filepath-dir)
+           (org-publish-project-alist
+            `(("document"
+               :base-directory ,project-base-dir
+               :base-extension "org"
+               :publishing-directory ,target-filepath-dir
+               :exclude ".*"
+               :include [,source-filepath]
+               :publishing-function
+               ((lambda (plist filename pub-dir)
+                  (cs-org-html-publish-to-backend plist filename
+                                                  pub-dir 'my-html))))
+              ("attachments" :base-directory ,project-base-dir
+               :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|svg"
+               ;; include web-stuff
+               :publishing-directory ,project-publish-dir
+               :recursive t
+               ;; :exclude ".*"
+               ;; :include ,(vconcat (remove nil
+               ;;                           (mapcar (lambda (filepath)
+               ;;                                     (when (string-match "testpost" filepath)
+               ;;                                       filepath))
+               ;;                                   (directory-files (concat (file-name-as-directory (concat source-filepath-dir "ltximg")))
+               ;;                                                    t))))
+               :publishing-function org-publish-attachment)
+              ("all"
+               :components ("document" "attachments"
+                            )))))
+
+      (org-publish-reset-cache)
+      (org-publish-remove-all-timestamps)
+      (org-publish "all" t nil))
+
+    (setq target-filepath (concat target-filepath-dir target-filename))
+
+    (if (file-exists-p target-filepath)
+        target-filepath
+      (user-error (concat "File does not exist: "
+                          (prin1-to-string target-filepath))))))
 
 (provide 'cs-org-publish)
 ;;; cs-org-publish.el ends here

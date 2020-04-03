@@ -35,8 +35,15 @@
 (org-export-define-derived-backend 'my-html 'html
   :translate-alist '((template . my-org-html-template))
   :menu-entry
-  '(?y "Export to blog using my-html"
-       ((?h "As HTML file" my-org-html-publish-to-my-html))))
+  '(?H "Export to blog using my-html"
+       ((?h "As HTML file" cs-org-html-simple-export)
+        (?o "As HTML file and open"
+	    (lambda (a s v b)
+	      (if a (cs-org-html-export-but-actually-publish t s v b)
+            (org-open-file (cs-org-html-export-but-actually-publish nil s v b)))))
+        (?s "Do simple export (without publish)"
+	    (lambda (a s v b)
+	      (org-open-file (org-export-as 'my-html s v b)))))))
 
 (defun cs-my-html-insert-get-org-head-content (info)
   ""
@@ -228,28 +235,31 @@ font-family: \"Courier New\", Courier, monospace;
     margin-top: 25px;
     border-right: 5px solid cornflowerblue;
 }
-
-\""
+"
    "</style>
 </head>
-<body>
+<body>"
+   (when cur-rel-paths
+     ;; default: no topbar with additional information
+     (concat
+      "
 <div class=\"topbar\">
   <div class=\"slidingtopbar\">"
-   (if sliding-topbar-verbose-html
-       sliding-topbar-verbose-html
-     (concat "<a " " class=\"projectlink\"" " href=\""
-             (cs-relative-paths-relative-link-to-index cur-rel-paths)
-             "\">Home</a>\n"
-             "<a " " class=\"projectlink\" " " href=\""
-             (cs-relative-paths-relative-link-to-sitemap cur-rel-paths)
-             "\">Sitemap</a>\n"
-             "<a " " class=\"projectlink\" " " href=\""
-             (cs-relative-paths-absolute-path-to-github-org-file
-              cur-rel-paths) "\">Edit on Github</a>\n"
-              "<a " " class=\"aboutlink\" " " href=\""
-              cs-my-github-website-about-link "\">About</a>\n"))
-   "</div>
-</div>"))
+      (if sliding-topbar-verbose-html
+          sliding-topbar-verbose-html
+        (concat "<a " " class=\"projectlink\"" " href=\""
+                (cs-relative-paths-relative-link-to-index cur-rel-paths)
+                "\">Home</a>\n"
+                "<a " " class=\"projectlink\" " " href=\""
+                (cs-relative-paths-relative-link-to-sitemap cur-rel-paths)
+                "\">Sitemap</a>\n"
+                "<a " " class=\"projectlink\" " " href=\""
+                (cs-relative-paths-absolute-path-to-github-org-file
+                 cur-rel-paths) "\">Edit on Github</a>\n"
+                "<a " " class=\"aboutlink\" " " href=\""
+                cs-my-github-website-about-link "\">About</a>\n"))
+      "</div>
+</div>"))))
 
 (defun get-my-html-print-title-str (info)
   (when (plist-get info :with-title)
@@ -279,7 +289,9 @@ font-family: \"Courier New\", Courier, monospace;
 (defun get-my-html-postamble-str ()
   (concat
    ;; (get-my-footer)
-   "</body></html>"))
+   "
+</body>
+</html>"))
 
 (defun my-org-html-template (contents info)
   "Return complete document string after HTML conversion.
