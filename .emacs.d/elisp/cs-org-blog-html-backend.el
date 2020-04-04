@@ -32,6 +32,8 @@
 
 (require 'cs-org-publish)
 
+(require 'klin)  ;; for e.g. references (i.e. replacements of cite links by footnotes)
+
 (org-export-define-derived-backend 'my-html 'html
   :translate-alist '((template . my-org-html-template))
   :menu-entry
@@ -235,6 +237,19 @@ font-family: \"Courier New\", Courier, monospace;
     margin-top: 25px;
     border-right: 5px solid cornflowerblue;
 }
+
+.footpara {
+    width: 99%;
+    text-alignt: left;
+    float: right;
+    padding: 0;
+    margin: 0;
+}
+
+.footdef {
+    line-height: 3em;
+}
+
 "
    "</style>
 </head>
@@ -350,6 +365,46 @@ holding export options."
           content-html
           "\n</div>"
           (get-my-html-postamble-str)))
+
+(defun cs-org-html-replace-cites-by-footnotes (backend)
+  ""
+  (when (equal backend 'my-html)
+      (let* ((cites-infos (klin-get-cites-infos)))
+        (mapcar (lambda (cite-info)
+                  (cs-org-replace-cite-by-footnote cite-info))
+                ;; you have to reverse the order to
+                ;; search from the bottom up.
+                ;; otherwise, the positions of the found
+                ;; cite links are changed every time
+                ;; after replacing with a footnote
+                (reverse cites-infos)))))
+
+(defun cs-org-replace-cite-by-footnote (cite-info)
+  "Replace a link of form [[cite:RockstuhlQMLehramt::2]] by an org footnote.
+This is useful at html export."
+  (let* ((cite-link-str (car cite-info))
+         (kill-beg (nth 1 cite-info))
+         (kill-end (nth 2 cite-info))
+         ;; get the bibtex key from the cite string
+         (bibtex-key (cdr (assoc 'bibtex-key (klin-get-assoc-list-from-cite-link-str cite-link-str))))
+         (bibtex-entry (org-ref-get-bibtex-entry bibtex-key))
+         (bibtex-filepath (expand-file-name (cdr (org-ref-get-bibtex-key-and-file bibtex-key))))
+         (formatted-bibtex-entry-str (with-bib-file-buffer bibtex-filepath
+                                                           (when (bibtex-search-entry bibtex-key)
+                                                             (bibtex-format-entry-to-string)))))
+    (when formatted-bibtex-entry-str
+      ;; replace link with footnote
+      (save-excursion
+        ;; delete link
+        (kill-region kill-beg kill-end)
+        ;; search up to beginning of cite link
+        (goto-char kill-beg)
+        (org-footnote-new)
+        (insert " ")
+        (insert formatted-bibtex-entry-str)))))
+
+
+(add-hook 'org-export-before-parsing-hook 'cs-org-html-replace-cites-by-footnotes)
 
 
 

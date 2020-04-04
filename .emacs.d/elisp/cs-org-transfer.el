@@ -34,6 +34,12 @@ If you want to publish something from your notes, you move it into the
 project's git directory.  This function makes you aware of what you
 need to do to properly integrate that org file.
 
+It saves a buffer-local variable in the target buffer, which
+contains the file name of the source org file.
+This way, even when links are still relative in the target file,
+they can be resolved to the absolute links using that
+variable.
+
 Things to consider are:
 
 - if you have links to other org files in there, they will break.  So,
@@ -62,7 +68,9 @@ Things to consider are:
 
 
     (let* (actually-write-now
-           target-file-path)
+           (target-file-path
+            (helm-read-file-name "Write file to (full name, with .org extension): "
+                                 :initial-input (expand-file-name "~/Dropbox/"))))
       ;; now check if the file is already placed in a project and
       ;; in that case issue a warning
       ;; (if (file-in-project-p org-file-path)
@@ -74,12 +82,18 @@ Things to consider are:
       (setq actually-write-now t)
 
       (when actually-write-now
-        (copy-file org-file-path
-                   (setq target-file-path
-                         (helm-read-file-name "Write file to: "
-                                              :initial-input (expand-file-name "~/Dropbox/")))
-                   t)
+        ;; make sure the directory exists
+        (make-directory (file-name-directory target-file-path) t)
+        (copy-file org-file-path target-file-path 1)
+
+        ;; ------- in the new buffer -----------
         (find-file target-file-path)
+        (rename-buffer (concat (buffer-name) "<target>"))
+        ;; create buffer-local-variable containing the source filepath
+        ;; to be able to retrieve the files from the buffer
+        ;; even on a second pass of pull-files-into-asset-dir
+        (make-local-variable 'pull-files-into-asset-dir-org-source-path)
+        (setq pull-files-into-asset-dir-org-source-path org-file-path)
         (pull-files-into-asset-dir (current-buffer) only-if-not-in-project))))
 
 
@@ -196,9 +210,9 @@ That means not in their full expanded version."
 ;; ---- helm source to pick out the custom list of files ----
 
 
-(defun get-links-to-move (org-buffer &optional only-if-not-in-project)
-  "Get those links in an org file that you want to move.
-E.g.:
+(defun get-links-to-move (&optional original-org-filepath current-org-filepath only-if-not-in-project)
+  "Being in an org file, get the links that you want to move:
+
 - you could want to GTHOOT (get the hell out of there, i.e. you want to save all
 linked files safely away to a dedicated folder, making a particular org file
 more or less standalone) -> get all links (standard)
@@ -208,27 +222,91 @@ same project as the org file.  This is useful if you want to e.g. publish
 a website and you want to share some of the resources, but also have certain
 files dedicated to a specific org file -> ONLY-IF-NOT-IN-PROJECT
 
-ORG-BUFFER refers to the org buffer the links of which should be extracted."
+original-org-buffer refers to the org buffer the links of which should be extracted."
   (interactive)
-  (with-current-buffer org-buffer
-    (message (concat "FROM GET_DATA_2: " (prin1-to-string (current-buffer))
-                     " " (prin1-to-string org-buffer)))
+  (when (and (not original-org-filepath) (boundp 'pull-files-into-asset-dir-org-source-path))
+    (setq original-org-filepath pull-files-into-asset-dir-org-source-path))
 
-    (if only-if-not-in-project
-        (mapcar (lambda (filepath)
-                  (cons filepath filepath))
-                (remove nil
-                        (mapcar (lambda (filepath)
-                                  (if (files-under-same-project-p filepath
-                                                                  (buffer-file-name org-buffer))
-                                      nil
-                                    filepath))
-                                (cs-org-get-linked-files))))
-      (remove nil (mapcar (lambda (filepath)
-                            (when (not (file-exists-somewhere-within-folder-p filepath
-                                                                              (file-name-directory (buffer-file-name org-buffer))))
-                              (cons filepath filepath)))
-                          (cs-org-get-linked-files))))))
+  (if (and (not current-org-filepath)
+           (not (string-equal (file-name-extension (buffer-file-name))
+                              "org")))
+      (user-error "No current-org-filepath to operate on")
+    (when (and (not current-org-filepath)
+               (string-equal (file-name-extension (buffer-file-name))
+                             "org"))
+      (setq current-org-filepath (buffer-file-name))))
+
+  (let* ((original-org-buffer (when original-org-filepath
+                                (get-file-buffer original-org-filepath)))
+         (linked-files-absolute-paths-and-printed-paths
+          (remove nil
+                  (mapcar (lambda (lst)
+                            (when (and (nth 0 lst)
+                                       (nth 1 lst))
+                              lst))
+                          (cs-org-get-linked-files-absolute-paths current-org-filepath
+                                                                  original-org-filepath)))))
+    (with-current-buffer (current-buffer)
+      original-org-buffer
+      (message (concat "FROM GET_DATA_2: "
+                       (prin1-to-string (current-buffer))
+                       " "
+                       (prin1-to-string original-org-buffer)))
+      (if only-if-not-in-project
+          ;; (mapcar (lambda (filepath)
+          ;;           (list filepath filepath))
+          ;;         (remove nil
+          ;;                 (mapcar (lambda (filepath)
+          ;;                           (if (files-under-same-project-p filepath current-org-filepath)
+          ;;                               nil
+          ;;                             filepath))
+          ;;                         linked-files-absolute-paths-and-printed-paths)))
+          (user-error "The only-if-note-in-project option is not supported yet")
+        ;; if it doesn't exist under assets, count it as a candidate and get the link
+        (remove nil
+                (mapcar (lambda (lst)
+                          (let* ((absolute-filepath (nth 0 lst))
+                                 ;; as it is printed in the target (current) file
+                                 (as-printed-filepath (nth 1 lst))
+                                 ;; as it would be printed if it was in the assets directory
+                                 (target-dir (get-assets-dir-from-org-file current-org-filepath))
+                                 (target-filepath-intended (get-target-filepath-in-assets-dir target-dir absolute-filepath)))
+                            (when (or (not (file-exists-p
+                                            (concat (get-assets-dir-from-org-file current-org-filepath)
+                                                    (file-name-nondirectory absolute-filepath))))
+                                      (not (member (cs-org-get-relative-file-path-to-insert-for-file-in-asset-dir
+                                                    target-filepath-intended current-org-filepath)
+                                                   (cs-org-get-linked-files))))
+                              (list as-printed-filepath absolute-filepath target-filepath-intended))))
+                        linked-files-absolute-paths-and-printed-paths))))))
+
+(defun cs-org-get-linked-files-absolute-paths-and-printed-paths (current-org-filepath &optional original-org-filepath)
+  "If you give original-org-filepath, the relative links in your current org filepath are
+expanded w.r.t the directory of the original-org-filepath."
+  (mapcar (lambda (linked-file-path-as-printed)
+            (if (file-name-absolute-p linked-file-path-as-printed)
+                linked-file-path-as-printed
+              ;; else: make it absolute:
+              ;; - first look if the file wrt the new-org-filepath exists
+              ;;   - if yes, use that one
+              ;;   - if no, check if it exists w.r.t the original-org-filepath
+              (let* ((filepath-wrt-original-org-filepath
+                      (when original-org-filepath
+                          (concat (file-name-directory original-org-filepath)
+                                  linked-file-path-as-printed)))
+                     (filepath-wrt-current-org-filepath
+                      (concat (file-name-directory current-org-filepath)
+                              linked-file-path-as-printed)))
+                (if (file-exists-p filepath-wrt-current-org-filepath)
+                    (list filepath-wrt-current-org-filepath linked-file-path-as-printed)
+                  (if (and filepath-wrt-original-org-filepath
+                           (file-exists-p filepath-wrt-original-org-filepath))
+                      (list filepath-wrt-original-org-filepath linked-file-path-as-printed)
+                    (warn (concat "Both filepaths " (prin1-to-string filepath-wrt-current-org-filepath)
+                                  " and " (prin1-to-string filepath-wrt-original-org-filepath)
+                                  " do not exist"))
+                    nil)))))
+          (cs-org-get-linked-files)))
 
 
 (defun get-target-filepath-in-assets-dir (assets-dir original-filepath)
@@ -264,16 +342,19 @@ and what to call the new file."
       (list target-path t))))
 
 
-(defun copy-and-relink (org-buffer candidate-filepath-as-printed-in-org)
+(defun copy-and-relink (org-buffer candidate-full-filepath
+                                   candidate-filepath-as-printed-in-org)
   "Copy the file at candidate-filepath-as-printed-in-org to the ORG-BUFFER's assets dir."
 
+
   (with-current-buffer org-buffer
-    (let* ((candidate-filepath (expand-file-name candidate-filepath-as-printed-in-org))
+    (let* ((candidate-filepath candidate-full-filepath)
            (org-file-path (buffer-file-name org-buffer))
+           ;; FIXME: this is redundant code vvvvv (you can pass the intended-target-dir
+           ;; into the function as an argument directly, generated form get-links-to-move)
            (target-dir (get-assets-dir-from-org-file org-file-path))
-           (target-path-results
-            (get-target-filepath-in-assets-dir target-dir
-                                               candidate-filepath)))
+           (target-path-results (get-target-filepath-in-assets-dir target-dir
+                                                                   candidate-filepath)))
 
       (if (or (car target-path-results)
               (cadr target-path-results))
@@ -284,45 +365,61 @@ and what to call the new file."
       (when (cadr target-path-results)
         ;; write the file to the target path
         (call-process-shell-command (read-shell-command "write to assets: "
-                                                        (concat "cp -af "
+                                                        (concat "cp -afT "
                                                                 (prin1-to-string candidate-filepath)
                                                                 " "
                                                                 (prin1-to-string (car target-path-results))))
                                     nil
                                     "*writing to asset dir*"
                                     t))
+
       (when (car target-path-results)
         ;; now replace the links in the buffer
         (cs-org-toggle-link-display t)
         (save-excursion
           (goto-char (point-min))
           (query-replace-regexp (regexp-quote candidate-filepath-as-printed-in-org)
-                                (concat "./" (file-relative-name (car target-path-results)
-                                                            (file-name-directory org-file-path)))))))))
+                                (cs-org-get-relative-file-path-to-insert-for-file-in-asset-dir target-path-results
+                                                                                               org-file-path)))))))
 
 
-(defun pull-files-into-asset-dir (&optional org-buffer only-if-not-in-project)
+(defun cs-org-get-relative-file-path-to-insert-for-file-in-asset-dir (target-path-resulted current-org-filepath)
+  ""
+  (concat "./"
+          (file-relative-name (car target-path-resulted)
+                              (file-name-directory current-org-filepath))))
+
+
+(defun pull-files-into-asset-dir (&optional new-org-buffer only-if-not-in-project)
   "From within an org file, scan it's links one by one.
 Act on them to pull them into the file's assets directory."
   ;; make helm source with the linked files inside
   ;; then, a helm action to post them into the assets directory
   (interactive)
-
-  (unless org-buffer
+  (unless new-org-buffer
     (if (and (string-equal (file-name-extension (buffer-file-name)) "org")
              ;; (file-in-project-p (buffer-file-name))
              )
-        (setq org-buffer (current-buffer))
+        (setq new-org-buffer (current-buffer))
       (user-error "Not in the position to pull files")))
 
-  (let* ((candidates-that-need-treatment (get-links-to-move org-buffer only-if-not-in-project)))
-    (if candidates-that-need-treatment
+  ;; you may not have an 'original org path', if it's just a standalone file trying to
+  ;; pull stuff into an asset directory
+  (let* ((original-org-filepath (when (and (boundp 'pull-files-into-asset-dir-org-source-path)
+                                           (file-exists-p pull-files-into-asset-dir-org-source-path))
+                                  pull-files-into-asset-dir-org-source-path))
+         (actionable-candidates (get-links-to-move original-org-filepath
+                                                            (buffer-file-name new-org-buffer)
+                                                            only-if-not-in-project)))
+    (if actionable-candidates
         (helm :sources
               (helm-build-sync-source "Copy over"
                 :header-name (lambda (_)
                                (format "header name"))
                 :candidates (lambda ()
-                              candidates-that-need-treatment)
+                              (mapcar (lambda (candidate)
+                                        (list (prin1-to-string candidate) candidate))
+                                      actionable-candidates))
                 :action (helm-make-actions
                          "Copy this to org file assets and re-link"
                          (lambda (_)
@@ -331,14 +428,20 @@ Act on them to pull them into the file's assets directory."
                              "writing to assets results: "
                              (prin1-to-string
                               (mapcar (lambda (candidate)
-                                        (copy-and-relink org-buffer candidate))
+                                        (let* ((full-filepath (nth 1 (car candidate)))
+                                               (as-printed-filepath (nth 0 (car candidate))))
+                                          (message (prin1-to-string "In there: "))
+                                          (message (prin1-to-string candidate))
+                                          (copy-and-relink new-org-buffer
+                                                           full-filepath
+                                                           as-printed-filepath)))
                                       (helm-marked-candidates)))))
-                           (pull-files-into-asset-dir org-buffer only-if-not-in-project))
+                           (pull-files-into-asset-dir new-org-buffer only-if-not-in-project))
                                            "Copy this to general assets and re-link"
                                            (lambda (_)
                                              (pull-files-into-asset-dir
-                                              org-buffer only-if-not-in-project)))))
-      (message "no candidates need treatment"))))
+                                              new-org-buffer only-if-not-in-project))))          )
+      (message "no actionable candidates"))))
 
 
 (provide 'cs-org-transfer)
