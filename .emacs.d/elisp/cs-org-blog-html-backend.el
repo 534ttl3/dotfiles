@@ -72,6 +72,9 @@ but also just from any function which wants to create an html file."
 <head>
 <meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />
 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n"
+
+"<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css\">"
+
    (unless no-org
      (cs-my-html-insert-get-org-head-content org-info))
    "\n"
@@ -83,6 +86,9 @@ but also just from any function which wants to create an html file."
 
   #content {
       padding: 5px;
+"
+        "font-family: \"Computer Modern Serif\", serif, \"Computer Modern Sans\", sans-serif;"
+   "
   }
 
   .slidingtopbar {
@@ -102,20 +108,6 @@ but also just from any function which wants to create an html file."
         width: 800px;
 	}
 }
-
-.equation-container {
-    display: table;
-    text-align: center;
-    width: 100%;
-}
-
-.equation-label {
-    display: table-cell;
-    text-align: right;
-    vertical-align: middle;
-}
-
-.org-svg { width: auto; }
 
 .topbar {
   width: 100%;
@@ -203,11 +195,14 @@ margin-bottom: 25px;
 margin-top: 25px;
 }
 
+
+/* ---- minimal-style code blocks ---- */
+
 pre.src {
 width: auto;
 overflow: visible;
 font-family: Courier;
-font-size: 10pt;
+font-size: 10.5pt;
 }
 
 .org-src-container {
@@ -217,6 +212,7 @@ padding-left: 15px;padding-right: 15px;
 color: black;
 font-family: \"Courier New\", Courier, monospace;
 }
+
 
 .container{
     width: 100%;
@@ -238,6 +234,8 @@ font-family: \"Courier New\", Courier, monospace;
     border-right: 5px solid cornflowerblue;
 }
 
+/* ---- prettier footnotes prettier ---- */
+
 .footpara {
     width: 99%;
     text-alignt: left;
@@ -250,6 +248,26 @@ font-family: \"Courier New\", Courier, monospace;
     line-height: 3em;
 }
 
+
+/* --- math display --- */
+
+/* p > .org-svg {  /* export with dvisvgm: position adjustment of inline math */
+    position:absolute;
+} */
+
+.org-svg { width: auto; } /* for export with dvisvgm */
+
+.equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+}
+
+.equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+}
 "
    "</style>
 </head>
@@ -314,47 +332,52 @@ CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
 
   (interactive)
-  (let* ()
-    (concat
-     (let ((link-up (org-trim (plist-get info :html-link-up)))
-           (link-home (org-trim (plist-get info :html-link-home))))
-       (unless (and (string= link-up "") (string= link-home ""))
-         (format (plist-get info :html-home/up-format)
-                 (or link-up link-home)
-                 (or link-home link-up))))
-     ;; Preamble.
-     (org-html--build-pre/postamble 'preamble info)
+  (let* ((html-str
+          (concat
+           (let ((link-up (org-trim (plist-get info :html-link-up)))
+                 (link-home (org-trim (plist-get info :html-link-home))))
+             (unless (and (string= link-up "") (string= link-home ""))
+               (format (plist-get info :html-home/up-format)
+                       (or link-up link-home)
+                       (or link-home link-up))))
+           ;; Preamble.
+           (org-html--build-pre/postamble 'preamble info)
 
-     (get-my-html-preamble-str info)
+           (get-my-html-preamble-str info)
 
-     "\n<div id=\"content\">\n"
-     ;; Print the title (if it's there)
-     (get-my-html-print-title-str info)
+           "\n<div id=\"content\">\n"
+           ;; Print the title (if it's there)
+           (get-my-html-print-title-str info)
 
-     ;; Print the date (if it's there)
-     (let* ((spec (org-html-format-spec info))
-            (date (cdr (assq ?d spec))))
-       (concat
-        (and (plist-get info :with-date)
-             (org-string-nw-p date)
-             (format (concat "<span class=\"posted\">" ;; "%s: "
-                             "%s</span>\n")
-                     ;; (org-html--translate "" info)
-                     date))
-        ;; (and (plist-get info :time-stamp-file)
-        ;;      (format
-        ;;       "<span class=\"lastedited\">%s: %s</span>\n"
-        ;;       (org-html--translate "last edited" info)
-        ;;       (format-time-string
-        ;;        (plist-get info :html-metadata-timestamp-format))))
-        ))
+           ;; Print the date (if it's there)
+           (let* ((spec (org-html-format-spec info))
+                  (date (cdr (assq ?d spec))))
+             (concat
+              (and (plist-get info :with-date)
+                   (org-string-nw-p date)
+                   (format (concat "<span class=\"posted\">" ;; "%s: "
+                                   "%s</span>\n")
+                           ;; (org-html--translate "" info)
+                           date))
+              ;; (and (plist-get info :time-stamp-file)
+              ;;      (format
+              ;;       "<span class=\"lastedited\">%s: %s</span>\n"
+              ;;       (org-html--translate "last edited" info)
+              ;;       (format-time-string
+              ;;        (plist-get info :html-metadata-timestamp-format))))
+              ))
 
-     ;; (prin1-to-string cur-rel-paths)
+           ;; (prin1-to-string cur-rel-paths)
 
-     contents
-     "\n</div>"
-     ;; (org-html--build-pre/postamble 'postamble info)
-     (get-my-html-postamble-str))))
+           contents
+           "\n</div>"
+           ;; (org-html--build-pre/postamble 'postamble info)
+           (get-my-html-postamble-str)))
+         processed-html-str)
+
+    ;; ------ processing the html string -------------
+    (my-filter-sorround-equation-labels-with-braces target-filepath)
+    ))
 
 (defun my-html-template-plain (&optional sliding-topbar-html title-html
                                          content-html)
@@ -391,7 +414,7 @@ This is useful at html export."
          (bibtex-filepath (expand-file-name (cdr (org-ref-get-bibtex-key-and-file bibtex-key))))
          (formatted-bibtex-entry-str (with-bib-file-buffer bibtex-filepath
                                                            (when (bibtex-search-entry bibtex-key)
-                                                             (bibtex-format-entry-to-string)))))
+                                                             (klin-bibtex-format-entry-to-string)))))
     (when formatted-bibtex-entry-str
       ;; replace link with footnote
       (save-excursion
@@ -406,6 +429,68 @@ This is useful at html export."
 
 (add-hook 'org-export-before-parsing-hook 'cs-org-html-replace-cites-by-footnotes)
 
+(defun cs-org-replace-link-types-by-nothing (backend link-type-str)
+  "Replace a link type like bibliography:mybib.bib
+by an empty string, but only for a certain export backend."
+  (when (equal backend 'my-html)
+      (let* ((links-infos (klin-get-links-infos link-type-str)))
+        (mapcar (lambda (link-info)
+                  (let* ((cite-link-str (car link-info))
+                         (kill-beg (nth 1 link-info))
+                         (kill-end (nth 2 link-info)))
+                    (save-excursion
+                      ;; delete link
+                      (kill-region kill-beg kill-end))))
+                ;; you have to reverse the order to
+                ;; search from the bottom up.
+                ;; otherwise, the positions of the found
+                ;; cite links are changed every time
+                ;; after replacing with a footnote
+                (reverse links-infos)))))
+
+(add-hook 'org-export-before-parsing-hook (lambda (backend) (cs-org-replace-link-types-by-nothing backend "bibliography")))
+
+
+;; --------- filter to sorround equation labels with brackets ----------
+;; I whish this kind of post-processing
+
+;; "<span class=\"equation-label\">[[:space:]\n]+\\([0-9]+\\)[[:space:]\n]+</span>"
+
+;; (let* ((my-regexp "a\\([0-9]+\\)b")
+;;        (my-regexp-left "a")
+;;        (my-regexp-right "b"))
+;;   (replace-regexp-in-string my-regexp (lambda (x) (foo x my-regexp
+;;                                                        my-regexp-left
+;;                                                        my-regexp-right)) "a12b"))
+
+(defun cs-org-braces-helper-function (x my-regexp my-str-left my-str-right)
+  ""
+  (string-match my-regexp x)
+  (let* ((extracted-number-str (match-string 1 x)))
+    (when extracted-number-str
+      (concat my-str-left "(" extracted-number-str ")" my-str-right))))
+
+(defun my-filter-sorround-equation-labels-with-braces (target-html-filepath)
+  ""
+  (with-temp-buffer
+    (insert-file-contents target-html-filepath)
+    (let* ((my-regexp "<span class=\"equation-label\">[[:space:]\n]+\\([0-9]+\\)[[:space:]\n]+</span>")
+           (my-str-left "<span class=\"equation-label\">")
+           (my-str-right "</span>")
+           (transformed-str
+            (replace-regexp-in-string my-regexp
+                                      (lambda (x)
+                                        (cs-org-braces-helper-function x my-regexp
+                                                                       my-str-left my-str-right))
+                                      (buffer-substring-no-properties (point-min)
+                                                                      (point-max)))))
+      (when transformed-str
+        (kill-region (point-min) (point-max))
+        (insert transformed-str)
+        (write-file target-html-filepath)))))
+
+;; (add-to-list 'org-export-filter-paragraph-functions
+;;              'cs-org-dvisvgm-html-export-sorround-equation-labels-with-braces)
 
 
 (provide 'cs-org-blog-html-backend)

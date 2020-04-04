@@ -191,7 +191,26 @@ a directory myfile and a directory myfile/assets"
   "Each org file can get a dedicated assets folder:
 e.g.: ./a.org gets ./a/assets/ in which to ")
 
-(defun cs-org-get-linked-files ()
+(defun cs-org-get-linked-files-more-types (&optional link-type-list)
+  "Apart from what org-mode recognizes as links, there can be other links as well."
+  (let* ((org-link-types-list (if link-type-list
+                                  link-type-list
+                                (list "bibliography"
+                                    ;; org-ref's bibliography link
+                                    "file"))))
+    (remove nil (-flatten (mapcar (lambda (type-str)
+                                    (let* ((result-lst (cs-org-get-linked-files type-str)))
+                                      (cond ((string-equal type-str "bibliography")
+                                             ;; in org-ref you can add multiple bibliographies
+                                             ;; with a comma-separated string
+                                             (car (mapcar (lambda (indiv-str)
+                                                            (split-string indiv-str ","))
+                                                          result-lst)))
+                                            (t result-lst))))
+                                  org-link-types-list)))))
+
+
+(defun cs-org-get-linked-files (&optional type-str)
   "Gets linked file paths, but in their formatted version.
 That means not in their full expanded version."
   (org-element-map (org-element-parse-buffer) 'link
@@ -200,7 +219,9 @@ That means not in their full expanded version."
                                   "pdfview"))
              (link-str (org-element-property :path link)))
         (when (or (string= (org-element-property :type link)
-                           "file")
+                           (if (not type-str)
+                               "file"
+                             type-str))
                   is-pdfview)
           (if is-pdfview
               (car (split-string link-str "::"))
@@ -244,8 +265,8 @@ original-org-buffer refers to the org buffer the links of which should be extrac
                             (when (and (nth 0 lst)
                                        (nth 1 lst))
                               lst))
-                          (cs-org-get-linked-files-absolute-paths current-org-filepath
-                                                                  original-org-filepath)))))
+                          (cs-org-get-linked-files-absolute-paths-and-printed-paths
+                           current-org-filepath original-org-filepath)))))
     (with-current-buffer (current-buffer)
       original-org-buffer
       (message (concat "FROM GET_DATA_2: "
@@ -276,7 +297,7 @@ original-org-buffer refers to the org buffer the links of which should be extrac
                                                     (file-name-nondirectory absolute-filepath))))
                                       (not (member (cs-org-get-relative-file-path-to-insert-for-file-in-asset-dir
                                                     target-filepath-intended current-org-filepath)
-                                                   (cs-org-get-linked-files))))
+                                                   (cs-org-get-linked-files-more-types))))
                               (list as-printed-filepath absolute-filepath target-filepath-intended))))
                         linked-files-absolute-paths-and-printed-paths))))))
 
@@ -306,7 +327,7 @@ expanded w.r.t the directory of the original-org-filepath."
                                   " and " (prin1-to-string filepath-wrt-original-org-filepath)
                                   " do not exist"))
                     nil)))))
-          (cs-org-get-linked-files)))
+          (cs-org-get-linked-files-more-types)))
 
 
 (defun get-target-filepath-in-assets-dir (assets-dir original-filepath)

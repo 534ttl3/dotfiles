@@ -135,7 +135,8 @@ Return output file name."
                                                                            ,project-root-dir
                                                                            filename)))))
                   (cs-org-html-publish-to-backend plist filename
-                                                  pub-dir 'my-html))))
+                                                  pub-dir 'my-html)
+                  )))
              :auto-sitemap t
              :sitemap-title "Sitemap")
             (,project-component-other-name :base-directory ,project-base-dir
@@ -576,10 +577,6 @@ If nothing specified, assume `yes`."
                                                               "www/about.html"))))))
 
 
-(defun cs-org-html-simple-export (&optional async subtreep visible-only body-only ext-plist)
-  ""
-  )
-
 (defun cs-org-html-export-but-actually-publish (&optional async subtreep visible-only body-only ext-plist source-filepath target-filepath-dir)
   "Publish a single file with it's attachments.
 Org-mode-export does not properly support export to another directory,
@@ -601,11 +598,11 @@ you need to actually /publish/ this one file to the directory."
                                   ".html"))
 
     (unless target-filepath-dir
-      (setq target-filepath-dir (file-name-directory "/home/chris/Desktop/mytest/org/other/testpost.html"))
-      ;; (setq target-filepath-dir (helm-read-file-name (concat "Choose directory for " target-filename
-      ;;                                                        " : ")
-      ;;                                                :initial-input (concat (file-name-directory (buffer-file-name)))))
-      )
+      (setq target-filepath-dir
+            ;; (file-name-directory "/home/chris/Desktop/mytest/org/other/testpost.html")
+            (helm-read-file-name (concat "Choose directory for " target-filename
+                                         " : ")
+                                 :initial-input (concat (file-name-directory (buffer-file-name))))))
 
     (unless (file-exists-p target-filepath-dir)
       (make-directory target-filepath-dir t))
@@ -619,38 +616,66 @@ you need to actually /publish/ this one file to the directory."
                :publishing-directory ,target-filepath-dir
                :exclude ".*"
                :include [,source-filepath]
-               :publishing-function
+               :publishing-function ;; org-html-publish-to-html
                ((lambda (plist filename pub-dir)
                   (cs-org-html-publish-to-backend plist filename
                                                   pub-dir 'my-html))))
-              ("attachments" :base-directory ,project-base-dir
+              ;; ("all"
+              ;;  :components ("attachments" "document"))
+              )))
+
+      (org-publish-reset-cache)
+      (org-publish-remove-all-timestamps)
+      (org-publish "document" t nil)
+
+      (setq target-filepath (concat target-filepath-dir target-filename))
+
+      ;; run some processing commands on the produced html file
+      (my-filter-sorround-equation-labels-with-braces target-filepath)
+
+      ;; it first has to build all latex fragments
+      ;; then it can include them
+      ;; that's why there are two seperate publication processes
+
+      (setq org-publish-project-alist
+            `(("attachments" :base-directory
+               ,project-base-dir
                :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|svg"
                ;; include web-stuff
                :publishing-directory ,project-publish-dir
                :recursive t
-               ;; :exclude ".*"
-               ;; :include ,(vconcat (remove nil
-               ;;                           (mapcar (lambda (filepath)
-               ;;                                     (when (string-match "testpost" filepath)
-               ;;                                       filepath))
-               ;;                                   (directory-files (concat (file-name-as-directory (concat source-filepath-dir "ltximg")))
-               ;;                                                    t))))
-               :publishing-function org-publish-attachment)
-              ("all"
-               :components ("document" "attachments"
-                            )))))
+               :exclude ".*"
+               :include ;; []
+               ,(get-indispensable-assets-as-array source-filepath source-filepath-dir)
+               :publishing-function org-publish-attachment)))
 
       (org-publish-reset-cache)
       (org-publish-remove-all-timestamps)
-      (org-publish "all" t nil))
-
-    (setq target-filepath (concat target-filepath-dir target-filename))
+      (org-publish "attachments" t nil))
 
     (if (file-exists-p target-filepath)
         target-filepath
       (user-error (concat "File does not exist: "
                           (prin1-to-string target-filepath))))))
 
+(defun get-indispensable-assets-as-array (source-filepath source-filepath-dir)
+  "Get i.e. all embedded ltximg images."
+  (let* ((ltximg-links (remove nil
+                   (mapcar (lambda (filepath)
+                             (when (string-match (file-name-base source-filepath) filepath)
+                               filepath))
+                           (directory-files (concat (file-name-as-directory (concat source-filepath-dir "ltximg")))
+                                            t))))
+         (embedded-web-stuff-links (remove nil
+                                           (mapcar (lambda (filepath)
+                                                     (if (not (file-exists-p filepath))
+                                                         (warn (concat
+                                                                "Linked-to file does not exist: "
+                                                                (prin1-to-string filepath))))
+                                                     filepath)
+                                                   (cs-org-get-linked-files-more-types)))))
+    (vconcat ltximg-links
+             embedded-web-stuff-links)))
 
 
 
