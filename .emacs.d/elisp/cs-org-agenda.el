@@ -50,38 +50,43 @@
 
 (define-key org-mode-map (kbd "C-c C-d") 'org-toggle-todo-and-fold)
 
+
 (defun cs-org-agenda-reload-agenda-files-list ()
-  "Reloads the list of agenda files.
-Agenda files are in subdirectories of fixed directories."
-  (interactive)
-  (let* ((org-files-dirs
-          (remove nil
-                  (mapcar (lambda (dir)
-                            (when (file-exists-p (expand-file-name dir))
-                              (expand-file-name dir)))
-                          (list "~/Dropbox/")))))
-    (message (concat "Reloading... " (prin1-to-string org-files-dirs)))
-    (setq org-agenda-files '())
-    (setq org-agenda-files
-          (append org-agenda-files
-                 (let* ((find-output-split
-                         (split-string
-                          (shell-command-to-string
-                           (concat
-                            "find "
-                            (let* ((mystr ""))
-                              (mapcar (lambda (org-files-dir)
-                                        (setq mystr (concat mystr " " (prin1-to-string org-files-dir))))
-                                org-files-dirs)
-                              mystr)
-                            " -name \"*.org\" -type f"))
-                          "\n"))
-                        (slice-end (length find-output-split)))
-                   (when (string-equal (cadr find-output-split)
-                                       "")
-                     (setq slice-end -1))
-                   (-slice find-output-split 0 slice-end))))
-    (message (concat "Done reloading " (prin1-to-string org-files-dirs)))))
+  ""
+  (setq org-agenda-files '("~/Dropbox/org/")))
+
+;; (defun cs-org-agenda-reload-agenda-files-list-recursive ()
+;;   "Reloads the list of agenda files.
+;; Agenda files are in subdirectories of fixed directories."
+;;   (interactive)
+;;   (let* ((org-files-dirs
+;;           (remove nil
+;;                   (mapcar (lambda (dir)
+;;                             (when (file-exists-p (expand-file-name dir))
+;;                               (expand-file-name dir)))
+;;                           (list "~/Dropbox/")))))
+;;     (message (concat "Reloading... " (prin1-to-string org-files-dirs)))
+;;     (setq org-agenda-files '())
+;;     (setq org-agenda-files
+;;           (append org-agenda-files
+;;                  (let* ((find-output-split
+;;                          (split-string
+;;                           (shell-command-to-string
+;;                            (concat
+;;                             "find "
+;;                             (let* ((mystr ""))
+;;                               (mapcar (lambda (org-files-dir)
+;;                                         (setq mystr (concat mystr " " (prin1-to-string org-files-dir))))
+;;                                 org-files-dirs)
+;;                               mystr)
+;;                             " -name \"*.org\" -type f"))
+;;                           "\n"))
+;;                         (slice-end (length find-output-split)))
+;;                    (when (string-equal (cadr find-output-split)
+;;                                        "")
+;;                      (setq slice-end -1))
+;;                    (-slice find-output-split 0 slice-end))))
+;;     (message (concat "Done reloading " (prin1-to-string org-files-dirs)))))
 
 ;; FIXME: writing agenda files to file in the cloud instead locally to .emacs
 
@@ -217,13 +222,13 @@ _vr_ reset      ^^                       ^^                 ^^
 
 
 ;; ----- binding
-(global-set-key (kbd "C-M-, a")
+(global-set-key (kbd "C-c o")
                 (lambda () (interactive)
                   (if (not org-agenda-files)
-                      (progn
-                        (when (yes-or-no-p "There are no agenda files at the moment. Do you want to reload?")
-                            (cs-org-agenda-reload-agenda-files-list))))
-
+                      (when
+                          (yes-or-no-p
+                           "There are no agenda files at the moment. Do you want to reload?")
+                        (cs-org-agenda-reload-agenda-files-list)))
                   (hydra-org-agenda/body)))
 
 ;; unset

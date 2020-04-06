@@ -34,7 +34,9 @@
 ;; --- setting up a custom org-publish backend ---
 
 
-(cl-defstruct cs-relative-paths filepath relative-link-to-sitemap relative-link-to-index absolute-path-to-github-org-file)
+(cl-defstruct cs-relative-paths filepath relative-link-to-sitemap relative-link-to-index absolute-path-to-github-org-file
+              relative-link-to-about-for-project
+              project-title)
 
 ;; (defconst cs-relative-paths "global-value")
 
@@ -133,10 +135,15 @@ Return output file name."
                                                     (get-project-repo-url (get-project-repo-name ,project-root-dir))
                                                   (get-edit-on-github-link (get-project-repo-name ,project-root-dir)
                                                                            ,project-root-dir
-                                                                           filename)))))
+                                                                           filename))
+                                                :relative-link-to-about-for-project
+                                                (concat (file-relative-name ,project-base-dir
+                                                                            (file-name-directory filename))
+                                                        "about.html")
+                                                :project-title (get-project-title ,project-root-dir))))
                   (cs-org-html-publish-to-backend plist filename
                                                   pub-dir 'my-html)
-                  )))
+                  (my-filter-sorround-equation-labels-with-braces (get-publish-target-filepath ,project-root-dir (expand-file-name filename))))))
              :auto-sitemap t
              :sitemap-title "Sitemap")
             (,project-component-other-name :base-directory ,project-base-dir
@@ -151,8 +158,9 @@ Return output file name."
     (org-publish-remove-all-timestamps)
     (org-publish project-component-all t nil)
 
-    (when (yes-or-no-p "Do you want to open the preview folder? ")
-      (shell-command (concat "nautilus " (prin1-to-string project-publish-dir) " &") publish-buffer-name publish-buffer-name))
+    (org-open-file project-publish-dir)
+    ;; (when (yes-or-no-p "Do you want to open the preview folder? ")
+    ;;   (shell-command (concat "nautilus " (prin1-to-string project-publish-dir) " &") publish-buffer-name publish-buffer-name))
     ))
 
 
@@ -161,13 +169,23 @@ Return output file name."
 (defun publish-project-offline (&optional project-root-dir)
   (interactive)
   (unless project-root-dir
-    (setq project-root-dir (get-next-project-root (buffer-file-name)
+    (setq project-root-dir (get-next-project-root (cond
+                                                   ((equal major-mode 'org-mode)
+                                                    (buffer-file-name))
+                                                    ;; I assume you're in dired
+                                                   ((equal major-mode 'dired-mode)
+                                                    default-directory)
+                                                   ((t buffer-file-truename)))
                                                   t))
     (unless project-root-dir
       (user-error "Root git dir not found")))
   ;; project
   (cs-clean-project-publish-buffer project-root-dir (concat "Clean out " (get-project-repo-name project-root-dir) "'s html directory: "))
-  (produce-index-org project-root-dir)
+
+  ;; generate index and about for this project
+  (get-index-as-org-file project-root-dir)
+  (get-about-as-org-file project-root-dir)
+
   (cs-org-publish-project project-root-dir))
 
 (defun publish-project-to-website-repo-offline (&optional project-root-dir)
@@ -183,7 +201,9 @@ Return output file name."
     ;; clean project
     (cs-clean-project-publish-buffer project-root-dir (concat "Clean out " project-name "'s html directory: "))
 
-    (produce-index-org project-root-dir)
+    ;; generate index and about for this project
+    (get-index-as-org-file project-root-dir)
+    (get-about-as-org-file project-root-dir)
 
     (cs-org-publish-project project-root-dir)
 
@@ -198,8 +218,10 @@ Return output file name."
      ;; subproject's name
      project-name)
 
-    (when (yes-or-no-p "Preview the website's local repo? ")
-      (shell-command (concat "nautilus " cs-my-public-website-root-dir " &") publish-buffer-name publish-buffer-name))))
+    (org-open-file cs-my-public-website-root-dir)
+    ;; (when (yes-or-no-p "Preview the website's local repo? ")
+    ;;   (shell-command (concat "nautilus " cs-my-public-website-root-dir " &") publish-buffer-name publish-buffer-name))
+    ))
 
 
 (defun cs-website-project-clear-and-paste (&optional source-dir target-dir subproject-name)
@@ -265,28 +287,29 @@ all other org files."
   (with-temp-buffer
     (org-mode)
     (org-element-parse-buffer)
-    (insert "#+OPTIONS: tex:dvisvgm\n")
-    (insert "#+OPTIONS: num:nil\n")
-    (insert "#+TITLE: Home\n")
 
-    (let* ((base-dir (get-org-dir-from-git-root (expand-file-name root-dir)))
-           (pm-list (get-all-post-metadatas (expand-file-name base-dir))) sorted-list)
+    (let* ((base-project-properties (parse-project-properties root-dir))
+           (base-dir (get-org-dir-from-git-root (expand-file-name root-dir)))
+           (pm-list (get-all-post-metadatas (expand-file-name base-dir)))
+           sorted-list)
+
+      (insert "#+OPTIONS: tex:dvisvgm\n")
+      (insert "#+OPTIONS: num:nil\n")
+      (insert "#+TITLE: "
+              (get-project-title root-dir)
+              "\n")
       ;; sort after last posted date and print
-      (setq sorted-list (reverse
-                         (remove nil (mapcar (lambda (metadata)
-                                               (when (post-metadata-date metadata)
-                                                 metadata))
-                                             (my-sort-for-what (copy-list pm-list) 'post-metadata-date)))))
+      (setq sorted-list (reverse (remove nil
+                                         (mapcar (lambda (metadata)
+                                                   (when (post-metadata-date metadata)
+                                                     metadata))
+                                                 (my-sort-for-what (copy-list pm-list)
+                                                                   'post-metadata-date)))))
       (when sorted-list
         (insert "\n")
         ;; sort
-        (insert "#+BEGIN_EXPORT html"
-                "\n"
-                "<h2>Most recent posts:</h2>"
-                "\n"
-                "#+END_EXPORT"
-                "\n"
-                )
+        (insert "#+BEGIN_EXPORT html" "\n" "<h2>Posts:</h2>"
+                "\n" "#+END_EXPORT" "\n")
         (insert "\n")
         (insert "\n")
         ;; if it's not officially marked as post, don't post it!
@@ -297,41 +320,76 @@ all other org files."
             (insert "\n")
             (insert "\n")
             (setq ctr (+ 1 ctr))))
-        (insert "
-#+BEGIN_EXPORT html
-<hr style=\"height: 8px;background: black;border: none;\">
-#+END_EXPORT"))
+        ;; (insert "
+        ;; #+BEGIN_EXPORT html
+        ;; <hr style=\"height: 8px;background: black;border: none;\">
+        ;; #+END_EXPORT")
+        )
       ;; sort after title
-      (setq sorted-list (reverse (my-sort-for-what (copy-list pm-list) 'post-metadata-title)))
-      (when sorted-list
-        (insert "\n")
-        ;; sort
-        (insert "#+BEGIN_EXPORT html"
-                "\n"
-                "<h2>All posts, sorted after title:</h2>"
-                "\n"
-                "#+END_EXPORT"
-                "\n"
-                )
-        (insert "\n")
-        (insert "\n")
-        (let* ((ctr 0))
-          (while (nth ctr sorted-list)
-            (print-post-metadata-into-org (nth ctr sorted-list))
-            (insert "\n")
-            (insert "\n")
-            (setq ctr (+ 1 ctr)))))
+      ;; (setq sorted-list (reverse (my-sort-for-what (copy-list pm-list) 'post-metadata-title)))
+      ;; (when sorted-list
+      ;;   (insert "\n")
+      ;;   ;; sort
+      ;;   (insert "#+BEGIN_EXPORT html"
+      ;;           "\n"
+      ;;           "<h2>All posts, sorted after title:</h2>"
+      ;;           "\n"
+      ;;           "#+END_EXPORT"
+      ;;           "\n"
+      ;;           )
+      ;;   (insert "\n")
+      ;;   (insert "\n")
+      ;;   (let* ((ctr 0))
+      ;;     (while (nth ctr sorted-list)
+      ;;       (print-post-metadata-into-org (nth ctr sorted-list))
+      ;;       (insert "\n")
+      ;;       (insert "\n")
+      ;;       (setq ctr (+ 1 ctr)))))
       ;; (write-file (expand-file-name "/home/chris/Desktop/demo.org"))
       (write-file (helm-read-file-name "Write the index file to: "
                                        :initial-input (concat base-dir "index.org"))))))
 
-(defun produce-index-org (root-dir)
-  "Called typically from within the git subdirectory
- of the org project, after the org files in that project have been updated"
+(defun get-about-as-org-file (&optional root-dir)
+  "Publish the index.org (overview of recent posts) as an org file first.
+Then, it can also be converted to an html file, together with
+all other org files."
   (interactive)
-  (unless root-dir
-    (setq root-dir (get-next-git-root)))
-  (get-index-as-org-file root-dir))
+  (with-temp-buffer
+    (org-mode)
+    (org-element-parse-buffer)
+    (insert "#+OPTIONS: tex:dvisvgm\n")
+    (insert "#+OPTIONS: num:nil\n")
+    (insert "#+TITLE: About\n")
+    (let* ((base-dir (get-org-dir-from-git-root (expand-file-name root-dir)))
+           (base-project-properties (parse-project-properties root-dir)))
+      ;; (insert "* About")
+      (insert "\n")
+      (insert "\n"
+              "#+BEGIN_EXPORT html"
+              "\n"
+              (let* ((description-html (project-properties-description-html base-project-properties)))
+                (if description-html
+                    description-html
+                  (warn (concat "No description put for project " (get-project-repo-name root-dir)))
+                  "Oops! This project repository doesn't seem to have a description. My bad."))
+              "\n"
+              "<br></br>"
+              "<br></br>"
+              "<hr></hr>"
+              "Check out "
+              "<a href=\"" cs-my-github-website-url "\">other blogs</a>"
+              "."
+              "<br></br>"
+              "For general and legal information, please look "
+              "<a href=\"" cs-my-github-website-legal-link "\">here</a>"
+              "."
+              "\n"
+              "#+END_EXPORT"
+              "\n")
+
+      (write-file (helm-read-file-name "Write the about file to: "
+                                       :initial-input (concat base-dir "about.org"))))))
+
 
 ;; --- importing an org file and it's needed assets into a project from outside -----
 
@@ -373,11 +431,13 @@ adjusted in the org file."
                                          (interactive)
                                          (publish-project-to-website-repo-offline))
                                        "publish the project offline to website repo")
-                                      ("g b i f"
+                                      ("g b i a f"
                                        (lambda ()
                                          (interactive)
-                                         (generate-index-html-for-base-project ))
-                                       "generate base index.html file")
+                                         (generate-index-html-for-base-project)
+                                         (generate-about-html-for-base-project)
+                                         (generate-legal-html-for-base-project))
+                                       "generate base index.html, about.html and legal.html files")
                                       ("d w g"
                                        (lambda ()
                                          (interactive)
@@ -391,11 +451,13 @@ adjusted in the org file."
 (define-key org-mode-map (kbd "C-M-, P") ; process
   'cs-org-publish-run-hydra)
 
+(define-key dired-mode-map (kbd "C-M-, P") ; process
+  'cs-org-publish-run-hydra)
 
-(cl-defstruct project-properties description-html visibility subproject-paths)
 
+(cl-defstruct project-properties description-html visibility subproject-paths title)
 (defconst project-properties-keyword-list
-  (list "description-html" "ranking" "visibility" "subproject-paths"))
+  (list "description-html" "ranking" "visibility" "subproject-paths" "title"))
 
 (defun get-project-properties-relative-file-path (project-root)
   (expand-file-name (concat (file-name-as-directory project-root) project-properties-filename)))
@@ -479,13 +541,18 @@ If nothing specified, assume `yes`."
   ""
   (string-trim (concat (get-keyword-section-content "description-html"))))
 
+(defun parse-title ()
+  ""
+  (string-trim (concat (get-keyword-section-content "title"))))
+
 (defun parse-project-properties (project-root)
   ""
   (with-temp-buffer
     (insert-file-contents (get-project-properties-relative-file-path project-root))
     (make-project-properties :subproject-paths (parse-subproject-paths)
                              :description-html (parse-description-html)
-                             :visibility (parse-visibility))))
+                             :visibility (parse-visibility)
+                             :title (parse-title))))
 
 (defun generate-index-html-for-base-project (&optional project-root)
   "This base project has a directory structure:
@@ -507,7 +574,8 @@ If nothing specified, assume `yes`."
                                               ;; only link to it if the index.html isn't a dead link
                                               (let* ((pp (parse-project-properties pr)))
                                                 (cs-html-format-project-description-block
-                                                 (project-properties-description-html pp)
+                                                 (project-properties-title base-project-properties)
+                                                 ;; (project-properties-description-html pp)
                                                  (concat "./" ;; "www/"
                                                          subproject-name "/index.html")))))
                                           (project-properties-subproject-paths base-project-properties)
@@ -515,52 +583,18 @@ If nothing specified, assume `yes`."
                                                     (file-name-nondirectory (directory-file-name root-dir)))
                                                   (project-properties-subproject-paths base-project-properties)))))))
     (with-temp-buffer
-      (insert (my-html-template-plain
-               (cs-html-format-slidingtopbar-html cs-my-youtube-page-url
-                                                  cs-my-github-page-url
-                                                  "./about.html")
-                                      (cs-html-format-title-html (project-properties-description-html
-                                                                  base-project-properties))
+      (insert (my-html-template-plain (cs-html-format-slidingtopbar-html nil cs-my-github-page-url
+                                                                         "./about.html"
+                                                                         "./legal.html")
+                                      (cs-html-format-title-html (project-properties-description-html base-project-properties))
                                       project-blocks-html))
       (write-file (helm-read-file-name "Write the index file to: "
                                        :initial-input (concat (file-name-as-directory project-root)
                                                               "www/index.html"))))))
 
-(defun cs-html-format-project-description-block (title-str rel-link-to-html &optional project-name)
-  ""
-  (unless project-name
-    (setq project-name (file-name-nondirectory (directory-file-name (file-name-directory rel-link-to-html)))))
-  (unless (or (not title-str) (not (string-equal title-str "")))
-    (setq title-str project-name))
-  (concat "<div class=\"project-container-div\">\n"
-          "<p>\n"
-          "<a href=" (prin1-to-string rel-link-to-html) ">\n"
-          title-str
-          "</a>\n"
-          "</p>\n"
-          "<p class=\"posted\">"
-          "GitHub: <a style=\"text-decoration: none;\" href=" cs-my-github-page-url
-          project-name ">\n"
-          project-name
-          "</a>\n"
-          "</p>"
-          "</div>"))
-
-(defun cs-html-format-slidingtopbar-html (&optional youtube-url github-url about-page-link)
-  ""
-  (concat
-   "<div class=\"container\">\n"
-   (when github-url (concat "<a class=\"projectlink\" href=" (prin1-to-string github-url) ">Github</a>\n"))
-   (when youtube-url (concat "<a class=\"projectlink\" href=" (prin1-to-string youtube-url) ">YouTube</a>\n"))
-   (when about-page-link (concat "<a class=\"aboutlink\" href=" (prin1-to-string about-page-link) ">About</a>\n"))
-   "</div>"))
-
-(defun cs-html-format-title-html (&optional title)
-  ""
-  (concat (when title (concat "<h2>" title "</h2>"))))
-
-(defun generate-about-page-for-base-project (&optional project-root)
-  "The about page is in the same directory as the index.html"
+(defun generate-about-html-for-base-project (&optional project-root)
+  "This base project has a directory structure:
+"
   (unless project-root
     ;; (setq project-root
     ;;       (get-next-project-root (buffer-file-name)
@@ -570,12 +604,35 @@ If nothing specified, assume `yes`."
 
   (let* ((base-project-properties (parse-project-properties project-root)))
     (with-temp-buffer
-      (insert (my-html-template-plain "" (cs-html-format-title-html "About")
-                                      (concat "This is my personal blog. Here, I post stuff that I think might be useful sharing. <br></br> This is a static website, hosted using GitHub pages. <br></br> These pages are generated by org-mode and some custom emacs lisp code, which you can find in my dotfiles on GitHub as well.")))
-      (write-file (helm-read-file-name "Write the about.html file to: "
+      (insert (my-html-template-plain nil
+                                      ;; (cs-html-format-slidingtopbar-html nil
+                                      ;;                                    nil nil)
+                                      (cs-html-format-title-html
+                                       "About")
+                                      (project-properties-description-html base-project-properties)
+                                      ))
+      (write-file (helm-read-file-name "Write the about file to: "
                                        :initial-input (concat (file-name-as-directory project-root)
                                                               "www/about.html"))))))
 
+(defun generate-legal-html-for-base-project (&optional project-root)
+  ""
+  (unless project-root
+    ;; (setq project-root
+    ;;       (get-next-project-root (buffer-file-name)
+    ;;                              t
+    ;;                              "Select project root for which to generate an index.html: "))
+    (setq project-root (expand-file-name cs-my-public-website-root-dir)))
+
+  (let* ((base-project-properties (parse-project-properties project-root)))
+    (with-temp-buffer
+      (insert (my-html-template-plain nil
+                                      (cs-html-format-title-html
+                                       "General and Legal Information")
+                                      my-legal-html))
+      (write-file (helm-read-file-name "Write the legal file to: "
+                                       :initial-input (concat (file-name-as-directory project-root)
+                                                              "www/legal.html"))))))
 
 (defun cs-org-html-export-but-actually-publish (&optional async subtreep visible-only body-only ext-plist source-filepath target-filepath-dir)
   "Publish a single file with it's attachments.

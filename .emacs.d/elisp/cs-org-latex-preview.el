@@ -36,6 +36,7 @@
 ;; bigger latex fragment
 ;; for text-scale-mode-amount 0, take scale 1.5
 (plist-put org-format-latex-options :scale 1.5)
+(plist-put org-format-latex-options :scale 1.5)
 
 ;; color of the fragments
 (plist-put org-format-latex-options :foreground 'default)

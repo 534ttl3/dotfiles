@@ -87,7 +87,9 @@ but also just from any function which wants to create an html file."
   #content {
       padding: 5px;
 "
-        "font-family: \"Computer Modern Serif\", serif, \"Computer Modern Sans\", sans-serif;"
+        "
+/* font-family: \"Computer Modern Serif\", serif, \"Computer Modern Sans\", sans-serif; */ /* I find that on the web, inconsistencies of math typesetting and the use of computer modern distracts from the content */
+"
    "
   }
 
@@ -245,15 +247,20 @@ font-family: \"Courier New\", Courier, monospace;
 }
 
 .footdef {
-    line-height: 3em;
+    /* line-height: 3em; */
+    padding-bottom: 30px;
 }
 
 
 /* --- math display --- */
 
-/* p > .org-svg {  /* export with dvisvgm: position adjustment of inline math */
-    position:absolute;
-} */
+p > .org-svg {  /* export with dvisvgm: position adjustment of inline math */
+    vertical-align: middle;
+}
+
+p > img {
+    vertical-align: middle;
+}
 
 .org-svg { width: auto; } /* for export with dvisvgm */
 
@@ -272,17 +279,16 @@ font-family: \"Courier New\", Courier, monospace;
    "</style>
 </head>
 <body>"
-   (when cur-rel-paths
-     ;; default: no topbar with additional information
-     (concat
-      "
+   (concat
+    "
 <div class=\"topbar\">
   <div class=\"slidingtopbar\">"
-      (if sliding-topbar-verbose-html
-          sliding-topbar-verbose-html
+    (if sliding-topbar-verbose-html
+        sliding-topbar-verbose-html
+      (when cur-rel-paths
         (concat "<a " " class=\"projectlink\"" " href=\""
                 (cs-relative-paths-relative-link-to-index cur-rel-paths)
-                "\">Home</a>\n"
+                "\">" (cs-relative-paths-project-title cur-rel-paths) "</a>\n"
                 "<a " " class=\"projectlink\" " " href=\""
                 (cs-relative-paths-relative-link-to-sitemap cur-rel-paths)
                 "\">Sitemap</a>\n"
@@ -290,9 +296,10 @@ font-family: \"Courier New\", Courier, monospace;
                 (cs-relative-paths-absolute-path-to-github-org-file
                  cur-rel-paths) "\">Edit on Github</a>\n"
                 "<a " " class=\"aboutlink\" " " href=\""
-                cs-my-github-website-about-link "\">About</a>\n"))
-      "</div>
-</div>"))))
+                (cs-relative-paths-relative-link-to-about-for-project
+                 cur-rel-paths) "\">About</a>\n")))
+    "</div>
+</div>")))
 
 (defun get-my-html-print-title-str (info)
   (when (plist-get info :with-title)
@@ -332,52 +339,47 @@ CONTENTS is the transcoded contents string.  INFO is a plist
 holding export options."
 
   (interactive)
-  (let* ((html-str
-          (concat
-           (let ((link-up (org-trim (plist-get info :html-link-up)))
-                 (link-home (org-trim (plist-get info :html-link-home))))
-             (unless (and (string= link-up "") (string= link-home ""))
-               (format (plist-get info :html-home/up-format)
-                       (or link-up link-home)
-                       (or link-home link-up))))
-           ;; Preamble.
-           (org-html--build-pre/postamble 'preamble info)
+  (let* ()
+    (concat
+     (let ((link-up (org-trim (plist-get info :html-link-up)))
+           (link-home (org-trim (plist-get info :html-link-home))))
+       (unless (and (string= link-up "") (string= link-home ""))
+         (format (plist-get info :html-home/up-format)
+                 (or link-up link-home)
+                 (or link-home link-up))))
+     ;; Preamble.
+     (org-html--build-pre/postamble 'preamble info)
 
-           (get-my-html-preamble-str info)
+     (get-my-html-preamble-str info)
 
-           "\n<div id=\"content\">\n"
-           ;; Print the title (if it's there)
-           (get-my-html-print-title-str info)
+     "\n<div id=\"content\">\n"
+     ;; Print the title (if it's there)
+     (get-my-html-print-title-str info)
 
-           ;; Print the date (if it's there)
-           (let* ((spec (org-html-format-spec info))
-                  (date (cdr (assq ?d spec))))
-             (concat
-              (and (plist-get info :with-date)
-                   (org-string-nw-p date)
-                   (format (concat "<span class=\"posted\">" ;; "%s: "
-                                   "%s</span>\n")
-                           ;; (org-html--translate "" info)
-                           date))
-              ;; (and (plist-get info :time-stamp-file)
-              ;;      (format
-              ;;       "<span class=\"lastedited\">%s: %s</span>\n"
-              ;;       (org-html--translate "last edited" info)
-              ;;       (format-time-string
-              ;;        (plist-get info :html-metadata-timestamp-format))))
-              ))
+     ;; Print the date (if it's there)
+     (let* ((spec (org-html-format-spec info))
+            (date (cdr (assq ?d spec))))
+       (concat
+        (and (plist-get info :with-date)
+             (org-string-nw-p date)
+             (format (concat "<span class=\"posted\">" ;; "%s: "
+                             "%s</span>\n")
+                     ;; (org-html--translate "" info)
+                     date))
+        ;; (and (plist-get info :time-stamp-file)
+        ;;      (format
+        ;;       "<span class=\"lastedited\">%s: %s</span>\n"
+        ;;       (org-html--translate "last edited" info)
+        ;;       (format-time-string
+        ;;        (plist-get info :html-metadata-timestamp-format))))
+        ))
 
-           ;; (prin1-to-string cur-rel-paths)
+     ;; (prin1-to-string cur-rel-paths)
 
-           contents
-           "\n</div>"
-           ;; (org-html--build-pre/postamble 'postamble info)
-           (get-my-html-postamble-str)))
-         processed-html-str)
-
-    ;; ------ processing the html string -------------
-    (my-filter-sorround-equation-labels-with-braces target-filepath)
-    ))
+     contents
+     "\n</div>"
+     ;; (org-html--build-pre/postamble 'postamble info)
+     (get-my-html-postamble-str))))
 
 (defun my-html-template-plain (&optional sliding-topbar-html title-html
                                          content-html)
@@ -410,7 +412,6 @@ This is useful at html export."
          (kill-end (nth 2 cite-info))
          ;; get the bibtex key from the cite string
          (bibtex-key (cdr (assoc 'bibtex-key (klin-get-assoc-list-from-cite-link-str cite-link-str))))
-         (bibtex-entry (org-ref-get-bibtex-entry bibtex-key))
          (bibtex-filepath (expand-file-name (cdr (org-ref-get-bibtex-key-and-file bibtex-key))))
          (formatted-bibtex-entry-str (with-bib-file-buffer bibtex-filepath
                                                            (when (bibtex-search-entry bibtex-key)
@@ -426,8 +427,6 @@ This is useful at html export."
         (insert " ")
         (insert formatted-bibtex-entry-str)))))
 
-
-(add-hook 'org-export-before-parsing-hook 'cs-org-html-replace-cites-by-footnotes)
 
 (defun cs-org-replace-link-types-by-nothing (backend link-type-str)
   "Replace a link type like bibliography:mybib.bib
@@ -448,7 +447,9 @@ by an empty string, but only for a certain export backend."
                 ;; after replacing with a footnote
                 (reverse links-infos)))))
 
-(add-hook 'org-export-before-parsing-hook (lambda (backend) (cs-org-replace-link-types-by-nothing backend "bibliography")))
+(defun cs-org-replace-bibliography-link-by-nothing (backend)
+  ""
+  (cs-org-replace-link-types-by-nothing backend "bibliography"))
 
 
 ;; --------- filter to sorround equation labels with brackets ----------
@@ -489,9 +490,25 @@ by an empty string, but only for a certain export backend."
         (insert transformed-str)
         (write-file target-html-filepath)))))
 
+;; (defun sorround-equation-labels-with-braces-get-string (html-string-original)
+;;   ""
+;;   (let* ((my-regexp "<span class=\"equation-label\">[[:space:]\n]+\\([0-9]+\\)[[:space:]\n]+</span>")
+;;          (my-str-left "<span class=\"equation-label\">")
+;;          (my-str-right "</span>")
+;;          (transformed-str
+;;           (replace-regexp-in-string my-regexp
+;;                                     (lambda (x)
+;;                                                                      my-str-left my-str-right))
+;;                                     html-string-original)))))
+
 ;; (add-to-list 'org-export-filter-paragraph-functions
 ;;              'cs-org-dvisvgm-html-export-sorround-equation-labels-with-braces)
 
+
+;; ---- hooks for processing org file before transcoding -----
+(setq org-export-before-parsing-hook '())
+(add-hook 'org-export-before-parsing-hook 'cs-org-html-replace-cites-by-footnotes)
+(add-hook 'org-export-before-parsing-hook 'cs-org-replace-bibliography-link-by-nothing t)
 
 (provide 'cs-org-blog-html-backend)
 ;;; cs-org-blog-html-backend.el ends here

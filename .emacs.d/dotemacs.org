@@ -334,7 +334,7 @@ sudo apt install elpa-counsel
 
 #+RESULTS:
 
-** COMMENT darkroom
+** darkroom
 #+BEGIN_SRC emacs-lisp
 (use-package darkroom
   :ensure t
@@ -1990,6 +1990,21 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 * general utility functions
 #+BEGIN_SRC emacs-lisp
+  (defun dired-open-file ()
+    "In dired, open the file named on this line."
+    (interactive)
+    (let* ((file (dired-get-filename nil t)))
+      (message "Opening %s..." file)
+      (call-process "xdg-open" nil 0 nil file)
+      (message "Opening %s done" file)))
+
+  (define-key dired-mode-map (kbd "C-c C-o") 'dired-open-file)
+#+END_SRC
+
+#+RESULTS:
+: dired-open-file
+
+#+BEGIN_SRC emacs-lisp
   (defun my-toggle-margins (&optional enable-thick-margin)
     "Set margins in current buffer."
     (interactive)
@@ -2269,7 +2284,7 @@ Tabbar for simple pdf switching
 #+END_SRC
 
 #+RESULTS:
-** elscreen
+** COMMENT elscreen
 #+BEGIN_SRC emacs-lisp
   (use-package elscreen
     :ensure t
