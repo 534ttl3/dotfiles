@@ -115,7 +115,8 @@ but also just from any function which wants to create an html file."
   width: 100%;
   margin: 0;
   padding: 0;
-  background-color: #242424;
+  background-color: white;
+  border-bottom:2px solid black;
   overflow: hidden;
   position: relative;
 }
@@ -126,9 +127,10 @@ but also just from any function which wants to create an html file."
     float: right;
 }
 
+
 .projectlink, .aboutlink {
   display: block;
-  color: white;
+  color: black;
   padding: 16px;
   text-decoration: none;
 }
@@ -141,39 +143,15 @@ but also just from any function which wants to create an html file."
     float: right;
 }
 
-.projectlink:hover:not(.active){
+.projectlink:hover:not(.active), .aboutlink:hover:not(.active){
+  background-color: whitesmoke;
+}
+
+/* .topbar a:hover:not(.active){
   background-color: #555;
   color: white;
-}
+} */
 
-.topbar a:hover:not(.active){
-  background-color: #555;
-  color: white;
-}
-
-@media screen and (max-width: 400px) {
-.projectlink, .aboutlink {
-    text-align: center;
-    float: none;
-  }
-
-  .projectlink, .aboutlink {
-    text-align: center;
-    float: none;
-  }
-
-  .aboutlink {
-    text-align: center;
-    float: none;
-    border-bottom: none;
-    border-top: 5px solid aquamarine;
-  }
-
-  .slidingtopbar {
-      overflow: auto;
-      width: auto;
-  }
-}
 
 .projectlink {
     border-top: 5px solid cornflowerblue;
@@ -184,17 +162,42 @@ color: #646769;
 font-family: -apple-system,BlinkMacSystemFont,\"Roboto\",\"Segoe UI\",\"Helvetica Neue\",\"Lucida Grande\",Arial,sans-serif;
 font-size: .75em;
 margin-right: 1em;
+min-width: 80px;
+display: inline-block;
+}
+
+.post-link {
+    display: inline-block;
+    align-self: bottom;
 }
 
 .post-container-div {
-border-left: 5px solid cornflowerblue;
-padding-left: 25px;
-padding-top: 5px;
-padding-bottom: 10px;
-border-right: 5px solid cornflowerblue;
-background: aliceblue;
-margin-bottom: 25px;
-margin-top: 25px;
+padding:5px;
+transition: 0.3s;
+}
+
+.post-container-div:hover {
+    padding-left: 10px;
+    background: whitesmoke;
+}
+
+@media screen and (max-width: 600px) {
+.projectlink, .aboutlink {
+    text-align: center;
+    float: none;
+    border:none;
+  }
+
+  .slidingtopbar {
+      overflow: auto;
+      width: auto;
+      /* border-top:2px solid black; */
+  }
+
+  .post-link {
+    display: block;
+    margin-bottom: 10px;
+  }
 }
 
 
@@ -240,15 +243,20 @@ font-family: \"Courier New\", Courier, monospace;
 
 .footpara {
     width: 99%;
-    text-alignt: left;
-    float: right;
+    text-align: left;
     padding: 0;
     margin: 0;
+    display: inline;
 }
 
 .footdef {
     /* line-height: 3em; */
     padding-bottom: 30px;
+}
+
+.footdef > sup {
+display:inline;
+padding-right: 10px;
 }
 
 
@@ -274,6 +282,10 @@ p > img {
     display: table-cell;
     text-align: right;
     vertical-align: middle;
+}
+
+p.footpara > a {
+display: inline-flex;
 }
 "
    "</style>

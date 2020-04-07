@@ -52,7 +52,7 @@
                                 "C. T. Schnur" "<br></br>" "2 Avenue Général Champon, 38000 Grenoble, France"
                                 "<br></br>" "Email: " "534ttl3@gmail.com"
                                 "<h3>Terms of Use</h3>" "This webpage is a personal blog and notebook. The maintainer does not guarantee for  accuracy of the content on this webpage. As everything that is just <i>out there</i> on the internet and not reviewed by third party professional editors, the contents of this page should always be taken with a grain of salt. "
-                                "<h3>Privacy</h3>" "The webhost of this website, GitHub Pages, <i>may collect User Personal Information from visitors to your GitHub Pages website, including logs of visitor IP addresses, to comply with legal obligations, and to maintain the security and integrity of the Website and the Service.</i> (source: https://help.github.com/en/github/site-policy/github-privacy-statement ; accessed on the 6th of April 2020)."
+                                "<h3>Privacy</h3>" "The webhost of this website, GitHub Pages, <i>may collect User Personal Information from visitors to your GitHub Pages website, including logs of visitor IP addresses, to comply with legal obligations, and to maintain the security and integrity of the Website and the Service.</i> (source: https://help.github.com/en/github/site-policy/github-privacy-statement ; accessed on the 6th of April 2020). "
                                 "Apart from this data (which is not used or shared in any way by the above mentioned maintainer of this webpage), no other user data is collected, except if they themselves propose edits of the content on this page through GitHub."))
 
 ;; a link to a website could look like this:
@@ -116,7 +116,7 @@ the publish directory."
                                                                                                               t
                                                                                                             (user-error (concat "Filepath " (prin1-to-string filepath) " given to get-next-git-root doesn't exist"))))
                                                                                         (concat " cd "
-                                                                                                (prin1-to-string (file-name-directory filepath))
+                                                                                                (prin1-to-string (expand-file-name (file-name-directory filepath)))
                                                                                                 " ; "))
                                                                                       "git rev-parse --show-toplevel"))
                                                                              "\n")))))
@@ -279,30 +279,37 @@ the publish directory."
                             :relative-dir-path (file-name-directory file-path)
                             :post-type post-type)))))
 
-(defun print-post-metadata-into-org (pm-instance)
-  (let* ((date-str (post-metadata-date pm-instance)))
+(defun print-post-metadata-into-org (pm-instance project-root-dir)
+  ""
+  (let* ((source-filepath (concat (file-name-as-directory (post-metadata-relative-dir-path pm-instance))
+                            (post-metadata-file-name-base pm-instance)
+                            ".org"))
+         (date-str (post-metadata-date pm-instance)))
     (insert (concat "#+BEGIN_EXPORT html"
                     "\n"
                     "<div class=\"post-container-div\">"
                     "\n"
-                    "#+END_EXPORT"
+                    "<span class=\"posted\">" (when date-str date-str) "</span>"
                     "\n"
-                    "[["
-                    (concat (file-name-as-directory (post-metadata-relative-dir-path pm-instance))
-                            (post-metadata-file-name-base pm-instance)
-                            ".org")
-                    "]["
+                    "<span class=\"post-link\">"
+                    "<a href=\""
+                    (file-relative-name (get-publish-target-filepath project-root-dir
+                                                                        source-filepath)
+                                        (get-projects-publish-dir-from-root-dir project-root-dir))
+                    "\">"
                     (post-metadata-title pm-instance)
-                    "]]"
-                    "\n"
-                    (when date-str
-                      (concat "#+BEGIN_EXPORT html"
-                              "\n"
-                              (format "<p class=\"posted\"> %s </p>" date-str)
-                              "\n"
-                              "#+END_EXPORT"
-                              "\n"))
-                    "#+BEGIN_EXPORT html"
+                    "</a>"
+                    "</span>"
+                    ;; "#+END_EXPORT"
+                    ;; "\n"
+                    ;; "[["
+                    ;; source-filepath
+                    ;; "]["
+                    ;; (post-metadata-title pm-instance)
+                    ;; "]]"
+                    ;; "\n"
+
+                    ;; "#+BEGIN_EXPORT html"
                     "\n"
                     "</div>"
                     "\n"

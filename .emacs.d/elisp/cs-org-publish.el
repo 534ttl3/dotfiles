@@ -192,7 +192,14 @@ Return output file name."
   (interactive)
   (let* (project-name)
     (unless project-root-dir
-      (setq project-root-dir (get-next-project-root (buffer-file-name) t "select local project which you want to publish"))
+      (setq project-root-dir (get-next-project-root
+                              (cond
+                               ((equal major-mode 'org-mode)
+                                (buffer-file-name))
+                               ((equal major-mode 'dired-mode)
+                                default-directory)
+                               (t (user-error "Not in dired or org-mode")))
+                              t "select local project which you want to publish"))
       (unless project-root-dir
         (user-error "Root git dir not found")))
 
@@ -270,11 +277,8 @@ in which the html of a project (with an index.html is pasted)"
                                          (concat " cd " (prin1-to-string big-project-root-dir) " ; "
                                                  " git add . ; git commit -m 'pushing html' ; git push ; "))
                      publish-buffer-name))
-    ;; go to the website to preview
-    ;; (when (yes-or-no-p "Wanna open the website in browser?")
-    ;;   (browse-url cs-my-github-website-url)
-    ;;   (browse-url cs-my-github-website-repo-url))
-    ))
+
+    (browse-url cs-my-github-website-url)))
 
 
 ;; ----- creating/updating the index.html of a project from it's set of org files ----
@@ -308,7 +312,7 @@ all other org files."
       (when sorted-list
         (insert "\n")
         ;; sort
-        (insert "#+BEGIN_EXPORT html" "\n" "<h2>Posts:</h2>"
+        (insert "#+BEGIN_EXPORT html" "\n" ;; "<h2>Posts:</h2>"
                 "\n" "#+END_EXPORT" "\n")
         (insert "\n")
         (insert "\n")
@@ -316,7 +320,7 @@ all other org files."
         (let* ((ctr 0))
           (while (and (nth ctr sorted-list)
                       (< ctr 10))
-            (print-post-metadata-into-org (nth ctr sorted-list))
+            (print-post-metadata-into-org (nth ctr sorted-list) root-dir)
             (insert "\n")
             (insert "\n")
             (setq ctr (+ 1 ctr))))
@@ -377,7 +381,7 @@ all other org files."
               "<br></br>"
               "<hr></hr>"
               "Check out "
-              "<a href=\"" cs-my-github-website-url "\">other blogs</a>"
+              "<a href=\"" cs-my-github-website-url "\">my other blogs</a>"
               "."
               "<br></br>"
               "For general and legal information, please look "
@@ -411,16 +415,18 @@ adjusted in the org file."
                                    `(defhydra hydra-cs-org-publish
                                       (:columns 1 :exit t)
                                       "cs-org-publish: options for publishing a blog post"
-                                      ("t s o"
-                                       (lambda ()
-                                         (interactive)
-                                         (cs-transfer-single-org-file))
-                                       "transfer single org file")
-                                      ("p l f"
-                                       (lambda ()
-                                         (interactive)
-                                         (pull-files-into-asset-dir))
-                                       "pull linked files into asset directory")
+                                      ,(when (equal major-mode 'org-mode)
+                                         `("t s o"
+                                           (lambda ()
+                                             (interactive)
+                                             (cs-transfer-single-org-file))
+                                           "transfer single org file"))
+                                      ,(when (equal major-mode 'org-mode)
+                                         `("p l f"
+                                           (lambda ()
+                                             (interactive)
+                                             (pull-files-into-asset-dir))
+                                           "pull linked files into asset directory"))
                                       ("p p o"
                                        (lambda ()
                                          (interactive)
