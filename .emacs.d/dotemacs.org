@@ -6,7 +6,7 @@
   (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
   (package-initialize)
   (setq package-check-signature nil)
-#+END_SRC 
+#+END_SRC
 
 ** package-initialize-packages
 #+BEGIN_SRC emacs-lisp
@@ -309,7 +309,8 @@ sudo apt install elpa-counsel
   (global-set-key (kbd "C-x l") 'counsel-locate)
   (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
-  )
+  ;; (global-unset-key (kbd "C-x C-p"))
+  (global-set-key (kbd "C-x C-p") (lambda () (interactive) (counsel-fzf nil (expand-file-name "~")))))
 
   ;; this calls counsel-find-file
   (require 'cs-find-file-utils)
@@ -675,11 +676,12 @@ Make a minor mode with keys that override all other keys and always take precend
   ;; the minor mode
   (defvar my-keys-minor-mode-map
     (let ((map (make-sparse-keymap)))
-
-      (define-key map (kbd "C-o")
-                      'evil-jump-backward)
-      (define-key map (kbd "C-i")
-                      'evil-jump-forward)
+      ;; (define-key map (kbd "C-o")
+      ;;                 ;; 'evil-jump-backward
+      ;;                 )
+      ;; (define-key map (kbd "C-i")
+      ;;                 ;; 'evil-jump-forward
+      ;;                 )
       map)
     "my-keys-minor-mode keymap.")
 
@@ -711,6 +713,21 @@ Make a minor mode with keys that override all other keys and always take precend
 #+RESULTS:
 : my-keys-have-priority
 
+** backward-forward
+#+BEGIN_SRC emacs-lisp
+  (use-package backward-forward
+    :ensure t
+    :config
+    ;; (setf backward-forward-evil-compatibility-mode t)
+    ;; the upper line is optional, and recommended only if you are using evil mode
+    (backward-forward-mode t)
+    (define-key my-keys-minor-mode-map (kbd "C-o") 'backward-forward-previous-location)
+    (define-key my-keys-minor-mode-map (kbd "C-i") 'backward-forward-next-location))
+#+END_SRC
+
+#+RESULTS:
+: t
+** COMMENT Evil-Mode
 #+BEGIN_SRC emacs-lisp
   (use-package evil
     :init
@@ -757,10 +774,13 @@ Make a minor mode with keys that override all other keys and always take precend
     ;; (add-to-list 'evil-emacs-state-modes 'term-mode)  ;; this didn't work
     (add-to-list 'evil-emacs-state-modes 'process-menu-mode)
     (add-to-list 'evil-emacs-state-modes 'tabulated-list-mode)
+    (add-to-list 'evil-emacs-state-modes 'fundamental-mode)
+    (add-to-list 'evil-emacs-state-modes 'text-mode)
+    (add-to-list 'evil-emacs-state-modes 'inferior-python-mode)
 
     (evil-set-initial-state 'help-mode 'emacs)
     ;; (evil-set-initial-state 'term-mode 'emacs)  ;; this didn't work as well
-    (add-hook 'term-mode-hook (lambda () (evil-mode -1)))  ;; this finally worked
+    ;; (add-hook 'term-mode-hook (lambda () (evil-mode -1)))  ;; this finally worked
 
     ;; only ever go up/down visual lines
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
@@ -794,7 +814,7 @@ Make a minor mode with keys that override all other keys and always take precend
 #+RESULTS:
 : t
 
-** evil-collection
+** COMMENT evil-collection
 #+BEGIN_SRC emacs-lisp
   (use-package evil-collection
     :after evil
@@ -828,23 +848,44 @@ Make a minor mode with keys that override all other keys and always take precend
  PDF Viewer for Emacs
 #+BEGIN_SRC emacs-lisp
   (use-package pdf-tools
+    :ensure t
     :config
     (define-key pdf-view-mode-map (kbd "C-c C-l") 'org-store-link)
     (define-key pdf-view-mode-map (kbd "C-c C-s") 'pdf-view-auto-slice-minor-mode)
     ;; (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
-
     (define-key pdf-view-mode-map (kbd "<M-left>") 'pdf-history-backward)
     (define-key pdf-view-mode-map (kbd "<M-right>") 'pdf-history-forward)
+    ;; --------- pdf-view-mode, make pdf pinch/zoom more chrome-like
+    (define-key pdf-view-mode-map (kbd "<S-mouse-5>") 'image-forward-hscroll)
+    (define-key pdf-view-mode-map (kbd "<S-mouse-4>") 'image-backward-hscroll)
+    (define-key pdf-view-mode-map (kbd "<C-mouse-5>") (lambda ()
+                                                        (interactive)
+                                                        (pdf-view-enlarge 1.1)))
+    (define-key pdf-view-mode-map (kbd "<C-mouse-4>") (lambda ()
+                                                        (interactive)
+                                                        (pdf-view-shrink 1.1)))
 
-  ;; --------- pdf-view-mode, make pdf pinch/zoom more chrome-like
-  (define-key pdf-view-mode-map (kbd "<S-mouse-5>") 'image-forward-hscroll)
-  (define-key pdf-view-mode-map (kbd "<S-mouse-4>") 'image-backward-hscroll)
-  (define-key pdf-view-mode-map (kbd "<C-mouse-5>") (lambda () (interactive) (pdf-view-enlarge 1.1)))
-  (define-key pdf-view-mode-map (kbd "<C-mouse-4>") (lambda () (interactive) (pdf-view-shrink 1.1)))
-  ;; ---------
+    ;; ----- use isearch instead of swiper ----
+    (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
 
-  ;; use isearch instead of swiper
-  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
+    ;; ---- useful one-key keybindings ---
+    (define-key pdf-view-mode-map (kbd "B") 'pdf-history-backward)
+    (define-key pdf-view-mode-map (kbd "F") 'pdf-history-forward)
+
+    ;; ---- klin-specific key bindings ----
+    (with-eval-after-load 'klin-pdf-toggle
+      (defun my-add-pdf-view-comfortable-read-key ()
+        (interactive)
+        (define-key pdf-view-mode-map (kbd "R") 'klin-toggle-pdf-only-view)
+        (define-key pdf-view-mode-map (kbd "S") 'klin-clone-into-split-window)
+        (define-key pdf-view-mode-map (kbd "r") 'pdf-view-set-comfortable-reading-size)
+        (define-key pdf-view-mode-map (kbd "E") 'cs-open-org-notes)
+        ;; (add-hook 'pdf-view-mode-hook #'evil-normalize-keymaps)
+        ;; (define-key pdf-view-mode-map (kbd "r") 'pdf-view-set-comfortable-reading-size)
+        )
+      (add-hook 'pdf-view-mode-hook #'my-add-pdf-view-comfortable-read-key)
+      ;; (add-hook 'pdf-view-mode-hook #'pdf-view-set-comfortable-reading-size t)
+      ))
 #+END_SRC
 
 #+RESULTS:
@@ -1042,27 +1083,37 @@ Make a minor mode with keys that override all other keys and always take precend
 ** crux 
 Some commands are re-defined so that they are (may be) more convenient (in certain situations).
 #+BEGIN_SRC emacs-lisp
-(use-package crux
-  :ensure t
-  :config
-  ;; (global-set-key [remap move-beginning-of-line] #'crux-move-beginning-of-line)
-  ;; (global-set-key [remap beginning-of-visual-line] #'crux-move-beginning-of-line)
-  (global-set-key (kbd "C-a") #'crux-move-beginning-of-line)
-  (global-set-key (kbd "C-c d") #'crux-duplicate-current-line-or-region)
-  )
+  (let* ((warning-minimum-level :emergency))
+    (use-package crux
+      :ensure t
+      :config
+      ;; (global-set-key [remap move-beginning-of-line] #'crux-move-beginning-of-line)
+      ;; (global-set-key [remap beginning-of-visual-line] #'crux-move-beginning-of-line)
+      ;; (global-set-key (kbd "C-a") (lambda () (interactive)
+      ;;                               ;; move to the beginning of the visual line
+      ;;                               ;; in all other modes except programming modes
+      ;;                               (cs-crux-move-beginning-of-line)))
+      (global-set-key (kbd "C-a") #'beginning-of-visual-line)
+
+      ;; in programming modes, move to the beginning of the actual line
+      (define-key prog-mode-map (kbd "C-a") #'crux-move-beginning-of-line)
+      (global-set-key (kbd "C-c d") #'crux-duplicate-current-line-or-region)))
 #+END_SRC
 
+#+RESULTS:
+: t
 #+RESULTS:
 : t
 
 ** free-keys
 Show free key bindings in a particular mode combination.  
 #+BEGIN_SRC emacs-lisp
-(use-package free-keys 
-  :ensure t
-  :config
-)
+  (use-package free-keys 
+    :ensure t
+    :config)
 #+END_SRC
+
+#+RESULTS:
 
 ** COMMENT auto-dim-other-buffers
 #+BEGIN_SRC emacs-lisp
@@ -1198,12 +1249,18 @@ Provide multiple cursors
     ;; (global-set-key (kbd "s-h") nil)
     ;; (global-set-key (kbd "s-l") nil)
 
-    (global-set-key (kbd "M-s-k") 'windmove-up)
-    (global-set-key (kbd "M-s-j") 'windmove-down)
-    (global-set-key (kbd "M-s-h") 'windmove-left)
-    (global-set-key (kbd "M-s-l") 'windmove-right)
-    ;; other-window (cycle)
-    (global-set-key (kbd "M-s-n") (lambda () (interactive) (other-window 1)))
+    ;; (global-set-key (kbd "M-s-k") 'windmove-up)
+    ;; (global-set-key (kbd "M-s-j") 'windmove-down)
+    ;; (global-set-key (kbd "M-s-h") 'windmove-left)
+    ;; (global-set-key (kbd "M-s-l") 'windmove-right)
+
+    (global-set-key (kbd "M-k") 'windmove-up)
+    (global-set-key (kbd "M-j") 'windmove-down)
+    (global-set-key (kbd "M-h") 'windmove-left)
+    (global-set-key (kbd "M-l") 'windmove-right)
+
+    ;; other-window cycle
+    (global-set-key (kbd "M-n") (lambda () (interactive) (other-window 1)))
     ;; (global-set-key (kbd "s-p") (lambda () (interactive) (other-window -1)))
     )
 #+END_SRC
@@ -1217,8 +1274,7 @@ Provide multiple cursors
     :ensure t
     :config
     (global-set-key (kbd "C-S-s-r w") 'rotate-window)
-    (global-set-key (kbd "C-S-s-r l") 'rotate-layout)
-    )
+    (global-set-key (kbd "C-S-s-r l") 'rotate-layout))
 #+END_SRC
 
 #+RESULTS:
@@ -1270,21 +1326,6 @@ Provide multiple cursors
 #+RESULTS:
 : t
 
-** COMMENT guide-key
-guide-key even says in it's github that you should probably use which-key
-#+BEGIN_SRC emacs-lisp
-  (use-package guide-key
-    :ensure t
-    :config
-    ;; (setq guide-key/guide-key-sequence '("C-x r" "C-x 4"))
-    (setq guide-key/guide-key-sequence '("C-M-,"))
-    (guide-key-mode 1)  ; Enable guide-key-mode
-    )
-#+END_SRC
-
-#+RESULTS:
-: t
-
 ** which-key
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
@@ -1300,6 +1341,7 @@ guide-key even says in it's github that you should probably use which-key
 #+BEGIN_SRC emacs-lisp
   (require 'list-processes+)
 #+END_SRC
+
 * Programming general behaviour
 #+BEGIN_SRC emacs-lisp
 (require 'cc-mode)
@@ -1323,8 +1365,8 @@ guide-key even says in it's github that you should probably use which-key
 (global-set-key (kbd "C-, k") (lambda () (interactive) (next-match -1)))
 (global-set-key (kbd "C-, j") (lambda () (interactive) (next-match +1)))
 
-(define-key c++-mode-map (kbd "C-, z") 'compile)
-(define-key c-mode-map (kbd "C-, z") 'compile)
+(define-key c++-mode-map (kbd "C-, e") 'compile)
+(define-key c-mode-map (kbd "C-, e") 'compile)
 
 (add-hook 'prog-mode-hook 'visual-line-mode)
 #+END_SRC
@@ -1402,7 +1444,7 @@ Bind some keys and some hooks
 *** yasnippet
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
-      :config
+    :config
       ;; hack to get it to expand in specific siutations
       (modify-syntax-entry ?$ " " org-mode-syntax-table)
       (modify-syntax-entry ?\\ "w" org-mode-syntax-table)
@@ -1423,7 +1465,7 @@ Bind some keys and some hooks
           (left-char)))
 
       (global-set-key (kbd "<C-dead-circumflex>") 'cs/insert-latex-superscript)
-    
+
       (eval-after-load 'undo-tree
         (define-key undo-tree-map (kbd "C-_") nil))
       (global-set-key (kbd "C-_") 'cs/insert-latex-subscript)
@@ -1450,13 +1492,8 @@ Bind some keys and some hooks
                                   "Select snippet: "
                                   :initial-input (concat
                                                   (expand-file-name cs/default-snippet-dir)
-                                                  "/ ")
-                                  ;; :marked-candidates t
-                                  )))
-
-
+                                                  "/ "))))
       (yas-global-mode))
-
 
   ;; hacky: before snippet expansion with (yas-expand, add whitespace)
   ;; afterwards, subtract whitespace again
@@ -1499,7 +1536,7 @@ Bind some keys and some hooks
 #+RESULTS:
 : t
 
-*** projectile	
+*** projectile
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :config
@@ -1507,10 +1544,6 @@ Bind some keys and some hooks
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 #+END_SRC
-
-#+RESULTS:
-: t
-
 
 *** ialign
 #+BEGIN_SRC emacs-lisp
@@ -1561,53 +1594,48 @@ Bind some keys and some hooks
 #+RESULTS:
 : t
 
-*** evil-paredit
-It is difficult to debug elisp code in the usual packages when in evil-mode, so even though I am installing some packages here that are supposed to make that easier, it's really not. 
-#+BEGIN_SRC emacs-lisp
-(use-package evil-paredit 
-:ensure t
-:config 
-;; (add-hook 'emacs-lisp-mode-hook 'evil-paredit-mode)
-;; (progn 
-;;   (define-key evil-paredit-mode-map (kbd "C-)") 'paredit-forward-slurp-sexp)
-;;   (define-key evil-paredit-mode-map (kbd "C-(") 'paredit-backward-slurp-sexp)
-;;   (define-key evil-paredit-mode-map (kbd "C-8") 'paredit-backward-barf-sexp)
-;;   (define-key evil-paredit-mode-map (kbd "C-9") 'paredit-forward-barf-sexp))
-)
-#+END_SRC
-
-#+RESULTS:
-: t
-
-*** evil-cleverparens
-#+BEGIN_SRC emacs-lisp
-(use-package evil-cleverparens
-:ensure t
-:config 
-;; (add-hook 'emacs-lisp-mode-hook 'evil-cleverparens-mode)
-)
-#+END_SRC
 *** stickyfunc-enhance
 #+BEGIN_SRC emacs-lisp
 (use-package stickyfunc-enhance
   :ensure t)
 #+END_SRC
 
-#+RESULTS:
-
 *** origami
 implements folding for many modes
 #+BEGIN_SRC emacs-lisp
-(use-package origami 
-  :ensure t
-  :config
-  (add-hook 'python-mode-hook 'origami-mode)
-  (add-hook 'emacs-lisp-mode-hook 'origami-mode)
-  (require 'python)
-  (define-key python-mode-map (kbd "S-<iso-lefttab>") 'origami-toggle-all-nodes)
-  (define-key emacs-lisp-mode-map (kbd "S-<iso-lefttab>") 'origami-toggle-all-nodes)
-  (define-key emacs-lisp-mode-map (kbd "TAB") 'origami-toggle-node)
-)
+  (use-package origami
+    :ensure t
+    :config
+
+    ;; --- elisp ---
+    (add-hook 'emacs-lisp-mode-hook 'origami-mode)
+    (define-key emacs-lisp-mode-map (kbd "S-<iso-lefttab>") 'origami-toggle-all-nodes)
+    (define-key emacs-lisp-mode-map (kbd "TAB") 'origami-toggle-node)
+
+    ;; --- python ---
+    (require 'python)
+    (add-hook 'python-mode-hook 'origami-mode)
+    (define-key python-mode-map (kbd "S-<iso-lefttab>") 'origami-toggle-all-nodes)
+    (define-key python-mode-map (kbd "TAB") 'origami-toggle-node))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+*** paredit
+#+BEGIN_SRC emacs-lisp
+  (use-package paredit
+    :ensure t
+    :config
+    (add-hook 'prog-mode-hook 'paredit-mode)
+
+    (define-key prog-mode-map (kbd "C-)") 'paredit-forward-slurp-sexp)
+    (define-key prog-mode-map (kbd "C-(") 'paredit-backward-slurp-sexp)
+    (define-key prog-mode-map (kbd "C-}") 'paredit-forward-barf-sexp)
+    (define-key prog-mode-map (kbd "C-{") 'paredit-backward-barf-sexp)
+    (define-key prog-mode-map (kbd "<M-up>")
+      'paredit-splice-sexp-killing-backward)
+    (define-key prog-mode-map (kbd "C-k") 'paredit-kill))
 #+END_SRC
 
 #+RESULTS:
@@ -1615,15 +1643,18 @@ implements folding for many modes
 
 *** shell-pop
 #+BEGIN_SRC emacs-lisp
-(use-package shell-pop
-  :config
-  (setq shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
-  (setq shell-pop-term-shell "/bin/zsh")
-  ;; need to do this manually or not picked up by `shell-pop'
-  (shell-pop--set-shell-type 'shell-pop-shell-type shell-pop-shell-type)
-  (global-set-key (kbd "C-, t") 'shell-pop)
-)
+  (use-package shell-pop
+    :config
+    (setq shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
+    (setq shell-pop-term-shell "/bin/zsh")
+    ;; need to do this manually or not picked up by `shell-pop'
+    (shell-pop--set-shell-type 'shell-pop-shell-type shell-pop-shell-type)
+    (global-set-key (kbd "C-, t") 'shell-pop))
 #+END_SRC
+
+#+RESULTS:
+: t
+
 ** latex
 *** auctex
 #+BEGIN_SRC emacs-lisp
@@ -1650,9 +1681,10 @@ implements folding for many modes
   :ensure t)
 #+END_SRC
 
-#+RESULTS:
+*** anaconda-mode
+This is a mode for editing and running python. It actually is not dependent on having anaconda python specifically installed.
 
-*** [[https://github.com/jorgenschaefer/elpy][elpy]]
+*** COMMENT [[https://github.com/jorgenschaefer/elpy][Elpy]]
 This package manages a lot of things all around python development with emacs. It relies on python packages itself to function, thus it creates it's own python virtual environment to run it's functionality. It can be a pain to set up. It may be slow if not properly set up.
 
 #+BEGIN_SRC emacs-lisp
@@ -1688,8 +1720,16 @@ This package manages a lot of things all around python development with emacs. I
         (error (elpy-rgrep-symbol (thing-at-point 'symbol)))))
 
     (add-hook 'python-mode-hook
-          '(lambda() (global-set-key (kbd "C-, d") 'goto-def-or-rgrep))))
+              '(lambda() (global-set-key (kbd "C-, d") 'goto-def-or-rgrep)))
+
+    ;; --- the C-c C-c python repl: normally: just python. ----
+    ;; better: use ipython, and since it's a dumb shell, use --simple-prompt
+    (setq python-shell-interpreter "ipython" python-shell-interpreter-args
+          "--simple-prompt"))
 #+END_SRC
+
+#+RESULTS:
+: t
 
 **** setup
 After having installed it in emacs, run ~M-x elpy-config~ to access a GUI (yes, manual setup) which provides a point and click interface to install the packages elpy relies on. Additionally, it shows you information about the underlying RPC process and which python version it uses. 
@@ -1835,30 +1875,31 @@ In a specific project, create the file ~.dir-locals.el~ and inside set the comma
 
 *** semantic
 #+BEGIN_SRC emacs-lisp
-(use-package semantic
-  :config
-  (require 'cc-mode) ;; at least I think this include belongs here
+  (use-package semantic
+    :config
+    (require 'cc-mode) ;; at least I think this include belongs here
 
-  (add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
+    (add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
 
-  (semantic-mode 1)
+    (semantic-mode 1)
 
-  (global-semanticdb-minor-mode 1)
-  (global-semantic-idle-scheduler-mode 1)
-  ;; optionally, add company-semantic as company mode backend
-  ;; for language-aware code completion templates
+    (global-semanticdb-minor-mode 1)
+    (global-semantic-idle-scheduler-mode 1)
+    ;; optionally, add company-semantic as company mode backend
+    ;; for language-aware code completion templates
 
-  ;; You can use semantic to parse
-  ;; and enable jumping to other-than-project-local source files
-  (semantic-add-system-include "/usr/local/include")
-  ;; (It takes a while at first, but is fast afterwards) You may use semantic 
-  ;; in combination with GNU Global and ggtags
-  ;; (semantic-add-system-include "~/linux/include")
-)
+    ;; You can use semantic to parse
+    ;; and enable jumping to other-than-project-local source files
+    (semantic-add-system-include "/usr/local/include")
+    ;; (It takes a while at first, but is fast afterwards) You may use semantic 
+    ;; in combination with GNU Global and ggtags
+    ;; (semantic-add-system-include "~/linux/include")
+  )
 #+END_SRC
 
 #+RESULTS:
 : t
+
 *** python-mode
 #+BEGIN_SRC emacs-lisp
   (defun python-execute-main-in-terminal()
@@ -1866,16 +1907,17 @@ In a specific project, create the file ~.dir-locals.el~ and inside set the comma
     ;; usually the popup-shell has name *ansi-term-1* where, 1 is the index
     (setq index 1)
     (comint-send-string (shell-pop--shell-buffer-name index) "python3 main.py\n"))
-  
-  (define-key term-mode-map (kbd "C-, z") 'python-execute-main-in-terminal)
-  (define-key python-mode-map (kbd "C-, z") 'python-execute-main-in-terminal)
+
+  (define-key term-mode-map (kbd "C-, e") 'python-execute-main-in-terminal)
+  (define-key python-mode-map (kbd "C-, e") 'python-execute-main-in-terminal)
 #+END_SRC
 
 #+RESULTS:
 : python-execute-main-in-terminal
+
 ** elisp
 *** flycheck
-Complains about unconventional style when writing emacs-lisp packages. 
+Complains about unconventional style when writing emacs-lisp packages.
 #+BEGIN_SRC emacs-lisp
 (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 (define-key emacs-lisp-mode-map (kbd "C-c i") 'indent-sexp)
@@ -1895,8 +1937,8 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
                  (require 'srefactor)
                  (require 'srefactor-lisp)
                  (semantic-mode 1)))
-    (define-key emacs-lisp-mode-map (kbd "C-, f r s") 'srefactor-lisp-format-sexp)
-    (define-key emacs-lisp-mode-map (kbd "C-, f d i") 'delete-indentation))
+    (define-key emacs-lisp-mode-map (kbd "C-, s") 'srefactor-lisp-format-sexp)
+    (define-key emacs-lisp-mode-map (kbd "C-, i") 'delete-indentation))
 
 #+END_SRC
 
@@ -1914,18 +1956,19 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 *** elisp-slime-nav
 #+BEGIN_SRC emacs-lisp
-(use-package elisp-slime-nav
- :ensure t
- :config 
+  (use-package elisp-slime-nav
+   :ensure t
+   :config
+   (defun elisp-slime-nav-register-jump-to-definition ()
+     (interactive)
+     (global-set-key (kbd "C-, d")
+                     (lambda ()
+                       (interactive)
+                       (call-interactively 'elisp-slime-nav-find-elisp-thing-at-point))))
 
-  (defun elisp-slime-nav-register-jump-to-definition () 
-    (interactive)
-    (global-set-key (kbd "C-, d") (lambda () (interactive) (call-interactively 'elisp-slime-nav-find-elisp-thing-at-point))))
-
-  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
-    (add-hook hook 'elisp-slime-nav-mode)
-    (add-hook hook 'elisp-slime-nav-register-jump-to-definition))
-)
+   (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+     (add-hook hook 'elisp-slime-nav-mode)
+     (add-hook hook 'elisp-slime-nav-register-jump-to-definition)))
 #+END_SRC
 
 #+RESULTS:
@@ -2164,8 +2207,6 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   (define-key org-mode-map (kbd "<M-drag-n-drop>") 'my-dnd-func)
 #+END_SRC
 
-#+RESULTS:
-: my-dnd-func
 
 * documentation packages
 *** org-elisp-help
@@ -2245,9 +2286,6 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   (require 'cs-org-blog-html-backend)
 #+END_SRC
 
-#+RESULTS:
-: cs-org-blog-html-backend
-
 * org publish
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
@@ -2273,6 +2311,16 @@ Enables transferring (or copying) an org file with it's linked assets to anoter 
 
 #+RESULTS:
 : cs-org-latex-preview
+
+* cs-crux 
+My own ridiculously useful functions
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
+  (require 'cs-crux)
+#+END_SRC
+
+#+RESULTS:
+: cs-crux
 
 * Tabbing
 ** COMMENT Tabbar

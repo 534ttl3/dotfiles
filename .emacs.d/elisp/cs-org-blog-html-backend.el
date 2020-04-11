@@ -77,8 +77,8 @@ but also just from any function which wants to create an html file."
 
    (unless no-org
      (cs-my-html-insert-get-org-head-content org-info))
-   "\n"
-   "<style type=\"text/css\">
+   "\n
+<style type=\"text/css\">
   body {
       font-family: 'Helvetica', 'Arial', sans-serif;
       margin: 0px;
@@ -86,28 +86,45 @@ but also just from any function which wants to create an html file."
 
   #content {
       padding: 5px;
-"
-        "
-/* font-family: \"Computer Modern Serif\", serif, \"Computer Modern Sans\", sans-serif; */ /* I find that on the web, inconsistencies of math typesetting and the use of computer modern distracts from the content */
-"
-   "
   }
 
   .slidingtopbar {
-
   }
 
-
-/* 2: min-width */
 @media screen and (min-width: 800px) {
 	#content {
         margin: auto;
-        width: 775px;
+        width: 800px;
 	}
 
     .slidingtopbar {
         margin: auto;
         width: 800px;
+	}
+}
+
+/* 2: min-width */
+@media screen and (min-width: 1000px) {
+	#content {
+        margin: auto;
+        width: 1000px;
+	}
+
+    .slidingtopbar {
+        margin: auto;
+        width: 1000px;
+	}
+}
+
+@media screen and (min-width: 1200px) {
+	#content {
+        margin: auto;
+        width: 1200px;
+	}
+
+    .slidingtopbar {
+        margin: auto;
+        width: 1200px;
 	}
 }
 
@@ -121,12 +138,10 @@ but also just from any function which wants to create an html file."
   position: relative;
 }
 
-
 .aboutlink {
     border-bottom: 5px solid aquamarine;
     float: right;
 }
-
 
 .projectlink, .aboutlink {
   display: block;
@@ -147,19 +162,13 @@ but also just from any function which wants to create an html file."
   background-color: whitesmoke;
 }
 
-/* .topbar a:hover:not(.active){
-  background-color: #555;
-  color: white;
-} */
-
-
 .projectlink {
     border-top: 5px solid cornflowerblue;
 }
 
 .posted, .lastedited{
 color: #646769;
-font-family: -apple-system,BlinkMacSystemFont,\"Roboto\",\"Segoe UI\",\"Helvetica Neue\",\"Lucida Grande\",Arial,sans-serif;
+font-family: Arial,sans-serif;
 font-size: .75em;
 margin-right: 1em;
 min-width: 80px;
@@ -177,7 +186,7 @@ transition: 0.3s;
 }
 
 .post-container-div:hover {
-    padding-left: 10px;
+    /* padding-left: 10px; */
     background: whitesmoke;
 }
 
@@ -191,7 +200,6 @@ transition: 0.3s;
   .slidingtopbar {
       overflow: auto;
       width: auto;
-      /* border-top:2px solid black; */
   }
 
   .post-link {
@@ -200,8 +208,6 @@ transition: 0.3s;
   }
 }
 
-
-/* ---- minimal-style code blocks ---- */
 
 pre.src {
 width: auto;
@@ -287,8 +293,8 @@ p > img {
 p.footpara > a {
 display: inline-flex;
 }
-"
-   "</style>
+
+</style>
 </head>
 <body>"
    (concat

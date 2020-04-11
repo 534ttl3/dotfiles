@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: source-block-python
+# key: sbp
+# --
+#+BEGIN_SRC python
+$0
+#+END_SRC

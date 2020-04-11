@@ -3,5 +3,5 @@
 # key: sb
 # condition: (or (= (current-column) 2) (= (current-column) 0))
 # --
-#+BEGIN_SRC ${0:emacs-lisp}
+#+BEGIN_SRC $0
 #+END_SRC

@@ -285,48 +285,34 @@ the publish directory."
                             (post-metadata-file-name-base pm-instance)
                             ".org"))
          (date-str (post-metadata-date pm-instance)))
-    (insert (concat "#+BEGIN_EXPORT html"
-                    "\n"
-                    "<div class=\"post-container-div\">"
-                    "\n"
-                    "<span class=\"posted\">" (when date-str date-str) "</span>"
-                    "\n"
-                    "<span class=\"post-link\">"
-                    "<a href=\""
-                    (file-relative-name (get-publish-target-filepath project-root-dir
-                                                                        source-filepath)
-                                        (get-projects-publish-dir-from-root-dir project-root-dir))
-                    "\">"
-                    (post-metadata-title pm-instance)
-                    "</a>"
-                    "</span>"
-                    ;; "#+END_EXPORT"
-                    ;; "\n"
-                    ;; "[["
-                    ;; source-filepath
-                    ;; "]["
-                    ;; (post-metadata-title pm-instance)
-                    ;; "]]"
-                    ;; "\n"
-
-                    ;; "#+BEGIN_EXPORT html"
-                    "\n"
-                    "</div>"
-                    "\n"
-                    "#+END_EXPORT"
-                    "\n"))))
+    (insert
+     (concat "<div class=\"post-container-div\">\n"
+             "<span class=\"posted\">\n"
+             (when date-str date-str)
+             "</span>\n"
+             "<span class=\"post-link\">\n"
+             "<a href=\""
+             (file-relative-name (get-publish-target-filepath project-root-dir
+                                                              source-filepath)
+                                 (get-projects-publish-dir-from-root-dir project-root-dir))
+             "\">"
+             (post-metadata-title pm-instance)
+             "</a>\n"
+             "</span>\n"
+             "</div>\n"))))
 
 
 ;; ------ formatting, i.e. getting the html for different elements ------
 
 (defun cs-html-format-title-html (&optional title)
   ""
-  (concat (when title (concat "<h2>" title "</h2>"))))
+  (concat (when title (concat "<h2 " "style=\"text-align:center;\"" ">" title "</h2>"))))
 
 (defun cs-html-format-slidingtopbar-html (&optional youtube-url github-url about-page-link legal-page-link)
   ""
   (concat
-   "<div class=\"container\">\n"
+   "\n
+<div class=\"container\">\n"
    (when github-url (concat "<a class=\"projectlink\" href=" (prin1-to-string github-url) ">Github</a>\n"))
    (when youtube-url (concat "<a class=\"projectlink\" href=" (prin1-to-string youtube-url) ">YouTube</a>\n"))
    (when about-page-link (concat "<a class=\"aboutlink\" href=" (prin1-to-string about-page-link) ">About</a>\n"))

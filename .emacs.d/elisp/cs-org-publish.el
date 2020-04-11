@@ -291,12 +291,10 @@ all other org files."
   (with-temp-buffer
     (org-mode)
     (org-element-parse-buffer)
-
     (let* ((base-project-properties (parse-project-properties root-dir))
            (base-dir (get-org-dir-from-git-root (expand-file-name root-dir)))
            (pm-list (get-all-post-metadatas (expand-file-name base-dir)))
            sorted-list)
-
       (insert "#+OPTIONS: tex:dvisvgm\n")
       (insert "#+OPTIONS: num:nil\n")
       (insert "#+TITLE: "
@@ -310,46 +308,15 @@ all other org files."
                                                  (my-sort-for-what (copy-list pm-list)
                                                                    'post-metadata-date)))))
       (when sorted-list
-        (insert "\n")
+        (insert "#+BEGIN_EXPORT html\n")
         ;; sort
-        (insert "#+BEGIN_EXPORT html" "\n" ;; "<h2>Posts:</h2>"
-                "\n" "#+END_EXPORT" "\n")
-        (insert "\n")
-        (insert "\n")
-        ;; if it's not officially marked as post, don't post it!
         (let* ((ctr 0))
           (while (and (nth ctr sorted-list)
                       (< ctr 10))
-            (print-post-metadata-into-org (nth ctr sorted-list) root-dir)
-            (insert "\n")
-            (insert "\n")
+            (print-post-metadata-into-org (nth ctr sorted-list)
+                                          root-dir)
             (setq ctr (+ 1 ctr))))
-        ;; (insert "
-        ;; #+BEGIN_EXPORT html
-        ;; <hr style=\"height: 8px;background: black;border: none;\">
-        ;; #+END_EXPORT")
-        )
-      ;; sort after title
-      ;; (setq sorted-list (reverse (my-sort-for-what (copy-list pm-list) 'post-metadata-title)))
-      ;; (when sorted-list
-      ;;   (insert "\n")
-      ;;   ;; sort
-      ;;   (insert "#+BEGIN_EXPORT html"
-      ;;           "\n"
-      ;;           "<h2>All posts, sorted after title:</h2>"
-      ;;           "\n"
-      ;;           "#+END_EXPORT"
-      ;;           "\n"
-      ;;           )
-      ;;   (insert "\n")
-      ;;   (insert "\n")
-      ;;   (let* ((ctr 0))
-      ;;     (while (nth ctr sorted-list)
-      ;;       (print-post-metadata-into-org (nth ctr sorted-list))
-      ;;       (insert "\n")
-      ;;       (insert "\n")
-      ;;       (setq ctr (+ 1 ctr)))))
-      ;; (write-file (expand-file-name "/home/chris/Desktop/demo.org"))
+        (insert "#+END_EXPORT\n"))
       (write-file (helm-read-file-name "Write the index file to: "
                                        :initial-input (concat base-dir "index.org"))))))
 
@@ -593,7 +560,11 @@ If nothing specified, assume `yes`."
                                                                          "./about.html"
                                                                          "./legal.html")
                                       (cs-html-format-title-html (project-properties-description-html base-project-properties))
-                                      project-blocks-html))
+                                      (concat
+                                       "<div class=\"project-container-container\">\n"
+                                       project-blocks-html
+                                       "</div>\n"
+                                       )))
       (write-file (helm-read-file-name "Write the index file to: "
                                        :initial-input (concat (file-name-as-directory project-root)
                                                               "www/index.html"))))))
