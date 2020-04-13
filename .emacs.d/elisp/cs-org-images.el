@@ -24,6 +24,7 @@
 
 ;;; Code:
 
+(require 'org)
 
 (defun link-path-at-point ()
   (interactive)
@@ -94,6 +95,69 @@ images in the current buffer."
     (when ll/org/edit-image/redisplay-images
       (org-remove-inline-images)
       (org-display-inline-images))))
+
+
+
+;; --- just insert a picture on the clipboard ---
+(defun cs-paste-image-into-org ()
+  "TODO:
+- create directory for org file with `pasted` assets
+- move the temporary file into that assets directory
+  and name it by an md5sum string in the filename
+- link to the image"
+  (interactive)
+
+  (let* ((targets-str (shell-command-to-string "xclip -selection clipboard -t TARGETS -o"))
+         (png-target-available (when (string-match "image/png" targets-str) t))
+         (tmp-target-filename (concat "pasted_"
+                                      (cs-get-random-string 30)
+                                      ".png"))
+         (tmp-target-filepath (concat (file-name-as-directory
+                                       temporary-file-directory)
+                                      tmp-target-filename))
+         ;; target-filename
+         target-filepath)
+
+    ;; --- check if xclip has a image/png target ---
+    (if png-target-available
+        (let* ()
+          (shell-command-to-string (concat "xclip -selection clipboard -t image/png -o > "
+                                           tmp-target-filepath))
+          (if (file-exists-p tmp-target-filepath)
+              (let* ((assets-dir-path (get-assets-dir-from-org-file (buffer-file-name))))
+
+                ;; --- copy the image into the assets directory ---
+                ;; -- make the assets directory --
+                (when (not (file-exists-p assets-dir-path))
+                  (when (yes-or-no-p (concat "Create the assets directory "
+                                             assets-dir-path
+                                             " ? "))
+                    (make-directory assets-dir-path t)))
+
+                (copy-file tmp-target-filepath
+                           (setq target-filepath
+                                 (concat (file-name-as-directory assets-dir-path)
+                                         (let* ((md5sum-output-str
+                                                 (shell-command-to-string
+                                                  (concat "md5sum " tmp-target-filepath)))
+                                                matched-md5-str)
+                                           (string-match "\\(^[0-9A-Za-z]+\\)" md5sum-output-str)
+                                           (setq matched-md5-str
+                                                 (match-string-no-properties 1 md5sum-output-str))
+                                           (concat "pasted_" matched-md5-str ".png")))))
+                (save-excursion
+                  (insert "[[file:"
+                          (concat "./" (file-relative-name target-filepath
+                                                           (file-name-directory (buffer-file-name))))
+                          "]]")
+                  (org-display-inline-images)
+                  (org-redisplay-inline-images)))
+            (user-error (concat "Tmp file " tmp-target-filepath
+                                " does not exist"))))
+      (user-error "No png target available"))))
+
+
+(define-key org-mode-map (kbd "C-x C-y") 'cs-paste-image-into-org)
 
 
 (provide 'cs-org-images)

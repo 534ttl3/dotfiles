@@ -99,7 +99,8 @@ Set MINUS to a non-nil value if it should be scaled down instead of up (default)
               (beginning-of-line)
               (insert (concat "#+ATTR_ORG: :width "
                               (number-to-string (round (* 0.5
-                                                          (window-pixel-width))))))
+                                                          (window-pixel-width))))
+                              "\n"))
               (org-redisplay-inline-images)
               (org-next-link)
               ;; (user-error "Please move to an image to zoom!")
@@ -107,6 +108,7 @@ Set MINUS to a non-nil value if it should be scaled down instead of up (default)
       (if goto-this-char-later
           (goto-char goto-this-char-later)
         (goto-char orig-point))
+      (org-display-inline-images)
       (org-redisplay-inline-images))))
 
 
@@ -187,6 +189,14 @@ same directory as the org-buffer and insert a link to this file."
                      (setq org-map-continue-from (outline-previous-heading)))
                    "/DONE"
                    'file))
+
+(defun org-insert-clipboard-image (&optional file)
+  (interactive "F")
+  (shell-command (concat "xclip -selection clipboard -t image/png -o > " "file"
+                         ".png" file))
+  (insert (concat "[[" file "]]"))
+  (org-display-inline-images))
+
 
 (provide 'cs-org-mode-utilities)
 ;;; cs-org-mode-utilities.el ends here

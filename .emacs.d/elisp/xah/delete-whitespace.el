@@ -1,6 +1,5 @@
 ;;; delete-whitespace.el --- functions I copied from Xah  -*- lexical-binding: t; -*-
 
-
 (defun xah-delete-blank-lines ()
   "Delete all newline around cursor.
 

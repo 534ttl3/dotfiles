@@ -636,38 +636,11 @@ Provides icons for various themes, also for doom-modeline
     (require 'cs-org-latex-export)
 
     (require 'cs-org-babel)
-    (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block)
-
-
-    ;; fontification
-    )
+    (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block))
 #+END_SRC
 
 #+RESULTS:
 : t
-
-
-#+BEGIN_SRC python :results output
-import sys
-print("Python version")
-print (sys.version)
-print("Version info.")
-print (sys.version_info)
-#+END_SRC
-
-#+RESULTS:
-: Python version
-: 3.7.4 (default, Aug 13 2019, 20:35:49) 
-: [GCC 7.3.0]
-: Version info.
-: sys.version_info(major=3, minor=7, micro=4, releaselevel='final', serial=0)
-
-#+BEGIN_SRC shell
-fzf
-#+END_SRC
-
-#+RESULTS:
-
 
 * Keys that take global precendence
 Make a minor mode with keys that override all other keys and always take precendence.
@@ -880,6 +853,10 @@ Make a minor mode with keys that override all other keys and always take precend
         (define-key pdf-view-mode-map (kbd "S") 'klin-clone-into-split-window)
         (define-key pdf-view-mode-map (kbd "r") 'pdf-view-set-comfortable-reading-size)
         (define-key pdf-view-mode-map (kbd "E") 'cs-open-org-notes)
+        (define-key pdf-view-mode-map (kbd "k") 'pdf-view-scroll-up-or-next-page)
+        (define-key pdf-view-mode-map (kbd "j") 'pdf-view-scroll-down-or-previous-page)
+        (define-key pdf-view-mode-map (kbd "l") 'image-forward-hscroll)
+        (define-key pdf-view-mode-map (kbd "h") 'image-backward-hscroll)
         ;; (add-hook 'pdf-view-mode-hook #'evil-normalize-keymaps)
         ;; (define-key pdf-view-mode-map (kbd "r") 'pdf-view-set-comfortable-reading-size)
         )
@@ -1342,6 +1319,9 @@ Provide multiple cursors
   (require 'list-processes+)
 #+END_SRC
 
+#+RESULTS:
+: list-processes+
+
 * Programming general behaviour
 #+BEGIN_SRC emacs-lisp
 (require 'cc-mode)
@@ -1683,6 +1663,30 @@ implements folding for many modes
 
 *** anaconda-mode
 This is a mode for editing and running python. It actually is not dependent on having anaconda python specifically installed.
+#+BEGIN_SRC emacs-lisp
+  (use-package anaconda-mode
+    :ensure t
+    :config
+    (add-hook 'python-mode-hook 'anaconda-mode)
+    (add-hook 'python-mode-hook 'anaconda-eldoc-mode))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-anaconda
+    :ensure t
+    :config
+    (eval-after-load "company"
+      '(add-to-list 'company-backends 'company-anaconda))
+    ;; (eval-after-load "company"
+   ;; '(add-to-list 'company-backends '(company-anaconda :with company-capf)))
+    )
+#+END_SRC
+
+#+RESULTS:
+: t
 
 *** COMMENT [[https://github.com/jorgenschaefer/elpy][Elpy]]
 This package manages a lot of things all around python development with emacs. It relies on python packages itself to function, thus it creates it's own python virtual environment to run it's functionality. It can be a pain to set up. It may be slow if not properly set up.
@@ -1719,8 +1723,7 @@ This package manages a lot of things all around python development with emacs. I
           (elpy-goto-definition)
         (error (elpy-rgrep-symbol (thing-at-point 'symbol)))))
 
-    (add-hook 'python-mode-hook
-              '(lambda() (global-set-key (kbd "C-, d") 'goto-def-or-rgrep)))
+    (define-key python-mode-map (kbd "C-, d") 'goto-def-or-rgrep)
 
     ;; --- the C-c C-c python repl: normally: just python. ----
     ;; better: use ipython, and since it's a dumb shell, use --simple-prompt
@@ -1961,10 +1964,9 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
    :config
    (defun elisp-slime-nav-register-jump-to-definition ()
      (interactive)
-     (global-set-key (kbd "C-, d")
-                     (lambda ()
-                       (interactive)
-                       (call-interactively 'elisp-slime-nav-find-elisp-thing-at-point))))
+     (define-key emacs-lisp-mode-map (kbd "C-, d") (lambda ()
+                                                     (interactive)
+                                                     (call-interactively 'elisp-slime-nav-find-elisp-thing-at-point))))
 
    (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
      (add-hook hook 'elisp-slime-nav-mode)
@@ -2032,6 +2034,17 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 #+RESULTS:
 
 * general utility functions
+
+** random strings
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/xah/"))
+(require 'random-string)
+#+END_SRC
+
+#+RESULTS:
+: random-string
+
+** other utility functions
 #+BEGIN_SRC emacs-lisp
   (defun dired-open-file ()
     "In dired, open the file named on this line."
@@ -2207,7 +2220,6 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   (define-key org-mode-map (kbd "<M-drag-n-drop>") 'my-dnd-func)
 #+END_SRC
 
-
 * documentation packages
 *** org-elisp-help
 #+BEGIN_SRC emacs-lisp
@@ -2286,11 +2298,17 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   (require 'cs-org-blog-html-backend)
 #+END_SRC
 
+#+RESULTS:
+: cs-org-blog-html-backend
+
 * org publish
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
   (require 'cs-org-publish)
 #+END_SRC
+
+#+RESULTS:
+: cs-org-publish
 
 * org transfer
 Enables transferring (or copying) an org file with it's linked assets to anoter directory (1st level links) and if needed pulls the links into a dedicated assets folder (+renames the links to point to the new locations).
@@ -2332,6 +2350,7 @@ Tabbar for simple pdf switching
 #+END_SRC
 
 #+RESULTS:
+
 ** COMMENT elscreen
 #+BEGIN_SRC emacs-lisp
   (use-package elscreen

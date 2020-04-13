@@ -165,6 +165,8 @@ multiple times to get to all the broken links."
 
 (defun get-assets-dir-from-org-file (org-filepath)
   "Get the assets directory associated to an org file ORG-FILEPATH."
+  (assert (string-equal (file-name-extension org-filepath) "org"))
+
   (let* ((org-file-dir (file-name-directory org-filepath))
          (org-file-base (file-name-base org-filepath)))
     (file-name-as-directory (concat (file-name-as-directory (concat org-file-dir org-file-base))
