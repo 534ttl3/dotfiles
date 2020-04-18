@@ -1,4 +1,4 @@
-;;; my-org-drill.el --- my org drill configuration -*- lexical-binding: t; -*-
+;;; cs-org-drill.el --- my org drill configuration -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  chris
 
@@ -135,5 +135,5 @@
 
 (define-key org-mode-map (kbd "C-M-, d") 'klin-run-org-drill-hydra)
 
-(provide 'my-org-drill)
-;;; my-org-drill.el ends here
+(provide 'cs-org-drill)
+;;; cs-org-drill.el ends here
