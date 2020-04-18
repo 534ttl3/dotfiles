@@ -38,12 +38,7 @@ This is done in ~.emacs~ as well.
 #+BEGIN_SRC emacs-lisp
   (defconst cs-elisp-config-base-dir (expand-file-name "~/.emacs.d/elisp/"))
   (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
-
-  (defconst warning-minimum-level-backup warning-minimum-level)
 #+END_SRC
-
-#+RESULTS:
-: warning-minimum-level-backup
 
 * Package-Management
 ** use-package
