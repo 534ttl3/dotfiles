@@ -127,3 +127,5 @@ unset __conda_setup
 
 source ~/.my_aliases.sh
 
+# colors, especially for running emacs inside shell
+export TERM=xterm-256color

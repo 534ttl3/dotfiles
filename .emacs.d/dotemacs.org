@@ -8,7 +8,7 @@
   (setq package-check-signature nil)
 #+END_SRC
 
-** package-initialize-packages
+** COMMENT package-initialize-packages
 #+BEGIN_SRC emacs-lisp
     (custom-set-variables
      ;; custom-set-variables was added by Custom.
@@ -31,8 +31,6 @@
      '(org-startup-truncated t)
      )
 #+END_SRC
-
-#+RESULTS:
 
 * Package-Management
 ** use-package
@@ -313,6 +311,7 @@ sudo apt install elpa-counsel
   (global-set-key (kbd "C-x C-p") (lambda () (interactive) (counsel-fzf nil (expand-file-name "~")))))
 
   ;; this calls counsel-find-file
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
   (require 'cs-find-file-utils)
 #+END_SRC
 
@@ -371,33 +370,10 @@ Awesome looking modern themes.
 #+BEGIN_SRC emacs-lisp
   (use-package doom-themes
     :ensure t
-    :config
-    (require 'doom-themes)
-
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
-
-    ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
-    ;; may have their own settings.
-    ;; (load-theme 'doom-one t)
-    (load-theme 'doom-city-lights t)
-
-    ;; Enable flashing mode-line on errors
-    (doom-themes-visual-bell-config)
-
-    ;; Enable custom neotree theme (all-the-icons must be installed!)
-    (doom-themes-neotree-config)
-    ;; or for treemacs users
-    (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
-    (doom-themes-treemacs-config)
-
-    ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config))
+    :config)
 #+END_SRC
 
 #+RESULTS:
-: t
 
 *** COMMENT doom-modeline
 A fitting modeline.
@@ -621,22 +597,23 @@ Provides icons for various themes, also for doom-modeline
 
 ** org-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package org
-    ;; :quelpa (org :url "git://orgmode.org/org-mode.git"
-    ;;              :fetcher git
-    ;;              :files ("lisp/*.el" "contrib/lisp/*.el" "doc/dir"
-    ;;                      "doc/*.texi")
-    ;;              :upgrade nil)
-    :config
-    (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
-    (require 'cs-org-mode-general)
-    (require 'cs-org-mode-utilities)
-    (require 'cs-org-agenda)
-    (require 'cs-org-latex-preview)
-    (require 'cs-org-latex-export)
-
-    (require 'cs-org-babel)
-    (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block))
+    (use-package org
+      ;; :quelpa (org :url "git://orgmode.org/org-mode.git"
+      ;;              :fetcher git
+      ;;              :files ("lisp/*.el" "contrib/lisp/*.el" "doc/dir"
+      ;;                      "doc/*.texi")
+      ;;              :upgrade nil)
+      :config
+      (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/"))
+      (require 'cs-org-mode-general)
+      (require 'cs-org-mode-utilities)
+      (require 'cs-org-agenda)
+      (require 'cs-org-latex-preview)
+      (require 'cs-org-latex-export)
+      (require 'cs-org-babel)
+      (require 'cs-org-images)
+      (define-key org-mode-map (kbd "C-x C-y") 'cs-paste-image-into-org)
+      (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block))
 #+END_SRC
 
 #+RESULTS:
@@ -853,8 +830,8 @@ Make a minor mode with keys that override all other keys and always take precend
         (define-key pdf-view-mode-map (kbd "S") 'klin-clone-into-split-window)
         (define-key pdf-view-mode-map (kbd "r") 'pdf-view-set-comfortable-reading-size)
         (define-key pdf-view-mode-map (kbd "E") 'cs-open-org-notes)
-        (define-key pdf-view-mode-map (kbd "k") 'pdf-view-scroll-up-or-next-page)
-        (define-key pdf-view-mode-map (kbd "j") 'pdf-view-scroll-down-or-previous-page)
+        (define-key pdf-view-mode-map (kbd "j") 'pdf-view-scroll-up-or-next-page)
+        (define-key pdf-view-mode-map (kbd "k") 'pdf-view-scroll-down-or-previous-page)
         (define-key pdf-view-mode-map (kbd "l") 'image-forward-hscroll)
         (define-key pdf-view-mode-map (kbd "h") 'image-backward-hscroll)
         ;; (add-hook 'pdf-view-mode-hook #'evil-normalize-keymaps)
@@ -1444,11 +1421,11 @@ Bind some keys and some hooks
           (insert "^{}")
           (left-char)))
 
-      (global-set-key (kbd "<C-dead-circumflex>") 'cs/insert-latex-superscript)
+      ;; (global-set-key (kbd "<C-dead-circumflex>") 'cs/insert-latex-superscript)
 
       (eval-after-load 'undo-tree
         (define-key undo-tree-map (kbd "C-_") nil))
-      (global-set-key (kbd "C-_") 'cs/insert-latex-subscript)
+      ;; (global-set-key (kbd "C-_") 'cs/insert-latex-subscript)
 
       (setq yas-triggers-in-field t)
       (setq yas-maybe-expand nil)
@@ -2040,7 +2017,7 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/xah/"))
 (require 'random-string)
 #+END_SRC
-
+awef 
 #+RESULTS:
 : random-string
 
@@ -2219,6 +2196,18 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   (define-key org-mode-map (kbd "<C-drag-n-drop>") 'my-dnd-func)
   (define-key org-mode-map (kbd "<M-drag-n-drop>") 'my-dnd-func)
 #+END_SRC
+
+** emamux
+#+BEGIN_SRC emacs-lisp
+  (use-package emamux
+    :ensure t
+    :config
+    ;; Bind keymap prefix to Ctrl-z
+    (global-set-key (kbd "C-z") emamux:keymap))
+#+END_SRC
+
+#+RESULTS:
+: t
 
 * documentation packages
 *** org-elisp-help

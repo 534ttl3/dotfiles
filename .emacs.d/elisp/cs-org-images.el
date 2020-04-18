@@ -156,9 +156,5 @@ images in the current buffer."
                                 " does not exist"))))
       (user-error "No png target available"))))
 
-
-(define-key org-mode-map (kbd "C-x C-y") 'cs-paste-image-into-org)
-
-
 (provide 'cs-org-images)
 ;;; cs-org-images.el ends here
