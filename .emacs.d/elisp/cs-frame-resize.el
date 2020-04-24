@@ -25,22 +25,35 @@
 
 ;;; Code:
 
+(defun cs-frame-get-frames-monitor ()
+  "Get the monitor of the FRAME."
+  (car (remove nil
+               (mapcar (lambda (monitor)
+                         (when (member (selected-frame) (assq 'frames monitor))
+                           monitor))
+                       (display-monitor-attributes-list)))))
 
-(defun make-frame-almost-fit-desktop ()
-  "Makes a frame that is almost as big as the screen."
+(defun make-frame-almost-fit-desktop (&optional monitor)
+  "Resize a frame so that it is almost fullscreen, but leave small margins.
+If MONITOR is nil, use the current frame's monitor."
   (let* ((down-scale-vertical 0.925)
-         (down-scale-horizontal 0.97))
+         (down-scale-horizontal 0.97)
+         (cur-monitor (if monitor monitor (cs-frame-get-frames-monitor)))
+         (monitor-pixel-width ;; (x-display-pixel-width)
+          (nth 3 (assq 'geometry cur-monitor)))
+         (monitor-pixel-height ;; (x-display-pixel-height)
+          (nth 4 (assq 'geometry cur-monitor))))
     (modify-frame-parameters (selected-frame)
                              `((width . (text-pixels . ,(round (* down-scale-horizontal
-                                                                  (x-display-pixel-width)))))
+                                                                  monitor-pixel-width))))
                                (height . (text-pixels . ,(round (* down-scale-vertical
-                                                                   (x-display-pixel-height)))))
+                                                                   monitor-pixel-height))))
                                (left . ,(round (* (/ (- 1.0 down-scale-horizontal)
                                                      2.0)
-                                                  (x-display-pixel-width))))
+                                                  monitor-pixel-width)))
                                (top . ,(round (* (/ (- 1.0 down-scale-vertical)
                                                     2.0)
-                                                 (x-display-pixel-height))))))))
+                                                 monitor-pixel-height)))))))
 
 
 (provide 'cs-frame-resize)

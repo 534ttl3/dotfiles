@@ -38,7 +38,7 @@
  '(org-startup-truncated t)
  '(package-selected-packages
    (quote
-    (erefactor terminal-here moe-theme helm-themes basic-theme emamux eamux company-anaconda realgud-ipdb realgud helm-projectile gscholar-bibtex image+ picpocket ein fzf ob-sagemath sage-shell-mode pdfgrep undo-tree doom-modeline doom-themes magit counsel swiper framemove rotate which-key guide-key org-noter multiple-cursors ws-butler use-package transpose-frame tabbar stickyfunc-enhance srefactor shell-pop py-autopep8 projectile origami org-ref org-pdfview org-elisp-help org-download neotree multi-term material-theme linum-relative ialign hide-mode-line helm-gtags golden-ratio ggtags function-args free-keys flycheck flash-region elpy elisp-slime-nav desktop+ darkroom company-c-headers centered-window auctex)))
+    (ag helm-ag crux lispy hy-mode erefactor terminal-here moe-theme helm-themes basic-theme emamux eamux company-anaconda realgud-ipdb realgud helm-projectile gscholar-bibtex image+ picpocket ein fzf ob-sagemath sage-shell-mode pdfgrep undo-tree doom-modeline doom-themes magit counsel swiper framemove rotate which-key guide-key org-noter multiple-cursors ws-butler use-package transpose-frame tabbar stickyfunc-enhance srefactor py-autopep8 projectile origami org-ref org-pdfview org-elisp-help org-download neotree material-theme linum-relative ialign hide-mode-line helm-gtags golden-ratio ggtags function-args free-keys flycheck flash-region elpy elisp-slime-nav desktop+ darkroom company-c-headers centered-window auctex)))
  '(pdf-view-midnight-colors (cons "#d4d4d4" "#1e1e1e"))
  '(rustic-ansi-faces
    ["#1e1e1e" "#D16969" "#579C4C" "#D7BA7D" "#339CDB" "#C586C0" "#85DDFF" "#d4d4d4"])

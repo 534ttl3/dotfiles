@@ -1,3 +1,4 @@
+
 * Package-Initialize, repos, path
 ** COMMENT melpa and org repos
 This is done in ~.emacs~.
@@ -158,17 +159,16 @@ Pixel scrolling
 #+RESULTS:
 
 
-Place auto-save files into seperate directory, away from the original files, to not have them be unintentionally stored in e.g. a git commit#+
+Place auto-save files into seperate directory, away from the original files, to not have them be unintentionally stored in e.g. a git commit
 #+BEGIN_SRC emacs-lisp
   (let (my-backup-folder)
     (setq my-backup-folder (concat user-emacs-directory ".saves"))
     (if (not (file-exists-p my-backup-folder))
         (make-directory my-backup-folder))
-  
+
     (setq backup-directory-alist (quote (("." . "~/.saves"))))
     ;; (setq backup-directory-alist `(("." . ,my-backup-folder)))
-    (setq backup-by-copying t)
-  )
+    (setq backup-by-copying t))
 #+END_SRC
 
 #+RESULTS:
@@ -190,16 +190,20 @@ Quick up and down navigation
     (setq this-command 'previous-line)
     (previous-line 3)))
 #+END_SRC
-
 * general packages
 ** undo-tree
 Version 0.6.5 produces errors when creating new frames. 0.6.6 fixes this (ostensibly).
 #+BEGIN_SRC emacs-lisp
-(require 'undo-tree)
+  (require 'undo-tree)
+  ;; (undo-tree-mode 1)
+  (global-undo-tree-mode 1)
+
+  (global-set-key (kbd "C-/") 'undo-tree-undo)
+  (global-set-key (kbd "C-?") 'undo-tree-redo)
 #+END_SRC
 
 #+RESULTS:
-: undo-tree
+: undo-tree-redo
 ** helm
 Does a lot of useful auto-completion stuff all over emacs, e.g. when finding files or functions. Great for interactive selection and narrowing. Highly customizable. 
 #+BEGIN_SRC emacs-lisp
@@ -239,10 +243,10 @@ sudo apt install elpa-counsel
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
     :ensure t
-    :config
-    
-    )
+    :config)
 #+END_SRC
+
+#+RESULTS:
 
 *** ivy
 #+BEGIN_SRC emacs-lisp
@@ -295,6 +299,7 @@ sudo apt install elpa-counsel
                  (expand-file-name cs-elisp-config-base-dir))
     (require 'cs-find-file-utils))
 #+END_SRC
+
 ** hydra
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
@@ -439,7 +444,7 @@ Provides icons for various themes, also for doom-modeline
     (require 'cs-priority-keys)
 
     (define-key cs-keys-minor-mode-map (kbd "C-o") 'backward-forward-previous-location)
-    (define-key cs-keys-minor-mode-map (kbd "C-i") 'backward-forward-next-location))
+    (define-key cs-keys-minor-mode-map (kbd "C-l") 'backward-forward-next-location))
 #+END_SRC
 
 #+RESULTS:
@@ -719,7 +724,7 @@ Provides icons for various themes, also for doom-modeline
 #+RESULTS:
 : t
 
-** COMMENT crux 
+** crux 
 Some commands are re-defined so that they are (may be) more convenient (in certain situations).
 #+BEGIN_SRC emacs-lisp
   (with-no-warnings
@@ -1004,12 +1009,18 @@ Bind some keys and some hooks
 
 *** projectile
 #+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :config
-  (projectile-mode +1)
-  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+  (use-package projectile
+    :config
+    (projectile-mode +1)
+    (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+
+    (with-eval-after-load 'helm-projectile
+      (define-key prog-mode-map (kbd "C-, r") 'helm-projectile-ag)))
 #+END_SRC
+
+#+RESULTS:
+: t
 
 *** ialign
 #+BEGIN_SRC emacs-lisp
@@ -1044,17 +1055,25 @@ Bind some keys and some hooks
 
 *** smartparens
 #+BEGIN_SRC emacs-lisp
-(use-package smartparens
-  :config
-  (show-smartparens-global-mode +1)
-  (smartparens-global-mode 1)
-  
-  ;; when you press RET, the curly braces automatically
-  ;; add another newline
-  (sp-with-modes '(c-mode c++-mode)
-  (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
-  (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
-                                            ("* ||\n[i]" "RET")))))
+  (use-package smartparens
+    :config
+    (show-smartparens-global-mode +1)
+    (smartparens-global-mode 1)
+
+    ;; when you press RET, the curly braces automatically
+    ;; add another newline
+    (sp-with-modes '(c-mode c++-mode)
+      (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
+      (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
+                                                ("* ||\n[i]" "RET"))))
+
+    (add-hook 'python-mode-hook
+              (lambda ()
+                (interactive)
+                (define-key python-mode-map (kbd "C-)") 'sp-forward-slurp-sexp)
+                (define-key python-mode-map (kbd "C-}") 'sp-forward-barf-sexp)
+                (define-key python-mode-map (kbd "C-k") 'sp-kill-sexp)
+                (define-key python-mode-map (kbd "<M-up>") 'sp-splice-sexp-killing-backward))))
 #+END_SRC
 
 #+RESULTS:
@@ -1093,21 +1112,21 @@ implements folding for many modes
   (use-package paredit
     :ensure t
     :config
-    (add-hook 'prog-mode-hook 'paredit-mode)
-
-    (define-key prog-mode-map (kbd "C-)") 'paredit-forward-slurp-sexp)
-    (define-key prog-mode-map (kbd "C-(") 'paredit-backward-slurp-sexp)
-    (define-key prog-mode-map (kbd "C-}") 'paredit-forward-barf-sexp)
-    (define-key prog-mode-map (kbd "C-{") 'paredit-backward-barf-sexp)
-    (define-key prog-mode-map (kbd "<M-up>")
-      'paredit-splice-sexp-killing-backward)
-    (define-key prog-mode-map (kbd "C-k") 'paredit-kill))
+    (add-hook 'emacs-lisp-mode-hook
+              (lambda ()
+                (interactive)
+                (define-key emacs-lisp-mode-map (kbd "C-)") 'paredit-forward-slurp-sexp)
+                (define-key emacs-lisp-mode-map (kbd "C-(") 'paredit-backward-slurp-sexp)
+                (define-key emacs-lisp-mode-map (kbd "C-}") 'paredit-forward-barf-sexp)
+                (define-key emacs-lisp-mode-map (kbd "C-{") 'paredit-backward-barf-sexp)
+                (define-key emacs-lisp-mode-map (kbd "<M-up>") 'paredit-splice-sexp-killing-backward)
+                (define-key emacs-lisp-mode-map (kbd "C-k") 'paredit-kill))))
 #+END_SRC
 
 #+RESULTS:
 : t
 
-*** shell-pop
+*** COMMENT shell-pop
 #+BEGIN_SRC emacs-lisp
   (use-package shell-pop
     :config
@@ -1271,8 +1290,8 @@ This provides virtual environment support for python. If you want to activate a 
   (use-package pyvenv
     :ensure t
     :init
-    ;; (setenv "WORKON_HOME" "~/venvs")
-  
+    (setenv "WORKON_HOME" (expand-file-name "~/anaconda3/envs"))
+
   ;; convention
     (pyvenv-mode 1)
     (pyvenv-tracking-mode 1))
@@ -1286,6 +1305,25 @@ In a specific project, create the file ~.dir-locals.el~ and inside set the comma
 ((nil . ((pyvenv-workon . "my-venv"))))
 #+END_SRC
 
+*** iedit
+Refactoring 
+#+BEGIN_SRC emacs-lisp
+  (use-package iedit
+    :ensure t
+    :config)
+#+END_SRC
+
+#+RESULTS:
+
+*** helm-ag
+search in all file for a name, and then you can perform operations on these occurrences. 
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-ag
+    :ensure t
+    :config)
+#+END_SRC
+
+#+RESULTS:
 
 ** c/c++
 *** flycheck
@@ -1392,8 +1430,8 @@ In a specific project, create the file ~.dir-locals.el~ and inside set the comma
     ;; usually the popup-shell has name *ansi-term-1* where, 1 is the index
     (comint-send-string (shell-pop--shell-buffer-name 1) "python3 main.py\n"))
 
-  (define-key term-mode-map (kbd "C-, e") 'python-execute-main-in-terminal)
-  (define-key python-mode-map (kbd "C-, e") 'python-execute-main-in-terminal)
+  ;; (define-key term-mode-map (kbd "C-, e") 'python-execute-main-in-terminal)
+  ;; (define-key python-mode-map (kbd "C-, e") 'python-execute-main-in-terminal)
 #+END_SRC
 
 #+RESULTS:
@@ -1458,6 +1496,64 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 
 #+RESULTS:
 : t
+
+** hylang
+*** hy-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package hy-mode
+    :ensure t
+    :config
+
+    (defun cs-hy-init ()
+      ""
+      (interactive)
+      (if (equal major-mode 'hy-mode)
+          (progn
+            ;; (add-hook 'post-command-hook 'cs-hy-update-imports nil t)
+            (add-hook 'post-self-insert-hook 'cs-hy-update-imports nil t))
+        (user-error "Not in hy-mode")))
+
+    (defun cs-hy-update-imports ()
+      (when (equal major-mode 'hy-mode)
+        (hy-jedhy-update-imports)))
+
+    ;; to complete non-standard python libraries, this is required
+    (add-hook 'hy-mode-hook 'hy-jedhy-update-imports)
+    (add-hook 'hy-mode-hook 'cs-hy-init)
+
+    ;; set execpath to the hylang packages I want to regularly use
+    (add-to-list 'exec-path "/home/chris/programs/hyve"))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+*** COMMENT lispy
+#+BEGIN_SRC emacs-lisp
+  (use-package lispy
+    :ensure t
+    :config
+    (progn
+      (add-hook 'emacs-lisp-mode-hook
+                (lambda ()
+                  (lispy-mode 1)))
+      (defun conditionally-enable-lispy ()
+        (when (eq this-command 'eval-expression)
+          (lispy-mode 1))))
+
+    (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
+
+    (eval-after-load "lispy"
+      `(progn
+         ;; replace a global binding with own function
+         (define-key lispy-mode-map (kbd "C-e") nil)
+         ;; replace a global binding with major-mode's default
+         (define-key lispy-mode-map (kbd "C-,") nil))))
+#+END_SRC
+
+#+RESULTS:
+: t
+
 
 ** sage
 *** sage-shell-mode
@@ -1569,6 +1665,7 @@ Enables transferring (or copying) an org file with it's linked assets to anoter 
 #+END_SRC
 
 #+RESULTS:
+| cs-set-style-emacs | org-drill--transfer-optimal-factor-matrix | global-company-mode | x-wm-set-size-hint | magit-auto-revert-mode--init-kludge | magit-startup-asserts | magit-version | table--make-cell-map |
 
 ** cs-frame-resize
 #+BEGIN_SRC emacs-lisp
@@ -1582,6 +1679,9 @@ Enables transferring (or copying) an org file with it's linked assets to anoter 
     ;; (set-frame-size (selected-frame) 905 600 t))
     (make-frame-almost-fit-desktop))
 #+END_SRC
+
+#+RESULTS:
+
 ** cs-priority-keys
 Make a minor mode with keys that override all other keys and always take precendence.
 #+BEGIN_SRC emacs-lisp
@@ -1623,3 +1723,12 @@ My own ridiculously useful functions
 
 #+RESULTS:
 : delete-whitespace
+
+** cs-python-tmux-debugger
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
+  (require 'cs-python-tmux-debugger)
+#+END_SRC
+
+#+RESULTS:
+: cs-python-tmux-debugger

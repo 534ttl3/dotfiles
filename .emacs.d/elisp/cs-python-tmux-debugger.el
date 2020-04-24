@@ -24,13 +24,27 @@
 
 ;;; Code:
 
-;; (cl-defstruct cs-tmux-session name)
+;; at creation, create a cs-tmux-session with buffer-name, tmux-session-name and window-id
+;; and push it to the list cs-connected-tmux-sessions
 
-;; (defconst cs-cur-tmux-session nil
-;;   "Tmux session to send keys to.")
+;; then, at call, get the connected-session by the current buffer-name and connect to it
 
-(defconst cs-cur-tmux-session-window-id nil
-  "Window id for the debugging session.")
+
+;; or, just do everything buffer-local
+
+;; (cl-defstruct cs-tmux-session tmux-session-name buffer-name window-id)
+
+;; (defvar cs-connected-tmux-sessions nil
+;;   "List of connected tmux sessions to send keys to.")
+
+;; (defconst cs-cur-tmux-session-window-id nil
+;;   "Window id for the debugging session.")
+
+
+(require 'pyvenv)
+
+(setq cs-cur-tmux-session-window-id nil)
+(make-local-variable 'cs-cur-tmux-session-window-id)
 
 (defun cs-tmux-get-tmux-session-name-for-buffer (&optional buffer)
   ""
@@ -86,9 +100,13 @@
           (remove ""
                   (split-string (shell-command-to-string "xdotool search --onlyvisible -class gnome-terminal")
                                 "\n")))
+
     (setq term-window-id
           (let* ((tmp (-difference terminal-windows-ids-after terminal-windows-ids-before)))
-            (assert (equal (length tmp) 1))
+            ;; check that a exactly one window was created
+            ;; (assert (equal (length tmp) 1))
+            (unless (equal (length tmp) 1)
+              (warn (concat "term-window-id will be set to " (prin1-to-string (car tmp)))))
             (car tmp)))
 
     (cs-tmux-set-focus-to-window term-window-id)))
@@ -100,19 +118,61 @@
                                                      "\n"))))
     (member window-id terminal-windows-ids)))
 
-(defun python-call ()
+
+(defun cs-tmux-send-keys (tmux-session-name keys-to-send)
+  (shell-command-to-string (concat "tmux send-keys -t " tmux-session-name
+                                   " " keys-to-send ;; " ENTER"
+                                   )))
+
+(defun cs-tmux-create-new-session (tmux-session-name-target)
+  (shell-command-to-string (concat "tmux new -s " tmux-session-name-target
+                                   " -d")))
+
+(defun python-call (&optional keys-to-send)
   "From within a python buffer, make a call to run that file in a tmux session."
   (interactive)
 
+  (unless (equal (file-name-extension (buffer-file-name)) "py")
+    (user-error "Not a python file"))
+
+  (unless keys-to-send
+    (setq keys-to-send (concat (prin1-to-string (concat "python3 " (buffer-file-name)))
+                               " ENTER")))
+
   (let* ((tmux-session-for-cur-buffer (cs-tmux-get-tmux-session-name-for-buffer)))
     (if (cs-tmux-session-exists-p tmux-session-for-cur-buffer)
-        (shell-command-to-string "tmux send-keys -t 0 \"python3 main.py\" ENTER")
+        ;; send to existing tmux session
+        (cs-tmux-send-keys tmux-session-for-cur-buffer
+                           keys-to-send)
       ;; create it
-      (shell-command-to-string (concat "tmux new -s " tmux-session-for-cur-buffer
-                                       " -d")))
+      (cs-tmux-create-new-session tmux-session-for-cur-buffer)
+      (if (cs-tmux-session-exists-p tmux-session-for-cur-buffer)
+          (let* ((virtualenv-path (when (boundp 'pyvenv-virtual-env) pyvenv-virtual-env))
+                 (virtualenv-activate-script-path (concat (file-name-directory pyvenv-virtual-env)
+                                                          "./bin/activate")))
+            (when pyvenv-virtual-env
+              ;; activate possible virtual environment
+              ;; check if it is a conventional virtual environment
+              ;; with a bin/actiate script
+              (if (file-exists-p virtualenv-activate-script-path)
+                  (cs-tmux-send-keys tmux-session-for-cur-buffer
+                                     (concat (prin1-to-string (concat "source "
+                                                                      (prin1-to-string virtualenv-activate-script-path)))
+                                             " ENTER"))
+                ;; else try conda
+                (cs-tmux-send-keys tmux-session-for-cur-buffer
+                                   (concat (prin1-to-string (concat "conda activate "
+                                                                    pyvenv-virtual-env-name))
+                                           " ENTER"))))
+            (cs-tmux-send-keys tmux-session-for-cur-buffer
+                               keys-to-send))
+        (user-error (concat tmux-session-for-cur-buffer " was not created"))))
 
     ;; check if the window associated to this session has already been opened from inside
     ;; this program, i.e. if there is a window id
+    (unless (boundp 'cs-cur-tmux-session-window-id)
+      (make-local-variable 'cs-cur-tmux-session-window-id)
+      (setq cs-cur-tmux-session-window-id nil))
     (if (and cs-cur-tmux-session-window-id
              (cs-tmux-terminal-window-exists-p cs-cur-tmux-session-window-id))
         ;; only set focus to it
@@ -120,6 +180,33 @@
       ;; connect to it and open it in external gnome-terminal
       ;; then, set the window id and the name
       (setq cs-cur-tmux-session-window-id (cs-tmux-open-new-terminal-and-attach tmux-session-for-cur-buffer)))))
+
+(defun focus-python-window ()
+  ""
+  (interactive)
+  (python-call ""))
+
+(defun cs-tmux-python-call-send-region ()
+  "This only makes sense once ipdb is already active in tmux.
+I don't know exactly how I would check that though."
+  (interactive)
+  (let* ((region-text (if (region-active-p)
+                          (buffer-substring-no-properties (mark)
+                                                          (point))
+                        "")))
+    (python-call (concat (prin1-to-string region-text)
+                         " ENTER"))))
+
+(defun python-call-general ()
+  ""
+  (interactive)
+  (if (region-active-p)
+      (cs-tmux-python-call-send-region)
+    (python-call)))
+
+(define-key python-mode-map (kbd "C-, e") 'python-call-general)
+(define-key python-mode-map (kbd "C-, o") 'focus-python-window)
+
 
 (provide 'cs-python-tmux-debugger)
 ;;; cs-python-tmux-debugger.el ends here
