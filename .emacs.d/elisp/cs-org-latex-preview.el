@@ -414,5 +414,163 @@ the rendering of inline latex previews."
   (delete-directory "ltximg" t t))
 
 
+;; -------- user-interaction functions
+
+(defconst cs-dynamic-cursor-string-regexp (regexp-quote
+                                           "\\text{\\color{green}{|}}"))
+
+(defconst cs-dynamic-cursor-string (quote "\\text{\\color{green}{|}}"))
+
+(defun cs-dynamic-insert-cursor ()
+  (interactive)
+  ;; TODO: check if the current position is well-suited for inserting a
+  ;; a cursor
+  ;; check if inside a latex environment
+  (if (kk/org-in-latex-fragment-p)
+      (let* ((el (org-element-context)))
+        ;; if there is already a cursor, remove it
+        (save-excursion
+          (cs-dynamic-kill-the-cursor))
+        (save-excursion
+          (setq pt-start (point))
+          (insert (quote "\\text{\\color{green}{|}}"))
+          (setq pt-end (point))))))
+
+(defun cs-dynamic-is-cursor-in-region ()
+  ""
+  ;; you are in a latex environment.
+  ;; search it for the cursor regexp and kill it
+  (interactive)
+  (let* (org-context-beg-point)
+    (if (setq org-context-beg-point (kk/org-in-latex-fragment-p))
+        (let* ((el (org-element-context))
+               (begin-str (org-element-property :begin el))
+               (end-str (org-element-property :end el))
+               (latex-str (buffer-substring-no-properties
+                           begin-str end-str))
+               match-begin
+               match-end
+               match-begin-point
+               match-end-point)
+          (save-excursion
+            (goto-char (org-element-property :begin el))
+            (when (string-match cs-dynamic-cursor-string-regexp
+                                latex-str)
+              (setq match-begin (match-beginning 0))
+              (setq match-end (match-end 0))
+              (when (and (save-excursion
+                           (goto-char (setq match-begin-point (+ begin-str
+                                                                 match-begin)))
+                           (kk/org-in-latex-fragment-p))
+                         (save-excursion
+                           (goto-char (setq match-end-point (+ begin-str
+                                                               match-end)))
+                           (kk/org-in-latex-fragment-p)))
+                (list match-begin-point match-end-point))))))))
+
+
+(defun cs-dynamic-kill-the-cursor ()
+  ""
+  (interactive)
+  (let* (response match-begin-point match-end-point)
+    (setq response (cs-dynamic-is-cursor-in-region))
+    (when response
+      (setq match-begin-point (car response))
+      (setq match-end-point (cadr response))
+      (kill-region match-begin-point match-end-point))))
+
+(defvar-local cs-dynamic-save-point nil)
+
+(defun cs-dynamic-preview-where-I-am ()
+  "If one is editing a latex equation, preview the rendered version,
+including a cursor within it."
+  (interactive)
+  (setq cs-dynamic-save-point (point))
+  (cs-dynamic-insert-cursor)
+  (cs-turn-off-org-dynamic-preview-latex-fragment)
+  (call-interactively 'org-latex-preview))
+
+(defun cs-dynamic-expand-latex-code-and-reset ()
+  "Return from the rendered preview state with the cursor
+to just the plain text editing state, cursor text removed."
+  (interactive)
+  (when cs-dynamic-save-point
+    ;; (cs-turn-on-org-dynamic-preview-latex-fragment)
+    (call-interactively 'org-latex-preview)
+
+    ;; kill the cursor text
+    (cs-dynamic-kill-the-cursor)
+
+    ;; restore save point
+    (goto-char cs-dynamic-save-point)
+
+    (setq cs-dynamic-save-point nil)))
+
+(defun cs-dynamic-toggle-preview ()
+  ""
+  (interactive)
+  ;; use cs-dynamic-save-point as state variable
+  (if cs-dynamic-save-point
+      (cs-dynamic-expand-latex-code-and-reset)
+    (cs-dynamic-preview-where-I-am)))
+
+(defun cs-looking-at-ws-or-nl ()
+  (interactive)
+  (or (looking-at "\s") (looking-at "\n")))
+
+(defun display-prefix (arg)
+  "Display the value of the raw prefix arg."
+  (interactive "P")
+  (message "%s" arg))
+
+(defun cs-look-at-whitespace ()
+  "Reset the cursor so that it looks at a whitespace"
+  (interactive)
+  (let* ((save-point (point)))
+    (if (not (cs-looking-at-ws-or-nl))
+        (if (not (save-excursion (backward-char)
+                                 (when (cs-looking-at-ws-or-nl)
+                                   (setq save-point (point)))))
+            (if (not (save-excursion (backward-char)
+                                      (when (cs-looking-at-ws-or-nl)
+                                        (setq save-point (point)))))
+                (user-error "Something must be wrong, no whitespace found"))))
+    (goto-char save-point)))
+
+(defun cs-org-latex-backward-word ()
+  "It could be more convenient to only search forward/backward to spaces."
+  (interactive)
+  (if (kk/org-in-latex-fragment-p)
+      (progn
+        (re-search-backward "[\s\n]")
+        (cs-look-at-whitespace))
+    (backward-word)))
+
+(defun cs-org-latex-forward-word ()
+  "It could be more convenient to only search forward/backward to spaces."
+  (interactive)
+  (if (kk/org-in-latex-fragment-p)
+      (progn
+        (re-search-forward "[\s\n]")
+        ;; (cs-look-at-whitespace)
+        )
+    (forward-word)))
+
+(define-key org-mode-map (kbd "M-b")
+  'cs-org-latex-backward-word)
+
+(define-key org-mode-map (kbd "M-f")
+  'cs-org-latex-forward-word)
+
+(defvar-local cs-org-interactive-latex-save-point nil)
+
+(defun cs-turn-on-dynamic-latex ()
+  ""
+  (let* ((save-point (point)))
+    (cs-turn-off-org-dynamic-preview-latex-fragment)))
+
+(define-key org-mode-map (kbd "M-r")
+  'cs-org-latex-forward-word)
+
 (provide 'cs-org-latex-preview)
 ;;; cs-org-latex-preview.el ends here

@@ -147,10 +147,14 @@
       ;; create it
       (cs-tmux-create-new-session tmux-session-for-cur-buffer)
       (if (cs-tmux-session-exists-p tmux-session-for-cur-buffer)
-          (let* ((virtualenv-path (when (boundp 'pyvenv-virtual-env) pyvenv-virtual-env))
-                 (virtualenv-activate-script-path (concat (file-name-directory pyvenv-virtual-env)
-                                                          "./bin/activate")))
-            (when pyvenv-virtual-env
+          (let* ((virtualenv-path (when (and (boundp 'pyvenv-virtual-env)
+                                             pyvenv-virtual-env)
+                                    pyvenv-virtual-env))
+                 virtualenv-activate-script-path)
+            (when virtualenv-path
+              (setq virtualenv-activate-script-path
+                    (concat (file-name-directory pyvenv-virtual-env)
+                            "./bin/activate"))
               ;; activate possible virtual environment
               ;; check if it is a conventional virtual environment
               ;; with a bin/actiate script

@@ -1,8 +1,7 @@
-
 * Package-Initialize, repos, path
 ** COMMENT melpa and org repos
 This is done in ~.emacs~.
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
   (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
@@ -84,7 +83,7 @@ customize annoyng defaults
 #+BEGIN_SRC emacs-lisp
 (setq ring-bell-function 'ignore)
 (global-auto-revert-mode 1)
-(setq inhibit-startup-message t) 
+(setq inhibit-startup-message t)
 
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
@@ -205,7 +204,7 @@ Version 0.6.5 produces errors when creating new frames. 0.6.6 fixes this (ostens
 #+RESULTS:
 : undo-tree-redo
 ** helm
-Does a lot of useful auto-completion stuff all over emacs, e.g. when finding files or functions. Great for interactive selection and narrowing. Highly customizable. 
+Does a lot of useful auto-completion stuff all over emacs, e.g. when finding files or functions. Great for interactive selection and narrowing. Highly customizable.
 #+BEGIN_SRC emacs-lisp
 (use-package helm
   :ensure t
@@ -232,7 +231,7 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 #+END_SRC
 
 ** ivy, counsel, swiper
-These three packages work in combination. 
+These three packages work in combination.
 Counsel (a lot of smart autocompletion) and swiper (isearch enhancement/replacement) can be installed like this:
 
 #+BEGIN_SRC shell
@@ -425,7 +424,7 @@ Awesome looking modern themes.
     :ensure t
     :config)
 #+END_SRC
-*** all-the-icons 
+*** all-the-icons
 Provides icons for various themes, also for doom-modeline
 #+BEGIN_SRC emacs-lisp
 (use-package all-the-icons)
@@ -449,6 +448,58 @@ Provides icons for various themes, also for doom-modeline
 
 #+RESULTS:
 : t
+
+** god-mode
+Modal editing, more emacs-like than evil mode.
+#+BEGIN_SRC emacs-lisp
+  (use-package god-mode
+    :ensure t
+    :config
+    (god-mode)
+    (define-key god-local-mode-map (kbd "z") #'repeat)
+    (define-key god-local-mode-map (kbd "L") (lambda ()
+                                               (interactive)
+                                               (call-interactively 'goto-line)
+                                               (recenter)))
+    (define-key god-local-mode-map (kbd "i") (lambda ()
+                                               (interactive)
+                                               (god-local-mode -1)))
+    (define-key god-local-mode-map (kbd ".") #'repeat)
+    (global-set-key (kbd "<escape>")
+                    (lambda ()
+                      (interactive)
+                      (god-local-mode 1)))
+
+    (defun my-god-mode-update-cursor ()
+    (setq cursor-type (if (or god-local-mode buffer-read-only)
+                          'box
+                        'bar)))
+
+  (add-hook 'god-mode-enabled-hook #'my-god-mode-update-cursor)
+  (add-hook 'god-mode-disabled-hook #'my-god-mode-update-cursor)
+
+    ;; (defun my-god-mode-update-modeline ()
+    ;;   (let ((limited-colors-p (> 257 (length (defined-colors)))))
+    ;;     (cond
+    ;;      (god-local-mode (progn
+    ;;                        (set-face-background 'mode-line
+    ;;                                             (if limited-colors-p "white" "#e9e2cb"))
+    ;;                        (set-face-background 'mode-line-inactive
+    ;;                                             (if limited-colors-p "white" "#e9e2cb"))))
+    ;;      (t (progn
+    ;;           (set-face-background 'mode-line
+    ;;                                (if limited-colors-p "black" "#0a2832"))
+    ;;           (set-face-background 'mode-line-inactive
+    ;;                                (if limited-colors-p "black" "#0a2832")))))))
+    ;; (add-hook 'god-mode-enabled-hook #'my-god-mode-update-modeline)
+  ;; (add-hook 'god-mode-disabled-hook #'my-god-mode-update-modeline)
+
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
+
 ** COMMENT evil mode
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
@@ -705,7 +756,7 @@ Provides icons for various themes, also for doom-modeline
 ** COMMENT neotree
 #+BEGIN_SRC emacs-lisp
 (use-package neotree
-  :config 
+  :config
   (global-set-key (kbd "C-, t") 'neotree-toggle))
 #+END_SRC
 
@@ -724,7 +775,7 @@ Provides icons for various themes, also for doom-modeline
 #+RESULTS:
 : t
 
-** crux 
+** crux
 Some commands are re-defined so that they are (may be) more convenient (in certain situations).
 #+BEGIN_SRC emacs-lisp
   (with-no-warnings
@@ -750,9 +801,9 @@ Some commands are re-defined so that they are (may be) more convenient (in certa
 : t
 
 ** free-keys
-Show free key bindings in a particular mode combination.  
+Show free key bindings in a particular mode combination.
 #+BEGIN_SRC emacs-lisp
-  (use-package free-keys 
+  (use-package free-keys
     :ensure t
     :config)
 #+END_SRC
@@ -829,41 +880,47 @@ Provide multiple cursors
 
 * Programming general behaviour
 #+BEGIN_SRC emacs-lisp
-;; automatically indent when press RET
-(global-set-key (kbd "RET") 'newline-and-indent)
+  ;; automatically indent when press RET
+  (global-set-key (kbd "RET") 'newline-and-indent)
 
-;; activate whitespace-mode to view all whitespace characters
-(global-set-key (kbd "C-c w") 'whitespace-mode)
+  ;; activate whitespace-mode to view all whitespace characters
+  (global-set-key (kbd "C-c w") 'whitespace-mode)
 
-;; show unncessary whitespace that can mess up your diff
-(add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
+  ;; show unncessary whitespace that can mess up your diff
+  ;; (add-hook 'prog-mode-hook
+  ;;           (lambda ()
+  ;;             (interactive)
+  ;;             (setq show-trailing-whitespace 1)))
 
-;; use space to indent by default
-(setq-default indent-tabs-mode nil)
+  ;; use space to indent by default
+  (setq-default indent-tabs-mode nil)
 
-;; set appearance of a tab that is represented by 4 spaces
-(setq-default tab-width 4)
+  ;; set appearance of a tab that is represented by 4 spaces
+  (setq-default tab-width 4)
 
-;; navigate through matches in list (may it be compilation messages or tag occurrences)
-(global-set-key (kbd "C-, k") (lambda () (interactive) (next-match -1)))
-(global-set-key (kbd "C-, j") (lambda () (interactive) (next-match +1)))
+  ;; navigate through matches in list (may it be compilation messages or tag occurrences)
+  (global-set-key (kbd "C-, k") (lambda () (interactive) (next-match -1)))
+  (global-set-key (kbd "C-, j") (lambda () (interactive) (next-match +1)))
 
-(add-hook 'prog-mode-hook 'visual-line-mode)
-#+END_SRC
-
-** python
-#+BEGIN_SRC emacs-lisp
-(defun printbreakpoint ()
-  (interactive)
-  (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT"))
-
-(add-hook 'python-mode-hook 
-          (lambda () 
-            (define-key python-mode-map (kbd "C-, b") 'printbreakpoint)))
+  (add-hook 'prog-mode-hook 'visual-line-mode)
 #+END_SRC
 
 #+RESULTS:
-| doom-modeline-env-setup-python | (lambda nil (global-set-key (kbd C-, d) (quote goto-def-or-rgrep))) | elpy-mode | evil-collection-python-set-evil-shift-width | origami-mode | (lambda nil (define-key python-mode-map (kbd C-, b) (quote printbreakpoint))) |
+| visual-line-mode | (lambda nil (interactive) (setq show-trailing-whitespace 1)) |
+
+** python
+#+BEGIN_SRC emacs-lisp
+  (defun printbreakpoint ()
+    (interactive)
+    (insert "import ipdb; ipdb.set_trace()  # noqa BREAKPOINT"))
+
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (define-key python-mode-map (kbd "C-, b") 'printbreakpoint)))
+#+END_SRC
+
+#+RESULTS:
+| anaconda-eldoc-mode | anaconda-mode | origami-mode | (lambda nil (interactive) (define-key python-mode-map (kbd C-)) (quote sp-forward-slurp-sexp)) (define-key python-mode-map (kbd C-}) (quote sp-forward-barf-sexp)) (define-key python-mode-map (kbd <M-up>) (quote sp-splice-sexp-killing-backward))) | (lambda nil (define-key python-mode-map (kbd C-, b) (quote printbreakpoint))) |
 
 ** latex
 #+BEGIN_SRC emacs-lisp
@@ -1044,10 +1101,9 @@ Bind some keys and some hooks
 
 *** ws-butler
 #+BEGIN_SRC emacs-lisp
-(use-package ws-butler
-  :config
-  (add-hook 'c-mode-common-hook 'ws-butler-mode)
-  (add-hook 'emacs-lisp-mode-hook 'ws-butler-mode))
+  (use-package ws-butler
+    :config
+    (add-hook 'prog-mode-hook 'ws-butler-mode))
 #+END_SRC
 
 #+RESULTS:
@@ -1072,7 +1128,6 @@ Bind some keys and some hooks
                 (interactive)
                 (define-key python-mode-map (kbd "C-)") 'sp-forward-slurp-sexp)
                 (define-key python-mode-map (kbd "C-}") 'sp-forward-barf-sexp)
-                (define-key python-mode-map (kbd "C-k") 'sp-kill-sexp)
                 (define-key python-mode-map (kbd "<M-up>") 'sp-splice-sexp-killing-backward))))
 #+END_SRC
 
@@ -1141,7 +1196,7 @@ implements folding for many modes
 : t
 
 *** company
-Completion for many languages or just tools in general, just plug in the right completion front ends. 
+Completion for many languages or just tools in general, just plug in the right completion front ends.
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :ensure t
@@ -1173,7 +1228,7 @@ Completion for many languages or just tools in general, just plug in the right c
     ;; You can use semantic to parse
     ;; and enable jumping to other-than-project-local source files
     (semantic-add-system-include "/usr/local/include")
-    ;; (It takes a while at first, but is fast afterwards) You may use semantic 
+    ;; (It takes a while at first, but is fast afterwards) You may use semantic
     ;; in combination with GNU Global and ggtags
     ;; (semantic-add-system-include "~/linux/include")
   )
@@ -1193,7 +1248,7 @@ Completion for many languages or just tools in general, just plug in the right c
     ;; in latex-mode with auctex, don't use fancy fontification for math
     (setq tex-fontify-script nil)
     (setq font-latex-fontify-script nil)
-    
+
     ;; also don't use big ugly headings
     (setq font-latex-fontify-sectioning 'color)
     (setq font-latex-fontify-sectioning 1.0))
@@ -1204,9 +1259,12 @@ Completion for many languages or just tools in general, just plug in the right c
 ** python
 *** py-autopep8
 #+BEGIN_SRC emacs-lisp
-(use-package py-autopep8
-  :ensure t)
+  (use-package py-autopep8
+    :ensure t
+    (define-key python-mode-map (kbd "C-, s") 'py-autopep8))
 #+END_SRC
+
+#+RESULTS:
 
 *** anaconda-mode
 This is a mode for editing and running python. It actually is not dependent on having anaconda python specifically installed.
@@ -1256,7 +1314,7 @@ This package manages a lot of things all around python development with emacs. I
     ;; (add-hook 'elpy-mode-hook 'elpy-use-ipython)
     ;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
 
-    ;; ;; switch out the standard python interpreter with jupyter 
+    ;; ;; switch out the standard python interpreter with jupyter
     ;; (setq python-shell-interpreter "jupyter"
     ;;       python-shell-interpreter-args "console --simple-prompt"
     ;;       python-shell-prompt-detect-failure-warning nil)
@@ -1282,7 +1340,7 @@ This package manages a lot of things all around python development with emacs. I
 : t
 
 **** setup
-After having installed it in emacs, run ~M-x elpy-config~ to access a GUI (yes, manual setup) which provides a point and click interface to install the packages elpy relies on. Additionally, it shows you information about the underlying RPC process and which python version it uses. 
+After having installed it in emacs, run ~M-x elpy-config~ to access a GUI (yes, manual setup) which provides a point and click interface to install the packages elpy relies on. Additionally, it shows you information about the underlying RPC process and which python version it uses.
 
 *** [[https://github.com/jorgenschaefer/pyvenv][pyvenv]]
 This provides virtual environment support for python. If you want to activate a specific virtual environment
@@ -1306,7 +1364,7 @@ In a specific project, create the file ~.dir-locals.el~ and inside set the comma
 #+END_SRC
 
 *** iedit
-Refactoring 
+Refactoring
 #+BEGIN_SRC emacs-lisp
   (use-package iedit
     :ensure t
@@ -1316,7 +1374,7 @@ Refactoring
 #+RESULTS:
 
 *** helm-ag
-search in all file for a name, and then you can perform operations on these occurrences. 
+search in all file for a name, and then you can perform operations on these occurrences.
 #+BEGIN_SRC emacs-lisp
   (use-package helm-ag
     :ensure t
@@ -1330,7 +1388,7 @@ search in all file for a name, and then you can perform operations on these occu
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
 :ensure t
-:config 
+:config
 (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
 (setq-default flycheck-emacs-lisp-load-path 'inherit)
 )
@@ -1448,14 +1506,14 @@ Complains about unconventional style when writing emacs-lisp packages.
 #+RESULTS:
 : indent-sexp
 
-*** semantic-refactor for lisp 
+*** semantic-refactor for lisp
 This tool is based on semantic. It doesn't really refactor, but it can e.g. reformat a whole emacs-lisp buffer. This is potentially also useful for C/C++.
 #+BEGIN_SRC emacs-lisp
   (use-package srefactor
     :ensure t
     :config
-    (add-hook 'emacs-lisp-mode-hook 
-               (lambda () 
+    (add-hook 'emacs-lisp-mode-hook
+               (lambda ()
                  (require 'srefactor)
                  (require 'srefactor-lisp)
                  (semantic-mode 1)))
@@ -1467,7 +1525,7 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 #+RESULTS:
 : t
 
-*** erefactor 
+*** erefactor
 #+BEGIN_SRC emacs-lisp
   (setq warning-minimum-level :emergency)
   (use-package erefactor
@@ -1715,7 +1773,7 @@ My own ridiculously useful functions
   (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
   (require 'cs-random-string)
 #+END_SRC
-** delete whitespace 
+** delete whitespace
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path (concat (expand-file-name cs-elisp-config-base-dir) "xah/"))
   (require 'delete-whitespace)
