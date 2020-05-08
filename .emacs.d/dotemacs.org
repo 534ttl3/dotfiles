@@ -94,6 +94,8 @@ customize annoyng defaults
 (setq show-paren-delay 0)
 
 (blink-cursor-mode 0)
+;; kill selected region at yank
+(delete-selection-mode 1)  
 
 (setq delete-by-moving-to-trash t)
 #+END_SRC
@@ -190,7 +192,17 @@ Quick up and down navigation
     (previous-line 3)))
 #+END_SRC
 * general packages
-** undo-tree
+** visual-regexp
+like ~query-replace-regexp~, but with live preview everywhere in the buffer, as you type.
+#+BEGIN_SRC emacs-lisp
+  (use-package visual-regexp
+    :ensure t
+    :config)
+#+END_SRC
+
+#+RESULTS:
+
+** Undo-tree
 Version 0.6.5 produces errors when creating new frames. 0.6.6 fixes this (ostensibly).
 #+BEGIN_SRC emacs-lisp
   (require 'undo-tree)
@@ -223,8 +235,16 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
   (require 'helm-fzf)
 #+END_SRC
 
-** helm-projectile
+Make sure that fzf is installed and in your path. 
 #+BEGIN_SRC emacs-lisp
+  (add-to-list 'exec-path "~/.fzf/bin")
+#+END_SRC
+
+#+RESULTS:
+| ~/.fzf/bin | /home/chris/programs/hyve | /home/chris/anaconda3/bin/ | /home/chris/anaconda3/condabin/ | /home/chris/.local/bin/ | /usr/local/sbin/ | /usr/local/bin/ | /usr/sbin/ | /usr/bin/ | /sbin/ | /bin/ | /usr/games/ | /usr/local/games/ | /snap/bin/ | /usr/lib/x86_64-linux-gnu/emacs/26.3/x86_64-linux-gnu/ |
+
+** helm-projectile
+#+BEGIN_SRC emacs-lispshell
   (use-package helm-projectile
     :ensure t
     :config)

@@ -570,7 +570,7 @@ to just the plain text editing state, cursor text removed."
     (cs-turn-off-org-dynamic-preview-latex-fragment)))
 
 (define-key org-mode-map (kbd "M-r")
-  'cs-org-latex-forward-word)
+  'cs-dynamic-toggle-preview)
 
 (provide 'cs-org-latex-preview)
 ;;; cs-org-latex-preview.el ends here

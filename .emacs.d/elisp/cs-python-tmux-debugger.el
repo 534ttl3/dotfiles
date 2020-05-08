@@ -136,7 +136,7 @@
     (user-error "Not a python file"))
 
   (unless keys-to-send
-    (setq keys-to-send (concat (prin1-to-string (concat "python3 " (buffer-file-name)))
+    (setq keys-to-send (concat (prin1-to-string (concat "python3 " (prin1-to-string (buffer-file-name))))
                                " ENTER")))
 
   (let* ((tmux-session-for-cur-buffer (cs-tmux-get-tmux-session-name-for-buffer)))
