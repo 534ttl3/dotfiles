@@ -244,11 +244,31 @@ Make sure that fzf is installed and in your path.
 | ~/.fzf/bin | /home/chris/programs/hyve | /home/chris/anaconda3/bin/ | /home/chris/anaconda3/condabin/ | /home/chris/.local/bin/ | /usr/local/sbin/ | /usr/local/bin/ | /usr/sbin/ | /usr/bin/ | /sbin/ | /bin/ | /usr/games/ | /usr/local/games/ | /snap/bin/ | /usr/lib/x86_64-linux-gnu/emacs/26.3/x86_64-linux-gnu/ |
 
 ** helm-projectile
-#+BEGIN_SRC emacs-lispshell
+#+BEGIN_SRC emacs-lisp
   (use-package helm-projectile
     :ensure t
     :config)
 #+END_SRC
+
+#+RESULTS:
+
+** helm-ag
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-ag
+    :ensure t
+    :config)
+#+END_SRC
+
+#+RESULTS:
+
+** cs-helm-projectile-ag
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/cs-helm-projectile-ag.el"))
+  (define-key prog-mode-map (kbd "C-, C-r") 'cs-helm-projectile-ag)
+#+END_SRC
+
+#+RESULTS:
+: cs-helm-projectile-ag
 
 ** ivy, counsel, swiper
 These three packages work in combination.
@@ -257,6 +277,8 @@ Counsel (a lot of smart autocompletion) and swiper (isearch enhancement/replacem
 #+BEGIN_SRC shell
 sudo apt install elpa-counsel
 #+END_SRC
+
+#+RESULTS:
 
 *** counsel
 #+BEGIN_SRC emacs-lisp
@@ -277,7 +299,16 @@ sudo apt install elpa-counsel
     (setq enable-recursive-minibuffers t)
     ;; enable this if you want `swiper' to use it
     ;; (setq search-default-mode #'char-fold-to-regexp)
-    (global-set-key "\C-s" 'swiper)
+
+    (defun cs-swiper (&optional arg)
+      "If ARG is C-u once, use swiper-thing-at-point"
+      (interactive "P")
+      (if (equal arg '(4))
+          (swiper-isearch-thing-at-point)
+        (swiper-isearch)))
+
+    (global-set-key "\C-s" 'cs-swiper)
+
     (global-set-key (kbd "C-c C-r")
                     'ivy-resume)
     (global-set-key (kbd "<f6>")
@@ -308,16 +339,37 @@ sudo apt install elpa-counsel
                     'counsel-rhythmbox)
     (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
     ;; (global-unset-key (kbd "C-x C-p"))
-    (global-set-key (kbd "C-x C-p")
-                    (lambda ()
-                      (interactive)
-                      (counsel-fzf nil
-                                   (expand-file-name "~"))))
+
+
+    (defun cs-counsel-fzf (arg)
+      (interactive "P")
+      (if (equal arg '(4))
+          (counsel-fzf nil
+                       (expand-file-name "~"))
+        (counsel-fzf ""
+                     (file-name-directory (buffer-file-name))
+                     "in current directory: ")))
+  
+    (global-set-key (kbd "C-x C-p") 'cs-counsel-fzf)
+  
     ;; this calls counsel-find-file
     (add-to-list 'load-path
                  (expand-file-name cs-elisp-config-base-dir))
     (require 'cs-find-file-utils))
 #+END_SRC
+
+#+RESULTS:
+: t
+
+*** swiper-helm
+makes swiper use helm
+#+BEGIN_SRC emacs-lisp
+  (use-package swiper-helm
+    :ensure t
+    :config)
+#+END_SRC
+
+#+RESULTS:
 
 ** hydra
 #+BEGIN_SRC emacs-lisp
@@ -840,7 +892,8 @@ Provide multiple cursors
     (global-set-key (kbd "C->") 'mc/mark-next-like-this)
     (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
     (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-    (global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click))
+    (global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
+    (add-to-list 'mc/cmds-to-run-once 'swiper-mc))
 #+END_SRC
 
 #+RESULTS:
@@ -1090,10 +1143,7 @@ Bind some keys and some hooks
     :config
     (projectile-mode +1)
     (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
-    (with-eval-after-load 'helm-projectile
-      (define-key prog-mode-map (kbd "C-, r") 'helm-projectile-ag)))
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 #+END_SRC
 
 #+RESULTS:
@@ -1260,21 +1310,36 @@ Completion for many languages or just tools in general, just plug in the right c
 ** latex
 *** auctex
 #+BEGIN_SRC emacs-lisp
-(use-package tex
-  :defer t
-  :ensure auctex
-  :config
-    (setq TeX-auto-save t)
-    ;; in latex-mode with auctex, don't use fancy fontification for math
-    (setq tex-fontify-script nil)
-    (setq font-latex-fontify-script nil)
+  (use-package tex
+    :defer t
+    :ensure auctex
+    :config
+      (setq TeX-auto-save t)
+      ;; in latex-mode with auctex, don't use fancy fontification for math
+      (setq tex-fontify-script nil)
+      (setq font-latex-fontify-script nil)
 
-    ;; also don't use big ugly headings
-    (setq font-latex-fontify-sectioning 'color)
-    (setq font-latex-fontify-sectioning 1.0))
+      ;; also don't use big ugly headings
+      (setq font-latex-fontify-sectioning 'color)
+      (setq font-latex-fontify-sectioning 1.0)
+
+      (define-key LaTeX-mode-map (kbd "M-.") 'find-file-at-point)
+      (define-key LaTeX-mode-map (kbd "C-, d") 'find-file-at-point))
 #+END_SRC
 
 #+RESULTS:
+: t
+*** dumb-jump
+#+BEGIN_SRC emacs-lisp
+  (use-package dumb-jump
+    :ensure t
+    :config
+    ;; (add-hook 'LaTeX-mode-hook 'dumb-jump-mode)
+    )
+#+END_SRC
+
+#+RESULTS:
+: t
 
 ** python
 *** py-autopep8

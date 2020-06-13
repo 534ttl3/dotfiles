@@ -23,6 +23,32 @@
 
 ;;; Code:
 
+(defun find-next-file (&optional backward)
+  "Find the next file (of the same type, sorted by name) in the current directory.
+With prefix arg, find the previous file. Adapted from https://emacs.stackexchange.com/a/12164"
+  (interactive "P")
+  (when buffer-file-name
+    (let* ((file (expand-file-name buffer-file-name))
+           (files (cl-remove-if (lambda (file_c)
+                                  (not (string-equal (file-name-extension file_c)
+                                                     (file-name-extension file))))
+                                (cl-remove-if (lambda (file_c)
+                                                (and (cl-first (file-attributes file_c))))
+                                              (sort (directory-files (file-name-directory file)
+                                                                     t
+                                                                     nil
+                                                                     t)
+                                                    'string<))))
+           (pos (mod (+ (cl-position file files :test 'equal)
+                        (if backward -1 1))
+                     (length files))))
+      (find-file (nth pos files)))))
+
+(define-key pdf-view-mode-map (kbd "M-n") 'find-next-file)
+(define-key pdf-view-mode-map (kbd "M-p") (lambda () (interactive)
+                                            (let ((current-prefix-arg 4))
+                                              (call-interactively 'find-next-file))))
+
 (defun cs-dired-open-file-externally ()
     "In dired, open the filepath named on this line."
     (interactive)
