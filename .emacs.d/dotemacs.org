@@ -9,6 +9,8 @@ This is done in ~.emacs~.
   (setq package-check-signature nil)
 #+END_SRC
 
+#+RESULTS:
+
 ** COMMENT package-initialize-packages
 This is done in ~.emacs~ as well.
 #+BEGIN_SRC emacs-lisp
@@ -33,6 +35,8 @@ This is done in ~.emacs~ as well.
      '(org-startup-truncated t)
      )
 #+END_SRC
+
+#+RESULTS:
 
 * global constants
 #+BEGIN_SRC emacs-lisp
@@ -264,6 +268,7 @@ Make sure that fzf is installed and in your path.
 ** cs-helm-projectile-ag
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/cs-helm-projectile-ag.el"))
+  (require 'cs-helm-projectile-ag)
   (define-key prog-mode-map (kbd "C-, C-r") 'cs-helm-projectile-ag)
 #+END_SRC
 
@@ -433,22 +438,26 @@ makes swiper use helm
     (define-key winner-mode-map (kbd "C-c l") 'winner-redo))
 #+END_SRC
 
-#+RESULTS:
-: t
 ** org-mode
 #+BEGIN_SRC emacs-lisp
-    (use-package org
-      :config
-      (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
-      (require 'cs-org-mode-general)
-      (require 'cs-org-mode-utilities)
-      (require 'cs-org-agenda)
-      (require 'cs-org-latex-preview)
-      (require 'cs-org-latex-export)
-      (require 'cs-org-babel)
-      (require 'cs-org-images)
-      (define-key org-mode-map (kbd "C-x C-y") 'cs-paste-image-into-org)
-      (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block))
+  (use-package org
+    :config
+    (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
+    (require 'cs-org-mode-general)
+    (require 'cs-org-mode-utilities)
+    (require 'cs-org-agenda)
+    (require 'cs-org-latex-preview)
+    (require 'cs-org-latex-export)
+    (require 'cs-org-babel)
+    (define-key org-mode-map (kbd "C-, d") 'cs-jump-to-def-from-inside-org-code-block))
+#+END_SRC
+
+** org-image-tools
+my own tools for images in org-mode
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (concat (expand-file-name cs-elisp-config-base-dir) "org-image-tools"))
+  (require 'cs-org-images)
+  (define-key org-mode-map (kbd "C-x C-y") 'cs-paste-image-into-org)
 #+END_SRC
 
 ** style packages
@@ -457,8 +466,6 @@ makes swiper use helm
 (use-package hide-mode-line
   :ensure t)
 #+END_SRC
-
-#+RESULTS:
 
 *** darkroom
 #+BEGIN_SRC emacs-lisp
@@ -997,11 +1004,12 @@ Provide multiple cursors
 
 ** latex
 #+BEGIN_SRC emacs-lisp
-(add-hook 'latex-mode 'show-paren-mode)
+(add-hook 'LaTeX-mode-hook 'show-paren-mode)
+(add-hook 'LaTeX-mode-hook 'visual-line-mode)
 #+END_SRC
 
 #+RESULTS:
-| show-paren-mode |
+| visual-line-mode | show-paren-mode | preview-mode-setup | asy-insinuate-latex-maybe |
 
 ** c/c++
 #+BEGIN_SRC emacs-lisp
@@ -1473,10 +1481,9 @@ search in all file for a name, and then you can perform operations on these occu
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
 :ensure t
-:config
+:config 
 (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
-(setq-default flycheck-emacs-lisp-load-path 'inherit)
-)
+(setq-default flycheck-emacs-lisp-load-path 'inherit))
 #+END_SRC
 
 #+RESULTS:
@@ -1738,6 +1745,7 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
   ;; Show images after evaluating code blocks.
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images))
 #+END_SRC
+
 ** COMMENT scimax
 #+BEGIN_SRC emacs-lisp
 (use-package scimax
@@ -1756,7 +1764,7 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 * my own packages/larger configs
 ** klin
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name "~/Dropbox/1Projects/programming/klin/")) ;
+  (add-to-list 'load-path (file-name-as-directory (concat (expand-file-name cs-elisp-config-base-dir) "klin")))
   (require 'klin)
 #+END_SRC
 
@@ -1766,34 +1774,29 @@ This tool is based on semantic. It doesn't really refactor, but it can e.g. refo
 ** cs-org-transfer
 Enables transferring (or copying) an org file with it's linked assets to anoter directory (1st level links) and if needed pulls the links into a dedicated assets folder (+renames the links to point to the new locations).
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
+  (add-to-list 'load-path (file-name-as-directory (concat (expand-file-name cs-elisp-config-base-dir) "cs-org-transfer")))
   (require 'cs-org-transfer)
 #+END_SRC
 
 #+RESULTS:
 : cs-org-transfer
 
-** cs-org-publish
+** cs-static-blog
+Publishing a github pages blog directly from org-mode notes
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
-  (require 'cs-org-publish)
-#+END_SRC
-
-#+RESULTS:
-: cs-org-publish
-
-** cs-org-blog-html-backend
-#+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
+  (add-to-list 'load-path (concat (expand-file-name cs-elisp-config-base-dir) "cs-static-blog"))
   (require 'cs-org-blog-html-backend)
+  (require 'cs-org-publish)
+  (require 'cs-org-publish-utils)
 #+END_SRC
 
 #+RESULTS:
-: cs-org-blog-html-backend
+: cs-org-publish-utils
 
 ** cs-org-drill
+My org-drill installation
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
+  (add-to-list 'load-path (file-name-as-directory (concat (expand-file-name cs-elisp-config-base-dir) "cs-org-drill")))
   (require 'cs-org-drill)
 #+END_SRC
 
@@ -1806,9 +1809,6 @@ Enables transferring (or copying) an org file with it's linked assets to anoter 
   (require 'cs-style)
   (add-hook 'after-init-hook 'cs-set-style-emacs)
 #+END_SRC
-
-#+RESULTS:
-| cs-set-style-emacs | org-drill--transfer-optimal-factor-matrix | global-company-mode | x-wm-set-size-hint | magit-auto-revert-mode--init-kludge | magit-startup-asserts | magit-version | table--make-cell-map |
 
 ** cs-frame-resize
 #+BEGIN_SRC emacs-lisp
@@ -1837,22 +1837,48 @@ Make a minor mode with keys that override all other keys and always take precend
 
 ** cs-org-latex-preview
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
+  (add-to-list 'load-path (file-name-as-directory (concat (expand-file-name cs-elisp-config-base-dir) "cs-org-latex-preview")))
   (require 'cs-org-latex-preview)
 #+END_SRC
 
 #+RESULTS:
 : cs-org-latex-preview
 
+** asy-mode 
+editing mode for asymptote
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (expand-file-name "/usr/share/emacs/site-lisp/asy-mode.el"))
+  (require 'asy-mode)
+  (autoload 'asy-mode "asy-mode.el" "Asymptote major mode." t)
+  (autoload 'lasy-mode "asy-mode.el" "hybrid Asymptote/Latex major mode." t)
+  (autoload 'asy-insinuate-latex "asy-mode.el" "Asymptote insinuate LaTeX." t)
+  (add-to-list 'auto-mode-alist '("\\.asy$" . asy-mode))
+  nil
+#+END_SRC
+
+#+RESULTS:
+
 ** cs-crux
 My own ridiculously useful functions
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
+  (add-to-list 'load-path (file-name-as-directory (concat (expand-file-name cs-elisp-config-base-dir) "cs-crux")))
   (require 'cs-crux)
 #+END_SRC
 
 #+RESULTS:
 : cs-crux
+
+** jupyters-manager
+Managing jupyter sessions, opening ~.ipynb~ files from within emacs
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (file-name-as-directory (concat (expand-file-name cs-elisp-config-base-dir) "jupyters-manager")))
+  (require 'jupyters-manager)
+#+END_SRC
+
+#+RESULTS:
+: jupyters-manager
+
+
 ** random strings
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
@@ -1869,8 +1895,8 @@ My own ridiculously useful functions
 
 ** cs-python-tmux-debugger
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
-  (require 'cs-python-tmux-debugger)
+  (add-to-list 'load-path (file-name-as-directory (concat (expand-file-name cs-elisp-config-base-dir) "python-tmux-debugger")))
+  (require 'python-tmux-debugger)
 #+END_SRC
 
 #+RESULTS:
