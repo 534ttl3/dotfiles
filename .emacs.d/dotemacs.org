@@ -44,6 +44,11 @@ This is done in ~.emacs~ as well.
   (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
 #+END_SRC
 
+This is the path for (yet) unstructured config code
+#+BEGIN_SRC emacs-lisp
+ (add-to-list 'load-path (file-name-as-directory (concat (expand-file-name cs-elisp-config-base-dir) "fluid")))
+#+END_SRC
+
 * Package-Management
 ** use-package
 #+BEGIN_SRC emacs-lisp
@@ -235,17 +240,17 @@ Does a lot of useful auto-completion stuff all over emacs, e.g. when finding fil
 
 ** helm-fzf
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/helm-fzf"))
+  (add-to-list 'load-path (file-name-as-directory (concat (expand-file-name cs-elisp-config-base-dir) "fluid/helm-fzf")))
   (require 'helm-fzf)
 #+END_SRC
+
+#+RESULTS:
+: helm-fzf
 
 Make sure that fzf is installed and in your path. 
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'exec-path "~/.fzf/bin")
 #+END_SRC
-
-#+RESULTS:
-| ~/.fzf/bin | /home/chris/programs/hyve | /home/chris/anaconda3/bin/ | /home/chris/anaconda3/condabin/ | /home/chris/.local/bin/ | /usr/local/sbin/ | /usr/local/bin/ | /usr/sbin/ | /usr/bin/ | /sbin/ | /bin/ | /usr/games/ | /usr/local/games/ | /snap/bin/ | /usr/lib/x86_64-linux-gnu/emacs/26.3/x86_64-linux-gnu/ |
 
 ** helm-projectile
 #+BEGIN_SRC emacs-lisp
@@ -267,7 +272,7 @@ Make sure that fzf is installed and in your path.
 
 ** cs-helm-projectile-ag
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/cs-helm-projectile-ag.el"))
+  (add-to-list 'load-path (expand-file-name "~/.emacs.d/elisp/fluid/"))
   (require 'cs-helm-projectile-ag)
   (define-key prog-mode-map (kbd "C-, C-r") 'cs-helm-projectile-ag)
 #+END_SRC
@@ -358,8 +363,7 @@ sudo apt install elpa-counsel
     (global-set-key (kbd "C-x C-p") 'cs-counsel-fzf)
   
     ;; this calls counsel-find-file
-    (add-to-list 'load-path
-                 (expand-file-name cs-elisp-config-base-dir))
+    (add-to-list 'load-path (expand-file-name cs-elisp-config-base-dir))
     (require 'cs-find-file-utils))
 #+END_SRC
 
